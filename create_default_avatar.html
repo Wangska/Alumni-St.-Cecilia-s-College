@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Default Avatar Generator</title>
+</head>
+<body>
+    <canvas id="canvas" width="120" height="120" style="border: 1px solid #ccc;"></canvas>
+    <br><br>
+    <button onclick="downloadAvatar()">Download Default Avatar</button>
+    
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Background
+        ctx.fillStyle = '#F3F4F6';
+        ctx.fillRect(0, 0, 120, 120);
+        
+        // Head
+        ctx.fillStyle = '#9CA3AF';
+        ctx.beginPath();
+        ctx.arc(60, 45, 20, 0, 2 * Math.PI);
+        ctx.fill();
+        
+        // Body
+        ctx.fillStyle = '#9CA3AF';
+        ctx.beginPath();
+        ctx.arc(60, 90, 30, 0, 2 * Math.PI);
+        ctx.fill();
+        
+        function downloadAvatar() {
+            const link = document.createElement('a');
+            link.download = 'default-avatar.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+    </script>
+</body>
+</html>

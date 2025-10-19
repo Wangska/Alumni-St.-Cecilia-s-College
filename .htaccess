@@ -1,0 +1,14 @@
+Options -Indexes
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /scratch/
+
+# Force HTTPS if available (optional; comment out if not using SSL)
+#RewriteCond %{HTTPS} !=on
+#RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Deny direct access to inc/
+RewriteRule ^inc/ - [F,L]
+</IfModule>
+
+
