@@ -6,6 +6,7 @@ require_login();
 $user = current_user();
 
 $pdo = get_pdo();
+$pageTitle = 'Share Your Success Story - SCC Alumni';
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -64,151 +65,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Share Your Success Story - SCC Alumni</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<?php include __DIR__ . '/../inc/header.php'; ?>
   <style>
-    body {
-      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-      min-height: 100vh;
-    }
-    
-    .navbar {
-      background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%) !important;
-      box-shadow: 0 4px 20px rgba(220, 38, 38, 0.3);
-      padding: 1rem 0;
-      transition: all 0.3s ease;
-    }
-    
-    .navbar-brand {
-      transition: all 0.3s ease;
-      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.1));
-    }
-    
-    .navbar-brand:hover {
-      transform: scale(1.05);
-      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.2));
-    }
-    
-    .navbar-brand img {
-      height: 55px;
-      width: auto;
-      border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-      transition: all 0.3s ease;
-    }
-    
-    .navbar-brand:hover img {
-      transform: scale(1.05);
-      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-    }
-    
-    .navbar-brand-text {
-      background: linear-gradient(45deg, #ffffff, #f0f9ff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      transition: all 0.3s ease;
-    }
-    
-    .navbar-brand:hover .navbar-brand-text {
-      transform: scale(1.02);
-      text-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    }
-    
-    .nav-link {
-      font-weight: 500;
-      padding: 0.75rem 1.5rem !important;
-      border-radius: 25px;
-      transition: all 0.3s ease;
-      margin: 0 0.25rem;
-      letter-spacing: 0.025em;
-      font-size: 0.9rem;
-      color: rgba(255,255,255,0.9) !important;
-    }
-    
-    .nav-link:hover {
-      color: #ffffff !important;
-      background: rgba(255,255,255,0.1);
-      transform: translateY(-2px);
-    }
-    
-    .nav-link.active {
-      background: rgba(255,255,255,0.15);
-      color: #ffffff !important;
-    }
-    
-    .profile-dropdown {
-      position: relative;
-    }
-    
-    .profile-btn {
-      background: rgba(255,255,255,0.1);
-      border: 2px solid rgba(255,255,255,0.2);
-      color: white;
-      padding: 0.6rem 1rem;
-      border-radius: 25px;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-weight: 500;
-    }
-    
-    .profile-btn:hover {
-      background: rgba(255,255,255,0.2);
-      border-color: rgba(255,255,255,0.3);
-      transform: translateY(-2px);
-    }
-    
-    .profile-avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 3px solid rgba(255,255,255,0.3);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      transition: all 0.3s ease;
-    }
-    
-    .profile-btn:hover .profile-avatar {
-      border-color: rgba(255,255,255,0.5);
-      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-    }
-    
-    .navbar-toggler {
-      border: 2px solid rgba(255,255,255,0.2) !important;
-      border-radius: 12px !important;
-      padding: 0.5rem !important;
-      transition: all 0.3s ease !important;
-    }
-    
-    .navbar-toggler:hover {
-      border-color: rgba(255,255,255,0.4) !important;
-      background: rgba(255,255,255,0.1) !important;
-    }
-    
-    .navbar-toggler:focus {
-      box-shadow: 0 0 0 0.2rem rgba(255,255,255,0.25) !important;
-    }
-    
-    .navbar-toggler-icon {
-      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.85%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
-    }
-    
-    .main-content {
-      padding-top: 2rem;
-      padding-bottom: 2rem;
-    }
-    
     .story-form {
       background: white;
       border-radius: 15px;
@@ -263,82 +121,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       border: none;
     }
   </style>
-</head>
-<body>
-  <!-- Navigation -->
-  <nav class="navbar navbar-expand-lg navbar-dark">
-    <div class="container">
-      <a class="navbar-brand d-flex align-items-center" href="/scratch/dashboard.php">
-        <img src="/scratch/images/scc.png" alt="SCC Logo" class="me-3">
-        <div class="navbar-brand-text">
-          <div style="font-size: 1.1rem; font-weight: 700; line-height: 1.2; color: white;">ST. CECILIA'S COLLEGE</div>
-          <div style="font-size: 0.75rem; font-weight: 500; letter-spacing: 0.5px; margin-top: 2px; color: rgba(255,255,255,0.9);">ALUMNI PORTAL</div>
-        </div>
-      </a>
-      
-      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" style="border: 2px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 0.5rem; transition: all 0.3s ease;">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav me-auto">
-          <li class="nav-item">
-            <a class="nav-link" href="/scratch/dashboard.php#news">
-              <i class="fas fa-newspaper me-2"></i>News
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/scratch/dashboard.php#jobs">
-              <i class="fas fa-briefcase me-2"></i>Jobs
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/scratch/dashboard.php#testimonials">
-              <i class="fas fa-quote-left me-2"></i>Testimonials
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link active" href="/scratch/dashboard.php#success-stories">
-              <i class="fas fa-star me-2"></i>Success Stories
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/scratch/forum/index.php">
-              <i class="fas fa-comments me-2"></i>Forum
-            </a>
-          </li>
-        </ul>
-        
-        <!-- Profile Dropdown -->
-        <div class="profile-dropdown">
-          <button class="btn profile-btn" type="button" data-bs-toggle="dropdown" style="background: linear-gradient(135deg, #dc2626, #b91c1c); border: none; border-radius: 25px; padding: 8px 16px; color: white; font-weight: 600; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3); transition: all 0.3s ease;">
-            <div class="profile-avatar bg-white d-flex align-items-center justify-content-center text-primary" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.3);">
-              <i class="fas fa-user" style="font-size: 14px;"></i>
-            </div>
-            <span style="font-size: 14px; margin-left: 8px;"><?= htmlspecialchars($user['username']) ?></span>
-            <i class="fas fa-chevron-down ms-2" style="font-size: 12px; transition: transform 0.3s ease;"></i>
-          </button>
-          <ul class="dropdown-menu dropdown-menu-end" style="border: none; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); padding: 8px; min-width: 280px; background: white; backdrop-filter: blur(10px);">
-            <li class="px-3 py-3 border-bottom" style="background: linear-gradient(135deg, #f8fafc, #e2e8f0); border-radius: 12px; margin-bottom: 8px;">
-              <div class="d-flex align-items-center">
-                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center text-white me-3" style="width: 48px; height: 48px; border: 3px solid #dc2626;">
-                  <i class="fas fa-user"></i>
-                </div>
-                <div>
-                  <div class="fw-bold text-dark" style="font-size: 16px;"><?= htmlspecialchars($user['username']) ?></div>
-                  <small class="text-muted" style="font-size: 13px;">User Account</small>
-                </div>
-              </div>
-            </li>
-            <li><a class="dropdown-item" href="/scratch/dashboard.php" style="border-radius: 10px; margin: 2px 0; padding: 12px 16px; transition: all 0.3s ease; color: #374151; font-weight: 500;"><i class="fas fa-tachometer-alt me-3" style="color: #3b82f6; width: 20px;"></i>Dashboard</a></li>
-            <li><a class="dropdown-item" href="/scratch/profile.php" style="border-radius: 10px; margin: 2px 0; padding: 12px 16px; transition: all 0.3s ease; color: #374151; font-weight: 500;"><i class="fas fa-user me-3" style="color: #10b981; width: 20px;"></i>Profile</a></li>
-            <li><hr class="dropdown-divider" style="margin: 8px 0; border-color: #e5e7eb;"></li>
-            <li><a class="dropdown-item text-danger" href="/scratch/logout.php" style="border-radius: 10px; margin: 2px 0; padding: 12px 16px; transition: all 0.3s ease; font-weight: 600;"><i class="fas fa-sign-out-alt me-3" style="color: #dc2626; width: 20px;"></i>Logout</a></li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </nav>
 
   <!-- Main Content -->
   <div class="container main-content">
@@ -427,7 +209,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     // Character count for title
     document.getElementById('title').addEventListener('input', function() {
@@ -475,5 +256,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       }
     });
   </script>
-</body>
-</html>
+<?php include __DIR__ . '/../inc/footer.php'; ?>
