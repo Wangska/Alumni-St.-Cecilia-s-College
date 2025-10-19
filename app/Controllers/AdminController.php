@@ -212,6 +212,14 @@ class AdminController extends Controller
                     $_SESSION['error'] = 'Failed to process the request. Please try again.';
                 }
             }
+
+            // If AJAX request, return JSON so the page can reload once without consuming the toast
+            if (isset($_POST['ajax'])) {
+                $message = $_SESSION['success'] ?? $_SESSION['deleted'] ?? $_SESSION['warning'] ?? $_SESSION['error'] ?? '';
+                header('Content-Type: application/json');
+                echo json_encode(['success' => true, 'message' => $message]);
+                return; // Stop rendering the full view for POST/AJAX
+            }
         }
 
         // Fetch all success stories
@@ -278,6 +286,13 @@ class AdminController extends Controller
                 } catch (Exception $e) {
                     $_SESSION['error'] = 'Failed to process the request. Please try again.';
                 }
+            }
+
+            if (isset($_POST['ajax'])) {
+                $message = $_SESSION['success'] ?? $_SESSION['deleted'] ?? $_SESSION['warning'] ?? $_SESSION['error'] ?? '';
+                header('Content-Type: application/json');
+                echo json_encode(['success' => true, 'message' => $message]);
+                return;
             }
         }
 

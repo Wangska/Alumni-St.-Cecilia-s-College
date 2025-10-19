@@ -41,8 +41,10 @@ ob_start();
 }
 
 .story-image {
-    max-height: 200px;
+    height: 400px;
+    width: 100%;
     object-fit: cover;
+    object-position: top center;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
@@ -359,7 +361,7 @@ ob_start();
                 <!-- Stories List -->
                 <div class="row">
                     <?php foreach ($stories ?? [] as $story): ?>
-                        <div class="col-lg-6 mb-4">
+                        <div class="col-lg-3 col-md-4 mb-4">
                             <div class="story-card <?= $story['status'] ? 'approved' : 'pending' ?>">
                                 <div class="story-header">
                                     <div class="d-flex justify-content-between align-items-center">
@@ -615,8 +617,9 @@ document.addEventListener('DOMContentLoaded', function() {
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             const fd = new FormData(form);
+            fd.append('ajax', '1');
             fetch(window.location.href, { method: 'POST', body: fd, credentials: 'same-origin' })
-                .then(() => { window.location.reload(); })
+                .then(res => res.json()).then(() => { window.location.reload(); })
                 .catch(() => { window.location.reload(); });
         });
     }

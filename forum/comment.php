@@ -23,10 +23,13 @@ if ($_POST && isset($_POST['comment']) && isset($_POST['topic_id'])) {
             $stmt = $pdo->prepare("INSERT INTO forum_comments (topic_id, user_id, comment, date_created) VALUES (?, ?, ?, NOW())");
             $stmt->execute([$topicId, $user['id'], $comment]);
             
+            // Get the comment ID
+            $commentId = $pdo->lastInsertId();
+            
             // Log the comment activity
             ActivityLogger::logCreate($user['username'], 'Forum Comment', 'Commented on topic ID: ' . $topicId);
             
-            echo json_encode(['success' => true, 'message' => 'Comment posted successfully']);
+            echo json_encode(['success' => true, 'message' => 'Comment posted successfully', 'comment_id' => $commentId]);
             exit;
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'message' => 'Failed to post comment: ' . $e->getMessage()]);

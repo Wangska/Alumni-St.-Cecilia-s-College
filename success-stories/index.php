@@ -54,8 +54,10 @@ include __DIR__ . '/../inc/header.php';
 }
 
 .story-image {
-    max-height: 300px;
+    height: 480px;
+    width: 100%;
     object-fit: cover;
+    object-position: top center;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
@@ -77,17 +79,14 @@ include __DIR__ . '/../inc/header.php';
 }
 
 .btn-read-more {
-    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    background: #dc2626;
     color: white;
-    padding: 0.75rem 1.5rem;
-    border-radius: 12px;
-    font-weight: 700;
+    border: none;
+    padding: 8px 16px;
+    font-weight: 600;
+    border-radius: 8px;
     font-size: 0.9rem;
     transition: all 0.3s ease;
-    border: none;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
 }
 
 .btn-read-more:hover {
@@ -180,11 +179,14 @@ include __DIR__ . '/../inc/header.php';
 }
 
 .story-modal-image {
-    max-height: 400px;
-    object-fit: cover;
+    max-height: 500px;
+    width: 100%;
+    object-fit: contain;
+    object-position: center;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     margin-bottom: 1.5rem;
+    background: #f8fafc;
 }
 
 .story-modal-title {
@@ -434,50 +436,28 @@ include __DIR__ . '/../inc/header.php';
                 <!-- Stories Grid -->
                 <div class="row">
                     <?php foreach ($stories as $story): ?>
-                        <div class="col-lg-6 mb-4">
-                            <div class="story-card">
-                                <div class="story-header">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <h5 class="mb-1" style="color: #2d3142; font-weight: 700; font-size: 1.25rem;">
-                                                <?= htmlspecialchars($story['title']) ?>
-                                            </h5>
-                                            <small class="text-muted" style="font-size: 0.9rem;">
-                                                <i class="fas fa-user me-1"></i>
-                                                <?= htmlspecialchars($story['firstname'] . ' ' . $story['lastname']) ?>
-                                                <span class="mx-2">•</span>
-                                                <i class="fas fa-calendar me-1"></i>
-                                                <?= date('M d, Y', strtotime($story['created'])) ?>
-                                            </small>
-                                        </div>
-                                        <div>
-                                            <span class="badge" style="background: linear-gradient(135deg, #d1fae5, #a7f3d0); color: #065f46; padding: 0.5rem 1rem; border-radius: 20px; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">
-                                                Approved
-                                            </span>
-                                        </div>
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="card border-0 shadow h-100" style="border-radius: 12px; overflow: hidden;">
+                                <?php if (!empty($story['image'])): ?>
+                                    <img src="/scratch/<?= htmlspecialchars($story['image']) ?>" 
+                                         alt="<?= htmlspecialchars($story['title']) ?>" 
+                                         class="story-image" 
+                                         style="width: 100%;">
+                                <?php else: ?>
+                                    <div style="height: 480px; background: linear-gradient(135deg, #dc2626, #b91c1c); display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-star text-white" style="font-size: 4rem;"></i>
                                     </div>
-                                </div>
+                                <?php endif; ?>
                                 
-                                <div class="story-body">
-                                    <?php if (!empty($story['image'])): ?>
-                                        <div class="mb-3">
-                                            <img src="/scratch/<?= htmlspecialchars($story['image']) ?>" 
-                                                 alt="<?= htmlspecialchars($story['title']) ?>" 
-                                                 class="story-image" 
-                                                 style="width: 100%;">
-                                        </div>
-                                    <?php endif; ?>
+                                <div class="card-body p-4 d-flex flex-column">
+                                    <h5 class="fw-bold mb-2" style="color:#1f2937;"><?= htmlspecialchars($story['title']) ?></h5>
+                                    <p class="text-muted small mb-2"><?= htmlspecialchars($story['firstname'] . ' ' . $story['lastname']) ?></p>
+                                    <p class="mb-3" style="line-height:1.7; color:#4b5563; font-style: italic;">"<?= htmlspecialchars(substr($story['content'], 0, 120)) ?><?= strlen($story['content']) > 120 ? '...' : '' ?>"</p>
                                     
-                                    <p class="card-text" style="color: #4b5563; line-height: 1.6; font-size: 0.95rem;">
-                                        <?= htmlspecialchars(substr($story['content'], 0, 200)) ?><?= strlen($story['content']) > 200 ? '...' : '' ?>
-                                    </p>
-                                </div>
-                                
-                                <div class="story-footer">
-                                    <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex justify-content-between align-items-center mt-auto">
                                         <small class="text-muted">
-                                            <i class="fas fa-eye me-1"></i>
-                                            Read the full story
+                                            <i class="fas fa-calendar me-1"></i>
+                                            <?= date('M d, Y', strtotime($story['created'])) ?>
                                         </small>
                                         <button type="button" class="btn btn-read-more" 
                                                 data-bs-toggle="modal" data-bs-target="#storyModal" 

@@ -26,7 +26,13 @@ if ($user['type'] == 3 && isset($user['alumnus_id']) && $user['alumnus_id'] > 0)
 // Fetch forum topics
 $topics = [];
 try {
-    $stmt = $pdo->prepare("SELECT ft.*, u.name as author_name FROM forum_topics ft LEFT JOIN users u ON ft.user_id = u.id ORDER BY ft.date_created DESC");
+    $stmt = $pdo->prepare("
+        SELECT ft.*, u.name as author_name, ab.avatar as author_avatar, ab.firstname, ab.lastname 
+        FROM forum_topics ft 
+        LEFT JOIN users u ON ft.user_id = u.id 
+        LEFT JOIN alumnus_bio ab ON u.alumnus_id = ab.id 
+        ORDER BY ft.date_created DESC
+    ");
     $stmt->execute();
     $topics = $stmt->fetchAll();
 } catch (Exception $e) {
@@ -317,6 +323,23 @@ try {
             margin-right: 12px;
             flex-shrink: 0;
         }
+        
+        .comment-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .comment-actions .btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+        
+        .comment-actions .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
         .comment-content {
             flex: 1;
         }
@@ -526,7 +549,14 @@ try {
                         // Fetch comments for this topic
                         $topicComments = [];
                         try {
-                            $stmt = $pdo->prepare("SELECT fc.*, u.name as author_name FROM forum_comments fc LEFT JOIN users u ON fc.user_id = u.id WHERE fc.topic_id = ? ORDER BY fc.date_created ASC");
+                            $stmt = $pdo->prepare("
+                                SELECT fc.*, u.name as author_name, ab.avatar as author_avatar, ab.firstname, ab.lastname 
+                                FROM forum_comments fc 
+                                LEFT JOIN users u ON fc.user_id = u.id 
+                                LEFT JOIN alumnus_bio ab ON u.alumnus_id = ab.id 
+                                WHERE fc.topic_id = ? 
+                                ORDER BY fc.date_created ASC
+                            ");
                             $stmt->execute([$topic['id']]);
                             $topicComments = $stmt->fetchAll();
                         } catch (Exception $e) {
@@ -540,7 +570,13 @@ try {
                             <div class="thread-header">
                                 <div class="d-flex align-items-start">
                                     <div class="thread-avatar">
-                                        <i class="fas fa-user"></i>
+                                        <?php if (!empty($topic['author_avatar'])): ?>
+                                            <img src="/scratch/uploads/<?= htmlspecialchars($topic['author_avatar']) ?>" 
+                                                 alt="<?= htmlspecialchars($topic['author_name'] ?? 'User') ?>" 
+                                                 style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                                        <?php else: ?>
+                                            <i class="fas fa-user"></i>
+                                        <?php endif; ?>
                                     </div>
                                     <div class="thread-content">
                                         <div class="thread-meta">
@@ -569,14 +605,39 @@ try {
                                         <div class="comment-item">
                                             <div class="d-flex align-items-start">
                                                 <div class="comment-avatar">
-                                                    <i class="fas fa-user"></i>
+                                                    <?php if (!empty($comment['author_avatar'])): ?>
+                                                        <img src="/scratch/uploads/<?= htmlspecialchars($comment['author_avatar']) ?>" 
+                                                             alt="<?= htmlspecialchars($comment['author_name'] ?? 'User') ?>" 
+                                                             style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                                                    <?php else: ?>
+                                                        <i class="fas fa-user"></i>
+                                                    <?php endif; ?>
                                                 </div>
                                                 <div class="comment-content">
                                                     <div class="comment-meta">
-                                                        <strong><?= htmlspecialchars($comment['author_name'] ?? 'Anonymous') ?></strong>
-                                                        <span class="text-muted">@<?= strtolower(str_replace(' ', '', $comment['author_name'] ?? 'anonymous')) ?></span>
-                                                        <span class="text-muted">·</span>
-                                                        <span class="text-muted"><?= date('M d', strtotime($comment['date_created'])) ?></span>
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <div>
+                                                                <strong><?= htmlspecialchars($comment['author_name'] ?? 'Anonymous') ?></strong>
+                                                                <span class="text-muted">@<?= strtolower(str_replace(' ', '', $comment['author_name'] ?? 'anonymous')) ?></span>
+                                                                <span class="text-muted">·</span>
+                                                                <span class="text-muted"><?= date('M d', strtotime($comment['date_created'])) ?></span>
+                                                            </div>
+                                                            <?php if ($comment['user_id'] == $user['id']): ?>
+                                                                <div class="comment-actions">
+                                                                    <button class="btn btn-sm btn-outline-primary edit-comment-btn" 
+                                                                            data-comment-id="<?= $comment['id'] ?>" 
+                                                                            data-comment-text="<?= htmlspecialchars($comment['comment']) ?>"
+                                                                            title="Edit comment">
+                                                                        <i class="fas fa-edit"></i>
+                                                                    </button>
+                                                                    <button class="btn btn-sm btn-outline-danger delete-comment-btn" 
+                                                                            data-comment-id="<?= $comment['id'] ?>"
+                                                                            title="Delete comment">
+                                                                        <i class="fas fa-trash"></i>
+                                                                    </button>
+                                                                </div>
+                                                            <?php endif; ?>
+                                                        </div>
                                                     </div>
                                                     <div class="comment-text">
                                                         <?= nl2br(htmlspecialchars($comment['comment'])) ?>
@@ -605,7 +666,13 @@ try {
                                     <form class="comment-form-ajax" data-topic-id="<?= $topic['id'] ?>">
                                         <div class="d-flex align-items-start">
                                             <div class="comment-avatar">
-                                                <i class="fas fa-user"></i>
+                                                <?php if (!empty($alumni['avatar'])): ?>
+                                                    <img src="/scratch/uploads/<?= htmlspecialchars($alumni['avatar']) ?>" 
+                                                         alt="<?= htmlspecialchars($user['name']) ?>" 
+                                                         style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                                                <?php else: ?>
+                                                    <i class="fas fa-user"></i>
+                                                <?php endif; ?>
                                             </div>
                                             <div class="comment-input-wrapper">
                                                 <textarea class="form-control comment-input" name="comment" placeholder="Add a comment..." rows="2" required></textarea>
@@ -630,6 +697,31 @@ try {
                         <p class="text-muted">Check back later for discussions</p>
                     </div>
                 <?php endif; ?>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Comment Modal -->
+    <div class="modal fade" id="deleteCommentModal" tabindex="-1" aria-labelledby="deleteCommentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 16px; border: none; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+                <div class="modal-body text-center py-4">
+                    <div class="mb-4">
+                        <div class="bg-danger bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <i class="fas fa-exclamation-triangle text-danger" style="font-size: 2rem;"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-2">Delete Comment</h5>
+                        <p class="text-muted mb-0">Are you sure you want to delete this comment? This action cannot be undone.</p>
+                    </div>
+                    <div class="d-flex gap-3 justify-content-center">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal" style="border-radius: 12px; padding: 0.75rem 2rem; font-weight: 600;">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </button>
+                        <button type="button" class="btn btn-danger" id="confirmDeleteBtn" style="border-radius: 12px; padding: 0.75rem 2rem; font-weight: 600;">
+                            <i class="fas fa-trash me-2"></i>Delete
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -671,8 +763,8 @@ try {
                             // Clear the textarea
                             this.querySelector('textarea').value = '';
                             
-                            // Add new comment to the thread
-                            addCommentToThread(topicId, commentText);
+                            // Add new comment to the thread with real comment ID
+                            addCommentToThread(topicId, commentText, data.comment_id);
                         } else {
                             alert('Error: ' + data.message);
                         }
@@ -708,9 +800,73 @@ try {
                     }
                 });
             });
+            
+            // Edit comment functionality - inline editing
+            document.querySelectorAll('.edit-comment-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    const commentId = this.dataset.commentId;
+                    const commentText = this.dataset.commentText;
+                    
+                    // Find the comment text element
+                    const commentItem = this.closest('.comment-item');
+                    const commentTextElement = commentItem.querySelector('.comment-text');
+                    const actionsContainer = commentItem.querySelector('.comment-actions');
+                    
+                    // Store original content
+                    const originalText = commentTextElement.innerHTML;
+                    
+                    // Replace with textarea
+                    commentTextElement.innerHTML = `
+                        <div class="d-flex flex-column gap-2">
+                            <textarea class="form-control" rows="3" style="border-radius: 8px; border: 2px solid #e5e7eb; resize: vertical;">${commentText}</textarea>
+                            <div class="d-flex gap-2 justify-content-end">
+                                <button class="btn btn-sm btn-outline-secondary cancel-edit-btn">
+                                    <i class="fas fa-times me-1"></i>Cancel
+                                </button>
+                                <button class="btn btn-sm btn-primary save-edit-btn">
+                                    <i class="fas fa-save me-1"></i>Save
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Hide original actions
+                    actionsContainer.style.display = 'none';
+                    
+                    // Add event listeners for save/cancel
+                    const saveBtn = commentTextElement.querySelector('.save-edit-btn');
+                    const cancelBtn = commentTextElement.querySelector('.cancel-edit-btn');
+                    const textarea = commentTextElement.querySelector('textarea');
+                    
+                    saveBtn.addEventListener('click', function() {
+                        const newText = textarea.value.trim();
+                        if (newText) {
+                            saveCommentEdit(commentId, newText, commentItem, originalText);
+                        } else {
+                            alert('Comment cannot be empty.');
+                        }
+                    });
+                    
+                    cancelBtn.addEventListener('click', function() {
+                        commentTextElement.innerHTML = originalText;
+                        actionsContainer.style.display = 'flex';
+                    });
+                    
+                    // Focus on textarea
+                    textarea.focus();
+                });
+            });
+            
+            // Delete comment functionality - modal
+            document.querySelectorAll('.delete-comment-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    const commentId = this.dataset.commentId;
+                    showDeleteModal(commentId);
+                });
+            });
         });
         
-        function addCommentToThread(topicId, commentText) {
+        function addCommentToThread(topicId, commentText, commentId = null) {
             // Find the thread for this topic
             const threadCard = document.querySelector(`[data-topic-id="${topicId}"]`).closest('.thread-card');
             const commentsSection = threadCard.querySelector('.thread-comments');
@@ -721,14 +877,37 @@ try {
             commentElement.innerHTML = `
                 <div class="d-flex align-items-start">
                     <div class="comment-avatar">
-                        <i class="fas fa-user"></i>
+                        <?php if (!empty($alumni['avatar'])): ?>
+                            <img src="/scratch/uploads/<?= htmlspecialchars($alumni['avatar']) ?>" 
+                                 alt="<?= htmlspecialchars($user['name']) ?>" 
+                                 style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                        <?php else: ?>
+                            <i class="fas fa-user"></i>
+                        <?php endif; ?>
                     </div>
                     <div class="comment-content">
                         <div class="comment-meta">
-                            <strong><?= htmlspecialchars($_SESSION['user']['name'] ?? 'You') ?></strong>
-                            <span class="text-muted">@<?= strtolower(str_replace(' ', '', $_SESSION['user']['name'] ?? 'you')) ?></span>
-                            <span class="text-muted">·</span>
-                            <span class="text-muted">Just now</span>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong><?= htmlspecialchars($user['name']) ?></strong>
+                                    <span class="text-muted">@<?= strtolower(str_replace(' ', '', $user['name'])) ?></span>
+                                    <span class="text-muted">·</span>
+                                    <span class="text-muted">Just now</span>
+                                </div>
+                                <div class="comment-actions">
+                                    <button class="btn btn-sm btn-outline-primary edit-comment-btn" 
+                                            data-comment-id="${commentId || 'temp-' + Date.now()}" 
+                                            data-comment-text="${commentText.replace(/"/g, '&quot;')}"
+                                            title="Edit comment">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger delete-comment-btn" 
+                                            data-comment-id="${commentId || 'temp-' + Date.now()}"
+                                            title="Delete comment">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                         <div class="comment-text">
                             ${commentText.replace(/\n/g, '<br>')}
@@ -741,8 +920,166 @@ try {
             const commentForm = commentsSection.querySelector('.comment-form');
             commentsSection.insertBefore(commentElement, commentForm);
             
+            // Add event listeners to the new comment buttons
+            const editBtn = commentElement.querySelector('.edit-comment-btn');
+            const deleteBtn = commentElement.querySelector('.delete-comment-btn');
+            
+            // Update comment IDs if we have a real comment ID
+            if (commentId && !commentId.toString().startsWith('temp-')) {
+                if (editBtn) editBtn.dataset.commentId = commentId;
+                if (deleteBtn) deleteBtn.dataset.commentId = commentId;
+            }
+            
+            if (editBtn) {
+                editBtn.addEventListener('click', function() {
+                    const commentId = this.dataset.commentId;
+                    const commentText = this.dataset.commentText;
+                    
+                    // Find the comment text element
+                    const commentItem = this.closest('.comment-item');
+                    const commentTextElement = commentItem.querySelector('.comment-text');
+                    const actionsContainer = commentItem.querySelector('.comment-actions');
+                    
+                    // Store original content
+                    const originalText = commentTextElement.innerHTML;
+                    
+                    // Replace with textarea
+                    commentTextElement.innerHTML = `
+                        <div class="d-flex flex-column gap-2">
+                            <textarea class="form-control" rows="3" style="border-radius: 8px; border: 2px solid #e5e7eb; resize: vertical;">${commentText}</textarea>
+                            <div class="d-flex gap-2 justify-content-end">
+                                <button class="btn btn-sm btn-outline-secondary cancel-edit-btn">
+                                    <i class="fas fa-times me-1"></i>Cancel
+                                </button>
+                                <button class="btn btn-sm btn-primary save-edit-btn">
+                                    <i class="fas fa-save me-1"></i>Save
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Hide original actions
+                    actionsContainer.style.display = 'none';
+                    
+                    // Add event listeners for save/cancel
+                    const saveBtn = commentTextElement.querySelector('.save-edit-btn');
+                    const cancelBtn = commentTextElement.querySelector('.cancel-edit-btn');
+                    const textarea = commentTextElement.querySelector('textarea');
+                    
+                    saveBtn.addEventListener('click', function() {
+                        const newText = textarea.value.trim();
+                        if (newText) {
+                            saveCommentEdit(commentId, newText, commentItem, originalText);
+                        } else {
+                            alert('Comment cannot be empty.');
+                        }
+                    });
+                    
+                    cancelBtn.addEventListener('click', function() {
+                        commentTextElement.innerHTML = originalText;
+                        actionsContainer.style.display = 'flex';
+                    });
+                    
+                    // Focus on textarea
+                    textarea.focus();
+                });
+            }
+            
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', function() {
+                    const commentId = this.dataset.commentId;
+                    showDeleteModal(commentId);
+                });
+            }
+            
             // Scroll to the new comment
             commentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        
+        let currentDeleteCommentId = null;
+        
+        // Confirm delete button
+        document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+            if (currentDeleteCommentId) {
+                deleteComment(currentDeleteCommentId);
+            }
+        });
+        
+        function showDeleteModal(commentId) {
+            currentDeleteCommentId = commentId;
+            const modal = new bootstrap.Modal(document.getElementById('deleteCommentModal'));
+            modal.show();
+        }
+        
+        function saveCommentEdit(commentId, newText, commentItem, originalText) {
+            console.log('Attempting to edit comment:', commentId, newText);
+            
+            fetch('edit_comment.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `comment_id=${commentId}&comment=${encodeURIComponent(newText)}`
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Response data:', data);
+                if (data.success) {
+                    // Update the comment text
+                    const commentTextElement = commentItem.querySelector('.comment-text');
+                    commentTextElement.innerHTML = newText.replace(/\n/g, '<br>');
+                    
+                    // Show actions again
+                    const actionsContainer = commentItem.querySelector('.comment-actions');
+                    actionsContainer.style.display = 'flex';
+                    
+                    // Update the data attribute for future edits
+                    const editBtn = commentItem.querySelector('.edit-comment-btn');
+                    editBtn.dataset.commentText = newText;
+                } else {
+                    alert('Error: ' + data.message);
+                    // Restore original content
+                    commentItem.querySelector('.comment-text').innerHTML = originalText;
+                    commentItem.querySelector('.comment-actions').style.display = 'flex';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to update comment. Please try again.');
+                // Restore original content
+                commentItem.querySelector('.comment-text').innerHTML = originalText;
+                commentItem.querySelector('.comment-actions').style.display = 'flex';
+            });
+        }
+        
+        function deleteComment(commentId) {
+            fetch('delete_comment.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `comment_id=${commentId}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('deleteCommentModal'));
+                    modal.hide();
+                    
+                    // Reload page to show updated comments
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to delete comment. Please try again.');
+            });
         }
         
         function addMoreCommentsToThread(topicId, comments) {

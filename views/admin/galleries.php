@@ -95,24 +95,9 @@ ob_start();
 }
 </style>
 
-<!-- Success/Error Messages -->
-<?php if (!empty($_SESSION['success'])): ?>
-    <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
-        <i class="fas fa-check-circle me-2"></i>
-        <?= htmlspecialchars($_SESSION['success']) ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-    <?php unset($_SESSION['success']); ?>
-<?php endif; ?>
-
-<?php if (!empty($_SESSION['error'])): ?>
-    <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
-        <i class="fas fa-exclamation-circle me-2"></i>
-        <?= htmlspecialchars($_SESSION['error']) ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-    <?php unset($_SESSION['error']); ?>
-<?php endif; ?>
+<!-- Success/Error Messages handled by global admin toasts in views/layouts/admin.php -->
+<?php if (!empty($_SESSION['success'])) { unset($_SESSION['success']); } ?>
+<?php if (!empty($_SESSION['error'])) { unset($_SESSION['error']); } ?>
 
 <!-- Stats Bar -->
 <div class="search-filter-bar mb-4">
@@ -316,38 +301,7 @@ ob_start();
     </div>
 </div>
 
-<!-- Success Modal -->
-<div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="border-radius: 20px; border: none; overflow: hidden; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);">
-            <div class="modal-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 30px; border: none; text-align: center;">
-                <div class="success-icon" style="width: 80px; height: 80px; background: rgba(255, 255, 255, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
-                    <i class="fas fa-check" style="font-size: 2.5rem; color: white;"></i>
-                </div>
-                <h5 class="modal-title mb-0" style="font-weight: 700; font-size: 1.5rem;">Upload Successful!</h5>
-            </div>
-            <div class="modal-body" style="padding: 30px; text-align: center;">
-                <p class="mb-3" style="font-size: 1.1rem; color: #374151; line-height: 1.6;">
-                    Your images have been uploaded successfully to the gallery.
-                </p>
-                <div class="success-details" style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 20px; margin: 20px 0;">
-                    <div class="d-flex align-items-center justify-content-center mb-2">
-                        <i class="fas fa-images me-2" style="color: #10b981; font-size: 1.2rem;"></i>
-                        <span style="font-weight: 600; color: #065f46;">Gallery Updated</span>
-                    </div>
-                    <p class="mb-0" style="font-size: 0.95rem; color: #047857;">
-                        The images are now visible in your gallery and can be viewed by visitors.
-                    </p>
-                </div>
-            </div>
-            <div class="modal-footer" style="padding: 20px 30px; border-top: 1px solid #e5e7eb; background: #f9fafb;">
-                <button type="button" class="btn btn-success w-100" data-bs-dismiss="modal" style="border-radius: 12px; padding: 12px; font-weight: 600; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none;">
-                    <i class="fas fa-check me-2"></i>Got It, Thanks!
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+<!-- Success Modal removed: success handled by global toast -->
 
 <style>
 #deleteModal .btn:hover {
@@ -443,12 +397,12 @@ function showImagePreviews(input) {
     }
 }
 
-// Show success modal after upload
-<?php if (isset($_SESSION['success']) && strpos($_SESSION['success'], 'uploaded successfully') !== false): ?>
-    document.addEventListener('DOMContentLoaded', function() {
-        new bootstrap.Modal(document.getElementById('successModal')).show();
-    });
-<?php endif; ?>
+// Intercept upload to ensure toast shows immediately without double navigation
+document.getElementById('uploadForm')?.addEventListener('submit', function(e) {
+    const btn = document.getElementById('uploadButton');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Uploading...'; }
+});
+// Success handled by global toast in layout; no modal here
 </script>
 
 <?php

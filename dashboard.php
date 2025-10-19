@@ -815,54 +815,62 @@ $testimonials = $stmt->fetchAll();
           </div>
         <?php else: ?>
           <?php 
-          $gradients = [
-            'linear-gradient(135deg, #f59e0b, #d97706)',
-            'linear-gradient(135deg, #10b981, #059669)',
-            'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-            'linear-gradient(135deg, #8b5cf6, #7c3aed)',
-            'linear-gradient(135deg, #ef4444, #dc2626)',
-            'linear-gradient(135deg, #06b6d4, #0891b2)'
-          ];
-          $icons = ['fa-star', 'fa-trophy', 'fa-medal', 'fa-crown', 'fa-gem', 'fa-rocket'];
+            // Show up to 6 stories, 3 per slide
+            $storiesItems = array_slice($successStories, 0, 6);
+            $storySlides = array_chunk($storiesItems, 3);
+            $gradients = [
+              'linear-gradient(135deg, #f59e0b, #d97706)',
+              'linear-gradient(135deg, #10b981, #059669)',
+              'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+              'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+              'linear-gradient(135deg, #ef4444, #dc2626)',
+              'linear-gradient(135deg, #06b6d4, #0891b2)'
+            ];
+            $icons = ['fa-star', 'fa-trophy', 'fa-medal', 'fa-crown', 'fa-gem', 'fa-rocket'];
           ?>
-          <?php foreach ($successStories as $index => $story): ?>
-            <div class="col-lg-4 col-md-6">
-              <div class="card h-100 border-0 shadow d-flex flex-column" style="border-radius: 12px; overflow: hidden;">
-                <!-- Image Section -->
-                <div style="height: 200px; overflow: hidden; background: <?= $gradients[$index % count($gradients)] ?>;">
-                  <?php if (!empty($story['image'])): ?>
-                    <img src="/scratch/<?= htmlspecialchars($story['image']) ?>" 
-                         alt="<?= htmlspecialchars($story['title']) ?>" 
-                         class="w-100 h-100" 
-                         style="object-fit: cover;">
-                  <?php else: ?>
-                    <div class="d-flex align-items-center justify-content-center h-100">
-                      <i class="fas <?= $icons[$index % count($icons)] ?> text-white" style="font-size: 4rem;"></i>
+          <style>
+            .stories-carousel .control-btn { width: 44px; height: 44px; border-radius: 50%; background: #dc2626; color: #fff; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(220,38,38,.35); border: 2px solid rgba(255,255,255,.75); }
+            .stories-carousel .carousel-control-prev-icon, .stories-carousel .carousel-control-next-icon { display: none; }
+          </style>
+          <div id="storiesCarousel" class="carousel slide stories-carousel" data-bs-ride="carousel">
+            <div class="carousel-inner">
+              <?php foreach ($storySlides as $slideIndex => $slideStories): ?>
+              <div class="carousel-item <?= $slideIndex === 0 ? 'active' : '' ?>">
+                <div class="row g-4">
+                  <?php foreach ($slideStories as $index => $story): ?>
+                  <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card h-100 border-0 shadow d-flex flex-column" style="border-radius: 12px; overflow: hidden;">
+                      <div style="height: 480px; overflow: hidden; background: <?= $gradients[$index % count($gradients)] ?>;">
+                        <?php if (!empty($story['image'])): ?>
+                          <img src="/scratch/<?= htmlspecialchars($story['image']) ?>" alt="<?= htmlspecialchars($story['title']) ?>" style="width: 100%; height: 100%; object-fit: cover; object-position: top center;">
+                        <?php else: ?>
+                          <div class="d-flex align-items-center justify-content-center h-100">
+                            <i class="fas <?= $icons[$index % count($icons)] ?> text-white" style="font-size: 4rem;"></i>
+                          </div>
+                        <?php endif; ?>
+                      </div>
+                      <div class="card-body p-4 d-flex flex-column flex-grow-1">
+                        <h5 class="card-title fw-bold mb-3" style="color: #1f2937; font-size: 1.25rem;">
+                          <?= htmlspecialchars($story['firstname'] . ' ' . $story['lastname']) ?>
+                        </h5>
+                        <p class="card-text text-muted mb-4 flex-grow-1" style="line-height: 1.6;">
+                          <?= htmlspecialchars(substr($story['content'], 0, 120)) ?><?= strlen($story['content']) > 120 ? '...' : '' ?>
+                        </p>
+                        <div class="d-flex justify-content-between align-items-center mt-auto">
+                          <small class="text-muted"><i class="fas fa-calendar me-1"></i><?= date('M d, Y', strtotime($story['created'])) ?></small>
+                          <a href="success-stories/index.php" class="btn" style="background: #dc2626; color: white; border: none; padding: 8px 16px; font-weight: 600; border-radius: 8px; font-size: 0.9rem;">Read More</a>
+                        </div>
+                      </div>
                     </div>
-                  <?php endif; ?>
-                </div>
-                
-                <!-- Content Section -->
-                <div class="card-body p-4 d-flex flex-column flex-grow-1">
-                  <h5 class="card-title fw-bold mb-3" style="color: #1f2937; font-size: 1.25rem;">
-                    <?= htmlspecialchars($story['firstname'] . ' ' . $story['lastname']) ?>
-                  </h5>
-                  <p class="card-text text-muted mb-4 flex-grow-1" style="line-height: 1.6;">
-                    <?= htmlspecialchars(substr($story['content'], 0, 120)) ?><?= strlen($story['content']) > 120 ? '...' : '' ?>
-                  </p>
-                  <div class="d-flex justify-content-between align-items-center mt-auto">
-                    <small class="text-muted">
-                      <i class="fas fa-calendar me-1"></i>
-                      <?= date('M d, Y', strtotime($story['created'])) ?>
-                    </small>
-                    <a href="success-stories/index.php" class="btn" style="background: #dc2626; color: white; border: none; padding: 8px 16px; font-weight: 600; border-radius: 8px; font-size: 0.9rem;">
-                      Read More
-                    </a>
                   </div>
+                  <?php endforeach; ?>
                 </div>
               </div>
+              <?php endforeach; ?>
             </div>
-          <?php endforeach; ?>
+            <button class="carousel-control-prev" type="button" data-bs-target="#storiesCarousel" data-bs-slide="prev"><span class="control-btn" aria-hidden="true"><i class="fas fa-chevron-left"></i></span><span class="visually-hidden">Previous</span></button>
+            <button class="carousel-control-next" type="button" data-bs-target="#storiesCarousel" data-bs-slide="next"><span class="control-btn" aria-hidden="true"><i class="fas fa-chevron-right"></i></span><span class="visually-hidden">Next</span></button>
+          </div>
         <?php endif; ?>
       </div>
     </div>
