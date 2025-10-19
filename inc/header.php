@@ -14,6 +14,10 @@ if (isset($user['alumnus_id']) && $user['alumnus_id'] > 0) {
         // Ignore error, continue without alumni data
     }
 }
+
+// Determine current page for active nav link
+$currentPage = basename($_SERVER['PHP_SELF']);
+$currentPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 ?>
 <!doctype html>
 <html lang="en">
@@ -21,19 +25,25 @@ if (isset($user['alumnus_id']) && $user['alumnus_id'] > 0) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title><?= $pageTitle ?? 'SCC Alumni Portal' ?></title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     body {
+      font-family: 'Poppins', sans-serif;
       background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
       min-height: 100vh;
     }
     
     .navbar {
       background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%) !important;
-      box-shadow: 0 4px 20px rgba(220, 38, 38, 0.3);
-      padding: 1rem 0;
-      transition: all 0.3s ease;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding: 0.75rem 0;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
     }
     
     .navbar-brand {
@@ -189,14 +199,16 @@ if (isset($user['alumnus_id']) && $user['alumnus_id'] > 0) {
             <a class="nav-link" href="/scratch/dashboard.php#testimonials">Testimonials</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="/scratch/dashboard.php#success-stories">Success Stories</a>
+            <a class="nav-link <?= ($currentPath === '/scratch/success-stories/index.php') || ($currentPage === 'create.php' && strpos($_SERVER['REQUEST_URI'], 'success-stories') !== false) ? 'active' : '' ?>" href="/scratch/success-stories/index.php">Success Stories</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="/scratch/forum/index.php">Forum</a>
           </li>
           <?php if (isset($user['type']) && $user['type'] == 1): ?>
           <li class="nav-item">
-            <a class="nav-link" href="/scratch/success-stories/admin.php">Admin</a>
+            <a class="nav-link" href="/scratch/success-stories/admin.php">
+              <i class="fas fa-cogs me-2"></i>Admin
+            </a>
           </li>
           <?php endif; ?>
         </ul>

@@ -152,6 +152,64 @@ class AdminController extends Controller
         ]);
     }
     
+    public function successStories(): void
+    {
+        // Handle actions
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $action = $_POST['action'] ?? '';
+            $storyId = (int)($_POST['story_id'] ?? 0);
+            $csrf_token = $_POST['csrf_token'] ?? '';
+            
+            // Validate CSRF token
+            if (!hash_equals(csrf_token(), $csrf_token)) {
+                $_SESSION['error'] = 'Invalid request. Please try again.';
+            } elseif (!$storyId) {
+                $_SESSION['error'] = 'Invalid story ID.';
+            } else {
+                try {
+                    $db = \App\Core\Database::getInstance();
+                    $pdo = $db->getConnection();
+                    if ($action === 'approve') {
+                        $stmt = $pdo->prepare('UPDATE success_stories SET status = 1 WHERE id = ?');
+                        $stmt->execute([$storyId]);
+                        $_SESSION['success'] = 'Story approved successfully and is now visible on the dashboard.';
+                    } elseif ($action === 'reject') {
+                        $stmt = $pdo->prepare('DELETE FROM success_stories WHERE id = ?');
+                        $stmt->execute([$storyId]);
+                        $_SESSION['deleted'] = 'Story rejected and removed from the system.';
+                    } elseif ($action === 'unapprove') {
+                        $stmt = $pdo->prepare('UPDATE success_stories SET status = 0 WHERE id = ?');
+                        $stmt->execute([$storyId]);
+                        $_SESSION['warning'] = 'Story unapproved and hidden from the dashboard.';
+                    }
+                } catch (Exception $e) {
+                    $_SESSION['error'] = 'Failed to process the request. Please try again.';
+                }
+            }
+        }
+
+        // Fetch all success stories
+        try {
+            $db = \App\Core\Database::getInstance();
+            $pdo = $db->getConnection();
+            $stmt = $pdo->prepare('
+                SELECT ss.*, u.username, ab.firstname, ab.lastname 
+                FROM success_stories ss 
+                LEFT JOIN users u ON ss.user_id = u.id 
+                LEFT JOIN alumnus_bio ab ON u.alumnus_id = ab.id 
+                ORDER BY ss.created DESC
+            ');
+            $stmt->execute();
+            $stories = $stmt->fetchAll();
+        } catch (Exception $e) {
+            $stories = [];
+        }
+        
+        $this->view('admin.success-stories', [
+            'stories' => $stories,
+        ]);
+    }
+    
     public function careers(): void
     {
         $careers = $this->careerModel->getAllOrdered();
@@ -194,5 +252,6 @@ class AdminController extends Controller
             'forumTopics' => $forumTopics,
         ]);
     }
+    
 }
 

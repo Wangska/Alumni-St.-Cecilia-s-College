@@ -844,16 +844,18 @@ $successStories = $stmt->fetchAll();
           <div class="text-center mb-5">
             <h2 class="display-4 fw-bold" style="color: #dc2626; font-family: 'Times New Roman', serif;">SUCCESS STORIES</h2>
             <div class="mx-auto" style="width: 100px; height: 3px; background: #dc2626;"></div>
-            <div class="mt-4">
-              <a href="success-stories/create.php" class="btn" style="background: #dc2626; color: white; border: none; padding: 12px 24px; font-weight: 600; border-radius: 8px;">
-                <i class="fas fa-plus me-2"></i>Share Your Success Story
-              </a>
-              <?php if (isset($user['type']) && $user['type'] == 1): ?>
-                <a href="success-stories/admin.php" class="btn ms-3" style="background: #6b7280; color: white; border: none; padding: 12px 24px; font-weight: 600; border-radius: 8px;">
-                  <i class="fas fa-cogs me-2"></i>Manage Stories
-                </a>
-              <?php endif; ?>
-            </div>
+        <?php if (!empty($successStories)): ?>
+        <div class="mt-4">
+          <a href="success-stories/index.php" class="btn" style="background: #dc2626; color: white; border: none; padding: 12px 24px; font-weight: 600; border-radius: 8px;">
+            <i class="fas fa-arrow-right me-2"></i>View All Stories
+          </a>
+          <?php if (isset($user['type']) && $user['type'] == 1): ?>
+            <a href="success-stories/admin.php" class="btn ms-3" style="background: #6b7280; color: white; border: none; padding: 12px 24px; font-weight: 600; border-radius: 8px;">
+              <i class="fas fa-cogs me-2"></i>Manage Stories
+            </a>
+          <?php endif; ?>
+        </div>
+        <?php endif; ?>
           </div>
         </div>
       </div>
@@ -865,8 +867,8 @@ $successStories = $stmt->fetchAll();
               <i class="fas fa-star text-muted" style="font-size: 4rem;"></i>
               <h4 class="text-muted mt-3">No Success Stories Yet</h4>
               <p class="text-muted">Be the first to share your success story!</p>
-              <a href="success-stories/create.php" class="btn" style="background: #dc2626; color: white; border: none; padding: 12px 24px; font-weight: 600; border-radius: 8px;">
-                <i class="fas fa-plus me-2"></i>Share Your Story
+              <a href="success-stories/index.php" class="btn" style="background: #dc2626; color: white; border: none; padding: 12px 24px; font-weight: 600; border-radius: 8px;">
+                <i class="fas fa-arrow-right me-2"></i>View All Stories
               </a>
             </div>
           </div>
@@ -912,7 +914,7 @@ $successStories = $stmt->fetchAll();
                       <i class="fas fa-calendar me-1"></i>
                       <?= date('M d, Y', strtotime($story['created'])) ?>
                     </small>
-                    <a href="success-stories/view.php?id=<?= $story['id'] ?>" class="btn" style="background: #dc2626; color: white; border: none; padding: 8px 16px; font-weight: 600; border-radius: 8px; font-size: 0.9rem;">
+                    <a href="success-stories/index.php" class="btn" style="background: #dc2626; color: white; border: none; padding: 8px 16px; font-weight: 600; border-radius: 8px; font-size: 0.9rem;">
                       Read More
                     </a>
                   </div>

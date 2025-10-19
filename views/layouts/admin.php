@@ -364,6 +364,11 @@
                 <span>Forum Topics</span>
             </a>
             
+            <a href="/scratch/admin.php?page=success-stories" class="menu-item <?= ($currentPage ?? '') === 'success-stories' ? 'active' : '' ?>">
+                <i class="fas fa-star"></i>
+                <span>Success Stories</span>
+            </a>
+            
             <div class="menu-divider"></div>
             
             <a href="/scratch/admin.php?page=users" class="menu-item <?= ($currentPage ?? '') === 'users' ? 'active' : '' ?>">
@@ -480,6 +485,26 @@
                 </div>
             </div>
             <?php unset($_SESSION['deleted']); ?>
+        <?php endif; ?>
+        
+        <?php if (isset($_SESSION['warning'])): ?>
+            <div class="toast align-items-center border-0 show" role="alert" aria-live="assertive" aria-atomic="true" id="warningToast" style="min-width: 350px; backdrop-filter: blur(10px); background: rgba(255, 255, 255, 0.98); box-shadow: 0 8px 32px rgba(245, 158, 11, 0.3); border-left: 4px solid #f59e0b !important; border-radius: 12px;">
+                <div class="d-flex align-items-center p-3">
+                    <div class="flex-shrink-0 me-3">
+                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white" viewBox="0 0 16 16">
+                                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div style="font-weight: 600; color: #92400e; font-size: 14px; margin-bottom: 2px;">Warning!</div>
+                        <div style="color: #b45309; font-size: 13px;"><?= htmlspecialchars($_SESSION['warning']) ?></div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-dark ms-2" data-bs-dismiss="toast" aria-label="Close" style="font-size: 12px;"></button>
+                </div>
+            </div>
+            <?php unset($_SESSION['warning']); ?>
         <?php endif; ?>
         
         <?php if (isset($_SESSION['error'])): ?>

@@ -57,10 +57,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt = $pdo->prepare('INSERT INTO success_stories (user_id, title, content, image, created, status) VALUES (?, ?, ?, ?, NOW(), 0)');
                 $stmt->execute([$user['id'], $title, $content, $imagePath]);
                 
-                $success = 'Your success story has been submitted for review. It will be published once approved by the administrator.';
+                // Return JSON response for AJAX
+                header('Content-Type: application/json');
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Your success story has been submitted for review. It will be published once approved by the administrator.'
+                ]);
+                exit;
             } catch (Exception $e) {
-                $error = 'Failed to submit your story. Please try again.';
+                // Return JSON error response
+                header('Content-Type: application/json');
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Failed to submit your story. Please try again.'
+                ]);
+                exit;
             }
+        } else {
+            // Return JSON error response
+            header('Content-Type: application/json');
+            echo json_encode([
+                'success' => false,
+                'message' => $error
+            ]);
+            exit;
         }
     }
 }
