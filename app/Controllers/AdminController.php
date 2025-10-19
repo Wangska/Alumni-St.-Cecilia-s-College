@@ -62,6 +62,30 @@ class AdminController extends Controller
         // Get courses
         $allCourses = $this->courseModel->getAll();
         
+        // Get success stories
+        $db = \App\Core\Database::getInstance();
+        $pdo = $db->getConnection();
+        $stmt = $pdo->prepare('
+            SELECT ss.*, u.username, ab.firstname, ab.lastname 
+            FROM success_stories ss 
+            LEFT JOIN users u ON ss.user_id = u.id 
+            LEFT JOIN alumnus_bio ab ON u.alumnus_id = ab.id 
+            ORDER BY ss.created DESC
+        ');
+        $stmt->execute();
+        $stories = $stmt->fetchAll();
+        
+        // Get testimonials
+        $stmt = $pdo->prepare('
+            SELECT t.*, u.username, ab.firstname, ab.lastname 
+            FROM testimonials t 
+            LEFT JOIN users u ON t.user_id = u.id 
+            LEFT JOIN alumnus_bio ab ON u.alumnus_id = ab.id 
+            ORDER BY t.created DESC
+        ');
+        $stmt->execute();
+        $testimonials = $stmt->fetchAll();
+        
         // Get recent activity logs
         require_once __DIR__ . '/../../inc/logger.php';
         $recentLogs = \ActivityLogger::getRecentLogs(10);
@@ -83,6 +107,8 @@ class AdminController extends Controller
             'announcements' => $recentAnnouncements,
             'events' => array_slice($upcomingEvents, 0, 5),
             'recentLogs' => $recentLogs,
+            'stories' => $stories,
+            'testimonials' => $testimonials,
         ]);
     }
     
@@ -216,6 +242,64 @@ class AdminController extends Controller
         
         $this->view('admin.careers', [
             'careers' => $careers,
+        ]);
+    }
+    
+    public function testimonials(): void
+    {
+        // Handle actions
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $action = $_POST['action'] ?? '';
+            $testimonialId = (int)($_POST['testimonial_id'] ?? 0);
+            $csrf_token = $_POST['csrf_token'] ?? '';
+            
+            // Validate CSRF token
+            if (!hash_equals(csrf_token(), $csrf_token)) {
+                $_SESSION['error'] = 'Invalid request. Please try again.';
+            } elseif (!$testimonialId) {
+                $_SESSION['error'] = 'Invalid testimonial ID.';
+            } else {
+                try {
+                    $db = \App\Core\Database::getInstance();
+                    $pdo = $db->getConnection();
+                    if ($action === 'approve') {
+                        $stmt = $pdo->prepare('UPDATE testimonials SET status = 1 WHERE id = ?');
+                        $stmt->execute([$testimonialId]);
+                        $_SESSION['success'] = 'Testimonial approved successfully and is now visible on the dashboard.';
+                    } elseif ($action === 'reject') {
+                        $stmt = $pdo->prepare('DELETE FROM testimonials WHERE id = ?');
+                        $stmt->execute([$testimonialId]);
+                        $_SESSION['deleted'] = 'Testimonial rejected and removed from the system.';
+                    } elseif ($action === 'unapprove') {
+                        $stmt = $pdo->prepare('UPDATE testimonials SET status = 0 WHERE id = ?');
+                        $stmt->execute([$testimonialId]);
+                        $_SESSION['warning'] = 'Testimonial unapproved and hidden from the dashboard.';
+                    }
+                } catch (Exception $e) {
+                    $_SESSION['error'] = 'Failed to process the request. Please try again.';
+                }
+            }
+        }
+
+        // Fetch all testimonials
+        try {
+            $db = \App\Core\Database::getInstance();
+            $pdo = $db->getConnection();
+            $stmt = $pdo->prepare('
+                SELECT t.*, u.username, ab.firstname, ab.lastname
+                FROM testimonials t
+                LEFT JOIN users u ON t.user_id = u.id
+                LEFT JOIN alumnus_bio ab ON u.alumnus_id = ab.id
+                ORDER BY t.created DESC
+            ');
+            $stmt->execute();
+            $testimonials = $stmt->fetchAll();
+        } catch (Exception $e) {
+            $testimonials = [];
+        }
+        
+        $this->view('admin.testimonials', [
+            'testimonials' => $testimonials,
         ]);
     }
     

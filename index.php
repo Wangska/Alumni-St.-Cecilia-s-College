@@ -96,42 +96,50 @@ $announcements = $pdo->query('SELECT * FROM announcements ORDER BY date_created 
       <div class="row g-4">
         <div class="col-md-6">
           <div class="h-full p-6 bg-white rounded-3 shadow-sm">
-            <h3 class="text-2xl font-bold text-gray-900 mb-4">Our Mission</h3>
-            <p class="text-gray-600 mb-4">
-              <!-- Add your mission statement here -->
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-            </p>
-            <p class="text-gray-600">
-              <!-- Add more mission details here -->
-              Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-            </p>
+            <h3 class="text-2xl font-bold text-gray-900 mb-4 d-flex align-items-center gap-2"><i class="fas fa-bullseye text-danger"></i>Our Mission</h3>
+            <p class="text-gray-600 mb-3">In pursuing the mission, St. Cecilia's College commits itself to:</p>
+            <ol class="text-gray-700 ps-3" style="line-height: 1.8;">
+              <li class="mb-2">Cultivate and inculcate Christian values in pupils/students to become men and women of faith and integrity;</li>
+              <li class="mb-2">Provide students with knowledge and skills in academics, technology, and the arts through modern teaching methods and techniques;</li>
+              <li class="mb-2">Foster the development of love for country and service to fellowmen;</li>
+              <li class="mb-2">Upgrade teachers' skills and competencies in instruction and management through a Faculty Development Program;</li>
+              <li class="mb-2">Develop the critical thinking skills of students;</li>
+              <li class="mb-2">Provide opportunities for students to grow and lead;</li>
+              <li>Inculcate in the students the love, care, and preservation of Mother Nature.</li>
+            </ol>
           </div>
         </div>
         <div class="col-md-6">
           <div class="h-full p-6 bg-white rounded-3 shadow-sm">
-            <h3 class="text-2xl font-bold text-gray-900 mb-4">Our Vision</h3>
-            <p class="text-gray-600 mb-4">
-              <!-- Add your vision statement here -->
-              Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-            </p>
-            <p class="text-gray-600">
-              <!-- Add more vision details here -->
-              Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-            </p>
+            <h3 class="text-2xl font-bold text-gray-900 mb-4 d-flex align-items-center gap-2"><i class="fas fa-lightbulb text-warning"></i>Our Vision</h3>
+            <p class="text-gray-700" style="line-height: 1.8;">SCC is a non-stock, non-profit educational institution that envisions itself to be a Center of Excellence in Academics, Technology, and the Arts. It aspires to produce professionals and leaders who are globally competitive, imbued with Christian values, integrity, patriotism, and stewardship, through quality human education.</p>
           </div>
         </div>
       </div>
 
+      <!-- Core Values -->
       <div class="mt-8 p-6 bg-white rounded-3 shadow-sm">
-        <h3 class="text-2xl font-bold text-gray-900 mb-4">Our History</h3>
-        <p class="text-gray-600 mb-4">
-          <!-- Add your history here -->
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-        </p>
-        <p class="text-gray-600">
-          <!-- Add more history details here -->
-          Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-        </p>
+        <h3 class="text-2xl font-bold text-gray-900 mb-4 d-flex align-items-center gap-2"><i class="fas fa-heart text-danger"></i>Core Values</h3>
+        <div class="row g-4">
+          <div class="col-md-6 col-lg-4"><div class="h-100 p-4 bg-gray-50 rounded-3 border"><h5 class="fw-bold mb-2 d-flex align-items-center gap-2"><i class="fas fa-cross text-danger"></i>Christ-centeredness</h5><p class="mb-0 text-gray-700">Cecilians put Christ at the center of thoughts and actions for the common good, showing sympathy and empathy for others.</p></div></div>
+          <div class="col-md-6 col-lg-4"><div class="h-100 p-4 bg-gray-50 rounded-3 border"><h5 class="fw-bold mb-2 d-flex align-items-center gap-2"><i class="fas fa-award text-warning"></i>Excellence</h5><p class="mb-0 text-gray-700">Cecilians strive to excel in imparting knowledge and skills with enthusiasm and goodwill.</p></div></div>
+          <div class="col-md-6 col-lg-4"><div class="h-100 p-4 bg-gray-50 rounded-3 border"><h5 class="fw-bold mb-2 d-flex align-items-center gap-2"><i class="fas fa-handshake text-success"></i>Commitment</h5><p class="mb-0 text-gray-700">Cecilians give their best and go beyond expectations; they are self‑motivated and holistic in growth.</p></div></div>
+          <div class="col-md-6 col-lg-4"><div class="h-100 p-4 bg-gray-50 rounded-3 border"><h5 class="fw-bold mb-2 d-flex align-items-center gap-2"><i class="fas fa-shield-alt text-primary"></i>Integrity</h5><p class="mb-0 text-gray-700">Cecilians act honestly and responsibly, guided by moral conviction to do what is right.</p></div></div>
+          <div class="col-md-6 col-lg-4"><div class="h-100 p-4 bg-gray-50 rounded-3 border"><h5 class="fw-bold mb-2 d-flex align-items-center gap-2"><i class="fas fa-flag text-info"></i>Love of Country</h5><p class="mb-0 text-gray-700">Cecilians prioritize national interest, respect Filipino culture and tradition, support local products, and serve the community.</p></div></div>
+          <div class="col-md-6 col-lg-4"><div class="h-100 p-4 bg-gray-50 rounded-3 border"><h5 class="fw-bold mb-2 d-flex align-items-center gap-2"><i class="fas fa-lightbulb text-warning"></i>Innovativeness</h5><p class="mb-0 text-gray-700">Cecilians are open‑minded, creative, functional, and resourceful—logical and artistic in bringing ideas to life.</p></div></div>
+          <div class="col-md-6 col-lg-4"><div class="h-100 p-4 bg-gray-50 rounded-3 border"><h5 class="fw-bold mb-2 d-flex align-items-center gap-2"><i class="fas fa-palette" style="color:#8b5cf6"></i>Arts Lover</h5><p class="mb-0 text-gray-700">Cecilians have a heart for the arts—creating, appreciating, and understanding God’s creation and human works to inspire others.</p></div></div>
+          <div class="col-md-6 col-lg-4"><div class="h-100 p-4 bg-gray-50 rounded-3 border"><h5 class="fw-bold mb-2 d-flex align-items-center gap-2"><i class="fas fa-seedling text-success"></i>Nurturance</h5><p class="mb-0 text-gray-700">Cecilians care for God’s creation, value knowledge and skills, and nurture peaceful, harmonious relationships.</p></div></div>
+        </div>
+      </div>
+
+      <!-- History -->
+      <div class="mt-4 p-6 bg-white rounded-3 shadow-sm">
+        <h3 class="text-2xl font-bold text-gray-900 mb-3 d-flex align-items-center gap-2"><i class="fas fa-history text-secondary"></i>Our History</h3>
+        <h5 class="fw-bold text-gray-800 mb-2">Formative Years (1999–2009)</h5>
+        <p class="text-gray-700 mb-3" style="line-height: 1.8;">The formative years saw the development of the first ten pupils and the construction of essential facilities. Enrollment grew steadily, and within five years SCC was considered the “Performing Arts Center of the South” for its Summer Workshops in Music, Painting, Speech, and more. After the fifth year, the founder sold the school to the current owner, Mrs. Rosalina N. Go.</p>
+        <p class="text-gray-700 mb-3" style="line-height: 1.8;">The Preschool expanded to Primary and Elementary; a complete High School followed. In June 2005, SCC was registered with the SEC as a non‑stock, non‑profit corporation under the name St. Cecilia’s College – Cebu, Inc., with Mrs. Maria de la Rosa as Principal. As the population grew, SCC rented nearby space for Elementary and High School while constructing the five‑story St. La Salle Building at the original Preschool location.</p>
+        <p class="text-gray-700 mb-3" style="line-height: 1.8;">The Elementary Department held its first graduation in March 2006, followed by the High School in March 2007 with seven graduates. The College Department opened in June 2007 offering BEED, BSED, BSIT, BSHM, and BSBA under College Dean Mr. Alfredo Moreno, Jr. The sixth story of the building was completed in December 2007; by June 2008, Grades 4–6, High School, and College occupied the new facility.</p>
+        <p class="text-gray-700 mb-0" style="line-height: 1.8;">In July 2008, the Preschool, Elementary, SPED, and Secondary curricula received Government Recognition from DepEd. In November 2008, Pensionne St. Cecilia—now the Basic Home Economics building—was acquired. To further enhance quality, SCC sought LASSO assistance in February 2009 and was granted Consultancy status, with services led by Br. Ophelia S. Fugoso AFSC, Ms. Isabel Macrina V. Encabo, and Mr. Mark Joel N. Go.</p>
       </div>
     </div>
   </section>

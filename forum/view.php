@@ -218,7 +218,16 @@ try {
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="/scratch/dashboard.php">Dashboard</a>
+                        <a class="nav-link" href="/scratch/news/index.php">News</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/scratch/jobs/index.php">Jobs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/scratch/testimonials/index.php">Testimonials</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/scratch/success-stories/index.php">Success Stories</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/scratch/forum/index.php">Forum</a>
@@ -237,6 +246,8 @@ try {
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li><a class="dropdown-item" href="/scratch/dashboard.php"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
+                        <li><a class="dropdown-item" href="/scratch/profile.php"><i class="fas fa-user me-2"></i>Profile</a></li>
+                        <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="/scratch/logout.php"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
                     </ul>
                 </div>

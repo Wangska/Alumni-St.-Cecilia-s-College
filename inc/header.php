@@ -85,25 +85,25 @@ $currentPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
       text-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
     
-    .nav-link {
-      font-weight: 500;
+    .navbar .nav-link {
+      font-weight: 500 !important;
       padding: 0.75rem 1.5rem !important;
-      border-radius: 25px;
-      transition: all 0.3s ease;
-      margin: 0 0.25rem;
-      letter-spacing: 0.025em;
-      font-size: 0.9rem;
+      border-radius: 25px !important;
+      transition: all 0.3s ease !important;
+      margin: 0 0.25rem !important;
+      letter-spacing: 0.025em !important;
+      font-size: 0.9rem !important;
       color: rgba(255,255,255,0.9) !important;
     }
     
-    .nav-link:hover {
+    .navbar .nav-link:hover {
       color: #ffffff !important;
-      background: rgba(255,255,255,0.1);
-      transform: translateY(-2px);
+      background: rgba(255,255,255,0.1) !important;
+      transform: translateY(-2px) !important;
     }
     
-    .nav-link.active {
-      background: rgba(255,255,255,0.15);
+    .navbar .nav-link.active {
+      background: rgba(255,255,255,0.15) !important;
       color: #ffffff !important;
     }
     
@@ -190,17 +190,18 @@ $currentPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav me-auto">
           <li class="nav-item">
-            <a class="nav-link" href="/scratch/dashboard.php#news">News</a>
+            <a class="nav-link <?= ($currentPath === '/scratch/news/index.php') ? 'active' : '' ?>" href="/scratch/news/index.php">News</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="/scratch/dashboard.php#jobs">Jobs</a>
+            <a class="nav-link <?= ($currentPath === '/scratch/jobs/index.php') ? 'active' : '' ?>" href="/scratch/jobs/index.php">Jobs</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/scratch/dashboard.php#testimonials">Testimonials</a>
-          </li>
-          <li class="nav-item">
+          
+        <li class="nav-item">
+            <a class="nav-link <?= ($currentPath === '/scratch/testimonials/index.php') || ($currentPage === 'create.php' && strpos($_SERVER['REQUEST_URI'], 'testimonials') !== false) ? 'active' : '' ?>" href="/scratch/testimonials/index.php">Testimonials</a>
+        </li>
+        <li class="nav-item">
             <a class="nav-link <?= ($currentPath === '/scratch/success-stories/index.php') || ($currentPage === 'create.php' && strpos($_SERVER['REQUEST_URI'], 'success-stories') !== false) ? 'active' : '' ?>" href="/scratch/success-stories/index.php">Success Stories</a>
-          </li>
+        </li>
           <li class="nav-item">
             <a class="nav-link" href="/scratch/forum/index.php">Forum</a>
           </li>

@@ -398,7 +398,9 @@ ob_start();
                                         <i class="fas fa-clock text-warning" style="font-size: 1.5rem;"></i>
                                     </div>
                                     <div>
-                                        <div class="fw-bold text-dark">Pending Stories</div>
+                                        <div class="fw-bold text-dark">Pending Stories
+                                            <span class="badge bg-warning text-dark ms-2" style="border-radius: 10px;"><?= count(array_filter($stories ?? [], function($story){ return empty($story['status']) || $story['status'] == 0; })) ?></span>
+                                        </div>
                                         <small class="text-muted">Awaiting approval</small>
                                     </div>
                                 </div>
@@ -409,7 +411,9 @@ ob_start();
                                         <i class="fas fa-check-circle text-success" style="font-size: 1.5rem;"></i>
                                     </div>
                                     <div>
-                                        <div class="fw-bold text-dark">Approved Stories</div>
+                                        <div class="fw-bold text-dark">Approved Stories
+                                            <span class="badge bg-success ms-2" style="border-radius: 10px;"><?= count(array_filter($stories ?? [], function($story){ return !empty($story['status']) && $story['status'] == 1; })) ?></span>
+                                        </div>
                                         <small class="text-muted">Published on dashboard</small>
                                     </div>
                                 </div>
@@ -429,8 +433,85 @@ ob_start();
                                 <a href="/scratch/admin.php?page=success-stories" class="btn btn-modern btn-modern-primary">
                                     <i class="fas fa-cogs me-2"></i>Manage Stories
                                 </a>
-                                <a href="/scratch/success-stories/admin.php" class="btn btn-modern btn-modern-outline btn-sm">
-                                    <i class="fas fa-external-link-alt me-2"></i>Open Full Page
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Testimonials Management -->
+<div class="row g-4 mt-4">
+    <div class="col-12">
+        <div class="content-card">
+            <div class="card-header-modern">
+                <div class="d-flex align-items-center">
+                    <div class="icon-badge" style="background: linear-gradient(135deg, #10b981, #059669);">
+                        <i class="fas fa-quote-left"></i>
+                    </div>
+                    <h5>Testimonials Management</h5>
+                </div>
+                <a href="/scratch/admin.php?page=testimonials" class="btn btn-modern btn-modern-primary">
+                    <i class="fas fa-cogs me-2"></i>Manage Testimonials
+                </a>
+            </div>
+            
+            <div class="card-content-wrapper">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="me-4">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-quote-left text-success me-2" style="font-size: 1.2rem;"></i>
+                                    <span class="fw-bold" style="font-size: 1.1rem;">Quick Access</span>
+                                </div>
+                                <p class="text-muted mb-0 mt-1">Review and approve alumni testimonials</p>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center p-3" style="background: linear-gradient(135deg, #fff3cd, #ffeaa7); border-radius: 12px; border-left: 4px solid #ffc107;">
+                                    <div class="me-3">
+                                        <i class="fas fa-clock text-warning" style="font-size: 1.5rem;"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark">Pending Testimonials
+                                            <span class="badge bg-warning text-dark ms-2" style="border-radius: 10px;"><?= count(array_filter($testimonials ?? [], function($t){ return empty($t['status']) || $t['status'] == 0; })) ?></span>
+                                        </div>
+                                        <small class="text-muted">Awaiting approval</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center p-3" style="background: linear-gradient(135deg, #d1fae5, #a7f3d0); border-radius: 12px; border-left: 4px solid #10b981;">
+                                    <div class="me-3">
+                                        <i class="fas fa-check-circle text-success" style="font-size: 1.5rem;"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark">Approved Testimonials
+                                            <span class="badge bg-success ms-2" style="border-radius: 10px;"><?= count(array_filter($testimonials ?? [], function($t){ return !empty($t['status']) && $t['status'] == 1; })) ?></span>
+                                        </div>
+                                        <small class="text-muted">Published on dashboard</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <div class="mb-3">
+                                <i class="fas fa-quote-left fa-3x text-success mb-3"></i>
+                                <h6 class="fw-bold">Testimonials</h6>
+                                <p class="text-muted small">Manage alumni testimonials and approve them for publication on the main dashboard.</p>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <a href="/scratch/admin.php?page=testimonials" class="btn btn-modern btn-modern-primary">
+                                    <i class="fas fa-cogs me-2"></i>Manage Testimonials
                                 </a>
                             </div>
                         </div>

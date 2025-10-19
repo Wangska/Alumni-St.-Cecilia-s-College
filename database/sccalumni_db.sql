@@ -697,6 +697,24 @@ ALTER TABLE `users`
 
 --
 -- Constraints for table `user_logs`
+-- Testimonials table
+CREATE TABLE `testimonials` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `quote` text NOT NULL,
+  `author_name` varchar(255) NOT NULL,
+  `graduation_year` int(4) NOT NULL,
+  `course` varchar(255) NOT NULL,
+  `graduation_photo` varchar(255) DEFAULT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0=pending, 1=approved',
+  `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  KEY `status` (`status`),
+  KEY `created` (`created`),
+  CONSTRAINT `testimonials_user_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 --
 ALTER TABLE `user_logs`
   ADD CONSTRAINT `user_logs_user_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;

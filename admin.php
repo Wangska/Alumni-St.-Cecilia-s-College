@@ -527,9 +527,12 @@ switch ($page) {
     case 'forum':
         $controller->forum();
         break;
-    case 'success-stories':
-        $controller->successStories();
-        break;
+        case 'success-stories':
+            $controller->successStories();
+            break;
+        case 'testimonials':
+            $controller->testimonials();
+            break;
     case 'settings':
         $controller->settings();
         break;

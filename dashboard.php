@@ -61,6 +61,19 @@ $stmt = $pdo->prepare('
 ');
 $stmt->execute();
 $successStories = $stmt->fetchAll();
+
+// Get testimonials
+$stmt = $pdo->prepare('
+    SELECT t.*, u.username, ab.firstname, ab.lastname 
+    FROM testimonials t 
+    LEFT JOIN users u ON t.user_id = u.id 
+    LEFT JOIN alumnus_bio ab ON u.alumnus_id = ab.id 
+    WHERE t.status = 1 
+    ORDER BY t.created DESC 
+    LIMIT 6
+');
+$stmt->execute();
+$testimonials = $stmt->fetchAll();
 ?>
 <!doctype html>
 <html lang="en">
@@ -556,16 +569,16 @@ $successStories = $stmt->fetchAll();
       <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav me-auto">
             <li class="nav-item">
-              <a class="nav-link" href="#news">News</a>
+              <a class="nav-link" href="/scratch/news/index.php">News</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#jobs">Jobs</a>
+              <a class="nav-link" href="/scratch/jobs/index.php">Jobs</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#testimonials">Testimonials</a>
+              <a class="nav-link" href="/scratch/testimonials/index.php">Testimonials</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#success-stories">Success Stories</a>
+              <a class="nav-link" href="/scratch/success-stories/index.php">Success Stories</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="/scratch/forum/index.php">Forum</a>
@@ -687,6 +700,11 @@ $successStories = $stmt->fetchAll();
           </div>
         <?php endif; ?>
       </div>
+      <div class="text-center mt-4">
+        <a href="/scratch/news/index.php" class="btn" style="background: #dc2626; color: white; border: none; padding: 12px 24px; font-weight: 600; border-radius: 8px;">
+          <i class="fas fa-arrow-right me-2"></i>View All News
+        </a>
+      </div>
     </div>
   </section>
 
@@ -751,87 +769,10 @@ $successStories = $stmt->fetchAll();
           </div>
         <?php endif; ?>
       </div>
-    </div>
-  </section>
-
-  <!-- Testimonials Section -->
-  <section id="testimonials" class="py-5" style="background: #f8f9fa;">
-    <div class="container">
-      <div class="row">
-        <div class="col-12">
-          <div class="text-center mb-5">
-            <h2 class="display-4 fw-bold" style="color: #dc2626; font-family: 'Times New Roman', serif;">TESTIMONIALS</h2>
-            <div class="mx-auto" style="width: 100px; height: 3px; background: #dc2626;"></div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="row g-4">
-        <div class="col-lg-4 col-md-6">
-          <div class="card h-100 border-0 shadow d-flex flex-column" style="border-radius: 12px; overflow: hidden;">
-            <!-- Image Section -->
-            <div style="height: 200px; overflow: hidden; background: linear-gradient(135deg, #3b82f6, #1d4ed8);">
-              <div class="d-flex align-items-center justify-content-center h-100">
-                <i class="fas fa-user text-white" style="font-size: 4rem;"></i>
-              </div>
-            </div>
-            
-            <!-- Content Section -->
-            <div class="card-body p-4 d-flex flex-column flex-grow-1">
-              <h5 class="card-title fw-bold mb-3" style="color: #1f2937; font-size: 1.25rem;">Michael Chen</h5>
-              <p class="card-text text-muted mb-4 flex-grow-1" style="line-height: 1.6;">
-                "The education I received at SCC was instrumental in my success as a data analyst. The faculty's dedication and the supportive community made all the difference."
-              </p>
-              <a href="#" class="btn w-100 mt-auto" style="background: #dc2626; color: white; border: none; padding: 12px; font-weight: 600; border-radius: 8px;">
-                Read More
-              </a>
-            </div>
-          </div>
-        </div>
-        
-        <div class="col-lg-4 col-md-6">
-          <div class="card h-100 border-0 shadow d-flex flex-column" style="border-radius: 12px; overflow: hidden;">
-            <!-- Image Section -->
-            <div style="height: 200px; overflow: hidden; background: linear-gradient(135deg, #10b981, #059669);">
-              <div class="d-flex align-items-center justify-content-center h-100">
-                <i class="fas fa-user text-white" style="font-size: 4rem;"></i>
-              </div>
-            </div>
-            
-            <!-- Content Section -->
-            <div class="card-body p-4 d-flex flex-column flex-grow-1">
-              <h5 class="card-title fw-bold mb-3" style="color: #1f2937; font-size: 1.25rem;">Lisa Martinez</h5>
-              <p class="card-text text-muted mb-4 flex-grow-1" style="line-height: 1.6;">
-                "SCC not only provided me with academic knowledge but also helped me develop leadership skills that I use every day in my career."
-              </p>
-              <a href="#" class="btn w-100 mt-auto" style="background: #dc2626; color: white; border: none; padding: 12px; font-weight: 600; border-radius: 8px;">
-                Read More
-              </a>
-            </div>
-          </div>
-        </div>
-        
-        <div class="col-lg-4 col-md-6">
-          <div class="card h-100 border-0 shadow d-flex flex-column" style="border-radius: 12px; overflow: hidden;">
-            <!-- Image Section -->
-            <div style="height: 200px; overflow: hidden; background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
-              <div class="d-flex align-items-center justify-content-center h-100">
-                <i class="fas fa-user text-white" style="font-size: 4rem;"></i>
-              </div>
-            </div>
-            
-            <!-- Content Section -->
-            <div class="card-body p-4 d-flex flex-column flex-grow-1">
-              <h5 class="card-title fw-bold mb-3" style="color: #1f2937; font-size: 1.25rem;">David Kim</h5>
-              <p class="card-text text-muted mb-4 flex-grow-1" style="line-height: 1.6;">
-                "The connections I made at SCC have been invaluable throughout my career. The alumni network is truly supportive and helpful."
-              </p>
-              <a href="#" class="btn w-100 mt-auto" style="background: #dc2626; color: white; border: none; padding: 12px; font-weight: 600; border-radius: 8px;">
-                Read More
-              </a>
-            </div>
-          </div>
-        </div>
+      <div class="text-center mt-4">
+        <a href="/scratch/jobs/index.php" class="btn" style="background: #dc2626; color: white; border: none; padding: 12px 24px; font-weight: 600; border-radius: 8px;">
+          <i class="fas fa-arrow-right me-2"></i>View All Jobs
+        </a>
       </div>
     </div>
   </section>
@@ -924,6 +865,116 @@ $successStories = $stmt->fetchAll();
           <?php endforeach; ?>
         <?php endif; ?>
       </div>
+    </div>
+  </section>
+
+  <!-- Testimonials Section -->
+  <section id="testimonials" class="py-5" style="background: #f8f9fa;">
+    <div class="container">
+      <div class="row">
+        <div class="col-12">
+          <div class="text-center mb-5">
+            <h2 class="display-4 fw-bold" style="color: #dc2626; font-family: 'Times New Roman', serif;">TESTIMONIALS</h2>
+            <div class="mx-auto" style="width: 100px; height: 3px; background: #dc2626;"></div>
+            <?php if (!empty($testimonials)): ?>
+            <div class="mt-4">
+              <a href="testimonials/index.php" class="btn" style="background: #dc2626; color: white; border: none; padding: 12px 24px; font-weight: 600; border-radius: 8px;">
+                <i class="fas fa-arrow-right me-2"></i>View All Testimonials
+              </a>
+            </div>
+            <?php endif; ?>
+          </div>
+        </div>
+      </div>
+      
+      <?php if (empty($testimonials)): ?>
+        <div class="text-center py-5">
+          <i class="fas fa-quote-left text-muted" style="font-size: 4rem;"></i>
+          <h4 class="text-muted mt-3">No Testimonials Yet</h4>
+          <p class="text-muted">Be the first to share your inspiring testimonial!</p>
+          <a href="testimonials/index.php" class="btn" style="background: #dc2626; color: white; border: none; padding: 12px 24px; font-weight: 600; border-radius: 8px;">
+            <i class="fas fa-arrow-right me-2"></i>View All Testimonials
+          </a>
+        </div>
+      <?php else: ?>
+        <?php 
+          // Show up to 6 testimonials, 3 per slide
+          $items = array_slice($testimonials, 0, 6);
+          $slides = array_chunk($items, 3);
+          $gradients = [
+            'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+            'linear-gradient(135deg, #10b981, #059669)',
+            'linear-gradient(135deg, #8b5cf6, #7c3aed)'
+          ];
+          if (isset($_GET['debug'])) {
+            echo "<!-- Debug: Total testimonials: " . count($testimonials) . ", Items sliced: " . count($items) . ", Slides: " . count($slides) . " -->";
+          }
+        ?>
+        <style>
+          /* Testimonials carousel controls */
+          .testimonial-carousel .carousel-control-prev,
+          .testimonial-carousel .carousel-control-next {
+            width: auto;
+            opacity: 1;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+          }
+          .testimonial-carousel .carousel-control-prev:hover,
+          .testimonial-carousel .carousel-control-next:hover {
+            transform: scale(1.05);
+          }
+          .testimonial-carousel .control-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #dc2626; /* SCC red */
+            color: #ffffff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 24px rgba(220, 38, 38, 0.35);
+            border: 2px solid rgba(255,255,255,0.75);
+          }
+          .testimonial-carousel .control-btn i { font-size: 18px; }
+          .testimonial-carousel .carousel-control-prev-icon,
+          .testimonial-carousel .carousel-control-next-icon { display: none; }
+        </style>
+        <div id="testimonialsCarousel" class="carousel slide testimonial-carousel" data-bs-ride="carousel">
+          <div class="carousel-inner">
+            <?php foreach ($slides as $slideIndex => $slideItems): ?>
+            <div class="carousel-item <?= $slideIndex === 0 ? 'active' : '' ?>">
+              <div class="row g-4">
+                <?php foreach ($slideItems as $index => $testimonial): $gradient = $gradients[$index % count($gradients)]; ?>
+                <div class="col-12 col-md-6 col-lg-4">
+                  <div class="card border-0 shadow h-100" style="border-radius: 12px; overflow: hidden;">
+                    <div style="height: 480px; overflow: hidden; background: <?= $gradient ?>;">
+                      <?php if (!empty($testimonial['graduation_photo'])): ?>
+                        <img src="/scratch/<?= htmlspecialchars($testimonial['graduation_photo']) ?>" alt="<?= htmlspecialchars($testimonial['author_name']) ?>" style="width: 100%; height: 100%; object-fit: cover; object-position: top center;">
+                      <?php else: ?>
+                        <div class="d-flex align-items-center justify-content-center h-100"><i class="fas fa-user-graduate text-white" style="font-size: 4rem;"></i></div>
+                      <?php endif; ?>
+                    </div>
+                    <div class="card-body p-4 d-flex flex-column">
+                      <h5 class="fw-bold mb-2" style="color:#1f2937;"><?= htmlspecialchars($testimonial['author_name']) ?></h5>
+                      <p class="text-muted small mb-2"><?= htmlspecialchars($testimonial['course']) ?>, Class of <?= (int)($testimonial['graduation_year'] ?? 0) ?></p>
+                      <p class="mb-0" style="line-height:1.7; font-style: italic; color:#4b5563;">"<?= htmlspecialchars($testimonial['quote']) ?>"</p>
+                    </div>
+                  </div>
+                </div>
+                <?php endforeach; ?>
+              </div>
+            </div>
+            <?php endforeach; ?>
+          </div>
+          <button class="carousel-control-prev" type="button" data-bs-target="#testimonialsCarousel" data-bs-slide="prev">
+            <span class="control-btn" aria-hidden="true"><i class="fas fa-chevron-left"></i></span>
+            <span class="visually-hidden">Previous</span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#testimonialsCarousel" data-bs-slide="next">
+            <span class="control-btn" aria-hidden="true"><i class="fas fa-chevron-right"></i></span>
+            <span class="visually-hidden">Next</span>
+          </button>
+        </div>
+      <?php endif; ?>
     </div>
   </section>
 

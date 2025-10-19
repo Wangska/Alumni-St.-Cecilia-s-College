@@ -440,16 +440,16 @@ try {
       <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav me-auto">
             <li class="nav-item">
-              <a class="nav-link" href="/scratch/dashboard.php#news">News</a>
+              <a class="nav-link" href="/scratch/news/index.php">News</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/scratch/dashboard.php#jobs">Jobs</a>
+              <a class="nav-link" href="/scratch/jobs/index.php">Jobs</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/scratch/dashboard.php#testimonials">Testimonials</a>
+              <a class="nav-link" href="/scratch/testimonials/index.php">Testimonials</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/scratch/dashboard.php#success-stories">Success Stories</a>
+              <a class="nav-link" href="/scratch/success-stories/index.php">Success Stories</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="/scratch/forum/index.php">Forum</a>

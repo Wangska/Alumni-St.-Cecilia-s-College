@@ -364,10 +364,14 @@
                 <span>Forum Topics</span>
             </a>
             
-            <a href="/scratch/admin.php?page=success-stories" class="menu-item <?= ($currentPage ?? '') === 'success-stories' ? 'active' : '' ?>">
-                <i class="fas fa-star"></i>
-                <span>Success Stories</span>
-            </a>
+        <a href="/scratch/admin.php?page=success-stories" class="menu-item <?= ($currentPage ?? '') === 'success-stories' ? 'active' : '' ?>">
+            <i class="fas fa-star"></i>
+            <span>Success Stories</span>
+        </a>
+        <a href="/scratch/admin.php?page=testimonials" class="menu-item <?= ($currentPage ?? '') === 'testimonials' ? 'active' : '' ?>">
+            <i class="fas fa-quote-left"></i>
+            <span>Testimonials</span>
+        </a>
             
             <div class="menu-divider"></div>
             

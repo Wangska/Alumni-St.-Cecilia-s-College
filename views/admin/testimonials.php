@@ -1,21 +1,21 @@
 <?php
-$currentPage = 'success-stories';
-$pageTitle = 'Success Stories Management';
-$title = 'Success Stories Management';
+$currentPage = 'testimonials';
+$pageTitle = 'Testimonials Management';
+$title = 'Testimonials Management';
 
 ob_start();
 ?>
 
 <style>
-/* Success Stories Management Styles */
-.success-stories-container {
+/* Testimonials Management Styles */
+.testimonials-container {
     background: white;
     border-radius: 16px;
     box-shadow: 0 4px 16px rgba(0,0,0,0.08);
     overflow: hidden;
 }
 
-.story-card {
+.testimonial-card {
     background: white;
     border-radius: 16px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.08);
@@ -25,22 +25,22 @@ ob_start();
     overflow: hidden;
 }
 
-.story-card:hover {
+.testimonial-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 8px 30px rgba(0,0,0,0.12);
 }
 
-.story-card.pending {
+.testimonial-card.pending {
     border-left: 5px solid #f59e0b;
     background: linear-gradient(135deg, #fefbf3, #ffffff);
 }
 
-.story-card.approved {
+.testimonial-card.approved {
     border-left: 5px solid #10b981;
     background: linear-gradient(135deg, #f0fdf4, #ffffff);
 }
 
-.story-image {
+.testimonial-photo {
     max-height: 200px;
     object-fit: cover;
     border-radius: 12px;
@@ -80,7 +80,7 @@ ob_start();
     letter-spacing: 0.5px;
 }
 
-.btn-story-action {
+.btn-testimonial-action {
     padding: 0.75rem 1.5rem;
     border-radius: 12px;
     font-weight: 700;
@@ -92,7 +92,7 @@ ob_start();
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
-.btn-story-action:hover {
+.btn-testimonial-action:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(0,0,0,0.2);
 }
@@ -267,17 +267,17 @@ ob_start();
 }
 
 /* Enhanced Card Styles */
-.story-header {
+.testimonial-header {
     background: linear-gradient(135deg, #f8fafc, #e2e8f0);
     border-bottom: 1px solid #e5e7eb;
     padding: 1.5rem;
 }
 
-.story-body {
+.testimonial-body {
     padding: 1.5rem;
 }
 
-.story-footer {
+.testimonial-footer {
     background: #f8fafc;
     border-top: 1px solid #e5e7eb;
     padding: 1.5rem;
@@ -302,8 +302,7 @@ ob_start();
     color: #065f46;
 }
 
-/* Removed modal sliding animations to prevent page jumping */
-
+/* Remove modal slide animation for snappier UX while staying in place */
 </style>
 
 <div class="container-fluid">
@@ -311,122 +310,121 @@ ob_start();
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h2 class="mb-1" style="color: #2d3142; font-weight: 700;">Success Stories Management</h2>
-                    <p class="text-muted mb-0">Review and manage alumni success stories</p>
+                    <h2 class="mb-1" style="color: #2d3142; font-weight: 700;">Testimonials Management</h2>
+                    <p class="text-muted mb-0">Review and manage alumni testimonials</p>
                 </div>
             </div>
-            
-            
+
             <!-- Quick Stats -->
             <div class="row mb-4">
                 <div class="col-md-3">
                     <div class="stats-card" style="background: linear-gradient(135deg, #fef3c7, #fde68a); border-left: 4px solid #f59e0b;">
-                        <div class="stats-number" style="color: #92400e;"><?= count(array_filter($stories ?? [], function($story) { return !$story['status']; })) ?></div>
-                        <div class="stats-label" style="color: #92400e;">Pending Stories</div>
+                        <div class="stats-number" style="color: #92400e;"><?= count(array_filter($testimonials ?? [], function($testimonial) { return !$testimonial['status']; })) ?></div>
+                        <div class="stats-label" style="color: #92400e;">Pending Testimonials</div>
                         <i class="fas fa-clock mt-2" style="color: #f59e0b; font-size: 1.5rem;"></i>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="stats-card" style="background: linear-gradient(135deg, #d1fae5, #a7f3d0); border-left: 4px solid #10b981;">
-                        <div class="stats-number" style="color: #065f46;"><?= count(array_filter($stories ?? [], function($story) { return $story['status']; })) ?></div>
-                        <div class="stats-label" style="color: #065f46;">Approved Stories</div>
+                        <div class="stats-number" style="color: #065f46;"><?= count(array_filter($testimonials ?? [], function($testimonial) { return $testimonial['status']; })) ?></div>
+                        <div class="stats-label" style="color: #065f46;">Approved Testimonials</div>
                         <i class="fas fa-check-circle mt-2" style="color: #10b981; font-size: 1.5rem;"></i>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="stats-card" style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); border-left: 4px solid #3b82f6;">
-                        <div class="stats-number" style="color: #1e40af;"><?= count($stories ?? []) ?></div>
-                        <div class="stats-label" style="color: #1e40af;">Total Stories</div>
-                        <i class="fas fa-star mt-2" style="color: #3b82f6; font-size: 1.5rem;"></i>
+                        <div class="stats-number" style="color: #1e40af;"><?= count($testimonials ?? []) ?></div>
+                        <div class="stats-label" style="color: #1e40af;">Total Testimonials</div>
+                        <i class="fas fa-quote-left mt-2" style="color: #3b82f6; font-size: 1.5rem;"></i>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="stats-card" style="background: linear-gradient(135deg, #fed7aa, #fdba74); border-left: 4px solid #f97316;">
-                        <div class="stats-number" style="color: #c2410c;"><?= count(array_filter($stories ?? [], function($story) { return !empty($story['image']); })) ?></div>
-                        <div class="stats-label" style="color: #c2410c;">With Images</div>
-                        <i class="fas fa-image mt-2" style="color: #f97316; font-size: 1.5rem;"></i>
+                        <div class="stats-number" style="color: #c2410c;"><?= count(array_filter($testimonials ?? [], function($testimonial) { return !empty($testimonial['graduation_photo']); })) ?></div>
+                        <div class="stats-label" style="color: #c2410c;">With Photos</div>
+                        <i class="fas fa-camera mt-2" style="color: #f97316; font-size: 1.5rem;"></i>
                     </div>
                 </div>
             </div>
-            
-            <?php if (empty($stories ?? [])): ?>
+
+            <?php if (empty($testimonials ?? [])): ?>
                 <div class="text-center py-5" style="background: white; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.08);">
-                    <i class="fas fa-star text-muted" style="font-size: 4rem;"></i>
-                    <h4 class="text-muted mt-3" style="color: #6b7280;">No Success Stories</h4>
-                    <p class="text-muted">No success stories have been submitted yet.</p>
+                    <i class="fas fa-quote-left text-muted" style="font-size: 4rem;"></i>
+                    <h4 class="text-muted mt-3" style="color: #6b7280;">No Testimonials</h4>
+                    <p class="text-muted">No testimonials have been submitted yet.</p>
                 </div>
             <?php else: ?>
-                <!-- Stories List -->
+                <!-- Testimonials List -->
                 <div class="row">
-                    <?php foreach ($stories ?? [] as $story): ?>
+                    <?php foreach ($testimonials ?? [] as $testimonial): ?>
                         <div class="col-lg-6 mb-4">
-                            <div class="story-card <?= $story['status'] ? 'approved' : 'pending' ?>">
-                                <div class="story-header">
+                            <div class="testimonial-card <?= $testimonial['status'] ? 'approved' : 'pending' ?>">
+                                <div class="testimonial-header">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
-                                            <h5 class="mb-1" style="color: #2d3142; font-weight: 700; font-size: 1.25rem;"><?= htmlspecialchars($story['title']) ?></h5>
+                                            <h5 class="mb-1" style="color: #2d3142; font-weight: 700; font-size: 1.25rem;"><?= htmlspecialchars($testimonial['author_name']) ?></h5>
                                             <small class="text-muted" style="font-size: 0.9rem;">
-                                                <i class="fas fa-user me-1"></i>
-                                                <?= htmlspecialchars($story['firstname'] . ' ' . $story['lastname']) ?>
+                                                <i class="fas fa-graduation-cap me-1"></i>
+                                                <?= htmlspecialchars($testimonial['course']) ?> • Class of <?= htmlspecialchars($testimonial['graduation_year']) ?>
                                                 <span class="mx-2">•</span>
                                                 <i class="fas fa-calendar me-1"></i>
-                                                <?= date('M d, Y', strtotime($story['created'])) ?>
+                                                <?= date('M d, Y', strtotime($testimonial['created'])) ?>
                                             </small>
                                         </div>
                                         <div>
-                                            <span class="status-badge <?= $story['status'] ? 'status-approved' : 'status-pending' ?>">
-                                                <?= $story['status'] ? 'Approved' : 'Pending' ?>
+                                            <span class="status-badge <?= $testimonial['status'] ? 'status-approved' : 'status-pending' ?>">
+                                                <?= $testimonial['status'] ? 'Approved' : 'Pending' ?>
                                             </span>
-                                            <?php if (!empty($story['image'])): ?>
-                                                <i class="fas fa-image text-info ms-2" title="Has Image" style="font-size: 1.2rem;"></i>
+                                            <?php if (!empty($testimonial['graduation_photo'])): ?>
+                                                <i class="fas fa-camera text-info ms-2" title="Has Photo" style="font-size: 1.2rem;"></i>
                                             <?php endif; ?>
                                         </div>
                                     </div>
                                 </div>
-                                
-                                <div class="story-body">
-                                    <?php if (!empty($story['image'])): ?>
+
+                                <div class="testimonial-body">
+                                    <?php if (!empty($testimonial['graduation_photo'])): ?>
                                         <div class="mb-3">
-                                            <img src="/scratch/<?= htmlspecialchars($story['image']) ?>" 
-                                                 alt="<?= htmlspecialchars($story['title']) ?>" 
-                                                 class="story-image" 
+                                            <img src="/scratch/<?= htmlspecialchars($testimonial['graduation_photo']) ?>"
+                                                 alt="<?= htmlspecialchars($testimonial['author_name']) ?>"
+                                                 class="testimonial-photo"
                                                  style="width: 100%;">
                                         </div>
                                     <?php endif; ?>
-                                    
-                                    <p class="card-text" style="color: #4b5563; line-height: 1.6; font-size: 0.95rem;">
-                                        <?= htmlspecialchars(substr($story['content'], 0, 200)) ?><?= strlen($story['content']) > 200 ? '...' : '' ?>
-                                    </p>
+
+                                    <blockquote class="mb-0" style="font-style: italic; color: #4b5563; line-height: 1.6; font-size: 0.95rem;">
+                                        "<?= htmlspecialchars($testimonial['quote']) ?>"
+                                    </blockquote>
                                 </div>
-                                
-                                <div class="story-footer">
+
+                                <div class="testimonial-footer">
                                     <div class="d-flex gap-2">
-                                        <?php if (!$story['status']): ?>
-                                            <button type="button" class="btn-story-action btn-approve" 
-                                                    data-bs-toggle="modal" data-bs-target="#approveModal" 
-                                                    data-story-id="<?= $story['id'] ?>" 
-                                                    data-story-title="<?= htmlspecialchars($story['title']) ?>">
+                                        <?php if (!$testimonial['status']): ?>
+                                            <button type="button" class="btn-testimonial-action btn-approve"
+                                                    data-bs-toggle="modal" data-bs-target="#approveModal"
+                                                    data-testimonial-id="<?= $testimonial['id'] ?>"
+                                                    data-testimonial-author="<?= htmlspecialchars($testimonial['author_name']) ?>">
                                                 <i class="fas fa-check me-1"></i>Approve
                                             </button>
-                                            
-                                            <button type="button" class="btn-story-action btn-reject" 
-                                                    data-bs-toggle="modal" data-bs-target="#rejectModal" 
-                                                    data-story-id="<?= $story['id'] ?>" 
-                                                    data-story-title="<?= htmlspecialchars($story['title']) ?>">
+
+                                            <button type="button" class="btn-testimonial-action btn-reject"
+                                                    data-bs-toggle="modal" data-bs-target="#rejectModal"
+                                                    data-testimonial-id="<?= $testimonial['id'] ?>"
+                                                    data-testimonial-author="<?= htmlspecialchars($testimonial['author_name']) ?>">
                                                 <i class="fas fa-times me-1"></i>Reject
                                             </button>
                                         <?php else: ?>
-                                            <button type="button" class="btn-story-action btn-unapprove" 
-                                                    data-bs-toggle="modal" data-bs-target="#unapproveModal" 
-                                                    data-story-id="<?= $story['id'] ?>" 
-                                                    data-story-title="<?= htmlspecialchars($story['title']) ?>">
+                                            <button type="button" class="btn-testimonial-action btn-unapprove"
+                                                    data-bs-toggle="modal" data-bs-target="#unapproveModal"
+                                                    data-testimonial-id="<?= $testimonial['id'] ?>"
+                                                    data-testimonial-author="<?= htmlspecialchars($testimonial['author_name']) ?>">
                                                 <i class="fas fa-eye-slash me-1"></i>Unapprove
                                             </button>
-                                            
-                                            <button type="button" class="btn-story-action btn-delete" 
-                                                    data-bs-toggle="modal" data-bs-target="#deleteModal" 
-                                                    data-story-id="<?= $story['id'] ?>" 
-                                                    data-story-title="<?= htmlspecialchars($story['title']) ?>">
+
+                                            <button type="button" class="btn-testimonial-action btn-delete"
+                                                    data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                                    data-testimonial-id="<?= $testimonial['id'] ?>"
+                                                    data-testimonial-author="<?= htmlspecialchars($testimonial['author_name']) ?>">
                                                 <i class="fas fa-trash me-1"></i>Delete
                                             </button>
                                         <?php endif; ?>
@@ -447,7 +445,7 @@ ob_start();
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="approveModalLabel">
-                    <i class="fas fa-check-circle me-2"></i>Approve Success Story
+                    <i class="fas fa-check-circle me-2"></i>Approve Testimonial
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -455,14 +453,14 @@ ob_start();
                 <div class="confirmation-icon approve">
                     <i class="fas fa-check"></i>
                 </div>
-                <h4 class="confirmation-title">Approve This Story?</h4>
+                <h4 class="confirmation-title">Approve This Testimonial?</h4>
                 <p class="confirmation-message">
-                    This success story will be approved and become visible on the alumni dashboard. 
-                    The story will inspire other alumni and showcase their achievements.
+                    This testimonial will be approved and become visible on the alumni dashboard.
+                    The testimonial will inspire other alumni and showcase their experiences.
                 </p>
                 <div class="alert alert-info mt-3">
                     <i class="fas fa-info-circle me-2"></i>
-                    <strong>Story:</strong> <span id="approveStoryTitle"></span>
+                    <strong>Author:</strong> <span id="approveTestimonialAuthor"></span>
                 </div>
             </div>
             <div class="modal-footer">
@@ -471,10 +469,10 @@ ob_start();
                 </button>
                 <form method="POST" class="d-inline" id="approveForm">
                     <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
-                    <input type="hidden" name="story_id" id="approveStoryId" value="">
+                    <input type="hidden" name="testimonial_id" id="approveTestimonialId" value="">
                     <input type="hidden" name="action" value="approve">
                     <button type="submit" class="btn btn-modal btn-modal-confirm">
-                        <i class="fas fa-check me-1"></i>Approve Story
+                        <i class="fas fa-check me-1"></i>Approve Testimonial
                     </button>
                 </form>
             </div>
@@ -488,7 +486,7 @@ ob_start();
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="rejectModalLabel">
-                    <i class="fas fa-times-circle me-2"></i>Reject Success Story
+                    <i class="fas fa-times-circle me-2"></i>Reject Testimonial
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -496,14 +494,14 @@ ob_start();
                 <div class="confirmation-icon reject">
                     <i class="fas fa-times"></i>
                 </div>
-                <h4 class="confirmation-title">Reject This Story?</h4>
+                <h4 class="confirmation-title">Reject This Testimonial?</h4>
                 <p class="confirmation-message">
-                    This success story will be rejected and permanently removed from the system. 
+                    This testimonial will be rejected and permanently removed from the system.
                     This action cannot be undone.
                 </p>
                 <div class="alert alert-warning mt-3">
                     <i class="fas fa-exclamation-triangle me-2"></i>
-                    <strong>Story:</strong> <span id="rejectStoryTitle"></span>
+                    <strong>Author:</strong> <span id="rejectTestimonialAuthor"></span>
                 </div>
             </div>
             <div class="modal-footer">
@@ -512,10 +510,10 @@ ob_start();
                 </button>
                 <form method="POST" class="d-inline" id="rejectForm">
                     <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
-                    <input type="hidden" name="story_id" id="rejectStoryId" value="">
+                    <input type="hidden" name="testimonial_id" id="rejectTestimonialId" value="">
                     <input type="hidden" name="action" value="reject">
                     <button type="submit" class="btn btn-modal btn-modal-danger">
-                        <i class="fas fa-times me-1"></i>Reject Story
+                        <i class="fas fa-times me-1"></i>Reject Testimonial
                     </button>
                 </form>
             </div>
@@ -529,7 +527,7 @@ ob_start();
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="unapproveModalLabel">
-                    <i class="fas fa-eye-slash me-2"></i>Unapprove Success Story
+                    <i class="fas fa-eye-slash me-2"></i>Unapprove Testimonial
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -537,14 +535,14 @@ ob_start();
                 <div class="confirmation-icon unapprove">
                     <i class="fas fa-eye-slash"></i>
                 </div>
-                <h4 class="confirmation-title">Unapprove This Story?</h4>
+                <h4 class="confirmation-title">Unapprove This Testimonial?</h4>
                 <p class="confirmation-message">
-                    This success story will be unapproved and hidden from the alumni dashboard. 
+                    This testimonial will be unapproved and hidden from the alumni dashboard.
                     It can be approved again later if needed.
                 </p>
                 <div class="alert alert-warning mt-3">
                     <i class="fas fa-info-circle me-2"></i>
-                    <strong>Story:</strong> <span id="unapproveStoryTitle"></span>
+                    <strong>Author:</strong> <span id="unapproveTestimonialAuthor"></span>
                 </div>
             </div>
             <div class="modal-footer">
@@ -553,10 +551,10 @@ ob_start();
                 </button>
                 <form method="POST" class="d-inline" id="unapproveForm">
                     <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
-                    <input type="hidden" name="story_id" id="unapproveStoryId" value="">
+                    <input type="hidden" name="testimonial_id" id="unapproveTestimonialId" value="">
                     <input type="hidden" name="action" value="unapprove">
                     <button type="submit" class="btn btn-modal btn-modal-confirm">
-                        <i class="fas fa-eye-slash me-1"></i>Unapprove Story
+                        <i class="fas fa-eye-slash me-1"></i>Unapprove Testimonial
                     </button>
                 </form>
             </div>
@@ -570,7 +568,7 @@ ob_start();
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="deleteModalLabel">
-                    <i class="fas fa-trash me-2"></i>Delete Success Story
+                    <i class="fas fa-trash me-2"></i>Delete Testimonial
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -578,14 +576,14 @@ ob_start();
                 <div class="confirmation-icon delete">
                     <i class="fas fa-trash"></i>
                 </div>
-                <h4 class="confirmation-title">Delete This Story?</h4>
+                <h4 class="confirmation-title">Delete This Testimonial?</h4>
                 <p class="confirmation-message">
-                    This success story will be permanently deleted from the system. 
-                    This action cannot be undone and the story will be lost forever.
+                    This testimonial will be permanently deleted from the system.
+                    This action cannot be undone and the testimonial will be lost forever.
                 </p>
                 <div class="alert alert-danger mt-3">
                     <i class="fas fa-exclamation-triangle me-2"></i>
-                    <strong>Story:</strong> <span id="deleteStoryTitle"></span>
+                    <strong>Author:</strong> <span id="deleteTestimonialAuthor"></span>
                 </div>
             </div>
             <div class="modal-footer">
@@ -594,10 +592,10 @@ ob_start();
                 </button>
                 <form method="POST" class="d-inline" id="deleteForm">
                     <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
-                    <input type="hidden" name="story_id" id="deleteStoryId" value="">
+                    <input type="hidden" name="testimonial_id" id="deleteTestimonialId" value="">
                     <input type="hidden" name="action" value="reject">
                     <button type="submit" class="btn btn-modal btn-modal-danger">
-                        <i class="fas fa-trash me-1"></i>Delete Story
+                        <i class="fas fa-trash me-1"></i>Delete Testimonial
                     </button>
                 </form>
             </div>
@@ -608,7 +606,7 @@ ob_start();
 <script>
 // Modal event handlers
 document.addEventListener('DOMContentLoaded', function() {
-    // Prevent scroll jumping when submitting forms inside modals by using AJAX
+    // Prevent page from jumping to top: submit modal forms via AJAX then reload
     function ajaxifyForm(formId) {
         const form = document.getElementById(formId);
         if (!form) return;
@@ -629,54 +627,53 @@ document.addEventListener('DOMContentLoaded', function() {
     if (approveModal) {
         approveModal.addEventListener('show.bs.modal', function (event) {
             const button = event.relatedTarget;
-            const storyId = button.getAttribute('data-story-id');
-            const storyTitle = button.getAttribute('data-story-title');
-            
-            document.getElementById('approveStoryId').value = storyId;
-            document.getElementById('approveStoryTitle').textContent = storyTitle;
+            const testimonialId = button.getAttribute('data-testimonial-id');
+            const testimonialAuthor = button.getAttribute('data-testimonial-author');
+
+            document.getElementById('approveTestimonialId').value = testimonialId;
+            document.getElementById('approveTestimonialAuthor').textContent = testimonialAuthor;
         });
     }
-    
+
     // Reject Modal
     const rejectModal = document.getElementById('rejectModal');
     if (rejectModal) {
         rejectModal.addEventListener('show.bs.modal', function (event) {
             const button = event.relatedTarget;
-            const storyId = button.getAttribute('data-story-id');
-            const storyTitle = button.getAttribute('data-story-title');
-            
-            document.getElementById('rejectStoryId').value = storyId;
-            document.getElementById('rejectStoryTitle').textContent = storyTitle;
+            const testimonialId = button.getAttribute('data-testimonial-id');
+            const testimonialAuthor = button.getAttribute('data-testimonial-author');
+
+            document.getElementById('rejectTestimonialId').value = testimonialId;
+            document.getElementById('rejectTestimonialAuthor').textContent = testimonialAuthor;
         });
     }
-    
+
     // Unapprove Modal
     const unapproveModal = document.getElementById('unapproveModal');
     if (unapproveModal) {
         unapproveModal.addEventListener('show.bs.modal', function (event) {
             const button = event.relatedTarget;
-            const storyId = button.getAttribute('data-story-id');
-            const storyTitle = button.getAttribute('data-story-title');
-            
-            document.getElementById('unapproveStoryId').value = storyId;
-            document.getElementById('unapproveStoryTitle').textContent = storyTitle;
+            const testimonialId = button.getAttribute('data-testimonial-id');
+            const testimonialAuthor = button.getAttribute('data-testimonial-author');
+
+            document.getElementById('unapproveTestimonialId').value = testimonialId;
+            document.getElementById('unapproveTestimonialAuthor').textContent = testimonialAuthor;
         });
     }
-    
+
     // Delete Modal
     const deleteModal = document.getElementById('deleteModal');
     if (deleteModal) {
         deleteModal.addEventListener('show.bs.modal', function (event) {
             const button = event.relatedTarget;
-            const storyId = button.getAttribute('data-story-id');
-            const storyTitle = button.getAttribute('data-story-title');
-            
-            document.getElementById('deleteStoryId').value = storyId;
-            document.getElementById('deleteStoryTitle').textContent = storyTitle;
+            const testimonialId = button.getAttribute('data-testimonial-id');
+            const testimonialAuthor = button.getAttribute('data-testimonial-author');
+
+            document.getElementById('deleteTestimonialId').value = testimonialId;
+            document.getElementById('deleteTestimonialAuthor').textContent = testimonialAuthor;
         });
     }
 });
-
 </script>
 
 <?php
