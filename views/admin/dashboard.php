@@ -522,6 +522,99 @@ ob_start();
     </div>
 </div>
 
+<!-- Event Participants Management -->
+<div class="row g-4 mt-4">
+    <div class="col-12">
+        <div class="content-card">
+            <div class="card-header-modern">
+                <div class="d-flex align-items-center">
+                    <div class="icon-badge" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <h5>Event Participants</h5>
+                </div>
+                <a href="/scratch/admin.php?page=event-participants" class="btn btn-modern btn-modern-primary">
+                    <i class="fas fa-users me-2"></i>View Participants
+                </a>
+            </div>
+            
+            <div class="card-content-wrapper">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="me-4">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-calendar-alt text-primary me-2" style="font-size: 1.2rem;"></i>
+                                    <span class="fw-bold" style="font-size: 1.1rem;">Event Participation</span>
+                                </div>
+                                <p class="text-muted mb-0 mt-1">Monitor alumni participation in events</p>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="d-flex align-items-center p-3" style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); border-radius: 12px; border-left: 4px solid #3b82f6;">
+                                    <div class="me-3">
+                                        <i class="fas fa-calendar text-primary" style="font-size: 1.5rem;"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark">Total Events
+                                            <span class="badge bg-primary ms-2" style="border-radius: 10px;"><?= count($events ?? []) ?></span>
+                                        </div>
+                                        <small class="text-muted">Active events</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="d-flex align-items-center p-3" style="background: linear-gradient(135deg, #d1fae5, #a7f3d0); border-radius: 12px; border-left: 4px solid #10b981;">
+                                    <div class="me-3">
+                                        <i class="fas fa-users text-success" style="font-size: 1.5rem;"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark">Total Participants
+                                            <span class="badge bg-success ms-2" style="border-radius: 10px;"><?= array_sum(array_column($events ?? [], 'participant_count')) ?></span>
+                                        </div>
+                                        <small class="text-muted">Across all events</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="d-flex align-items-center p-3" style="background: linear-gradient(135deg, #fef3c7, #fde68a); border-radius: 12px; border-left: 4px solid #f59e0b;">
+                                    <div class="me-3">
+                                        <i class="fas fa-chart-line text-warning" style="font-size: 1.5rem;"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark">Avg. Participation
+                                            <span class="badge bg-warning text-dark ms-2" style="border-radius: 10px;"><?= count($events ?? []) > 0 ? round(array_sum(array_column($events ?? [], 'participant_count')) / count($events ?? []), 1) : 0 ?></span>
+                                        </div>
+                                        <small class="text-muted">Per event</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <div class="mb-3">
+                                <i class="fas fa-calendar-alt fa-3x text-primary mb-3"></i>
+                                <h6 class="fw-bold">Event Participants</h6>
+                                <p class="text-muted small">View detailed participation reports and manage event attendees.</p>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <a href="/scratch/admin.php?page=event-participants" class="btn btn-modern btn-modern-primary">
+                                    <i class="fas fa-users me-2"></i>View Participants
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Recent Activity -->
 <div class="content-card mt-4">
     <div class="card-header-modern">

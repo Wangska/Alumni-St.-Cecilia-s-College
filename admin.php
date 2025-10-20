@@ -298,11 +298,28 @@ if ($page === 'careers' && !empty($action) && $_SERVER['REQUEST_METHOD'] === 'PO
     switch ($action) {
         case 'add':
             $jobTitle = trim($_POST['job_title'] ?? '');
+            
+            // Handle company logo upload
+            $companyLogo = '';
+            if (!empty($_FILES['company_logo']['name']) && is_uploaded_file($_FILES['company_logo']['tmp_name'])) {
+                $ext = pathinfo($_FILES['company_logo']['name'], PATHINFO_EXTENSION);
+                $safeName = 'company_' . bin2hex(random_bytes(6)) . ($ext ? '.' . $ext : '');
+                $destDir = __DIR__ . '/uploads';
+                if (!is_dir($destDir)) {
+                    @mkdir($destDir, 0775, true);
+                }
+                $dest = $destDir . '/' . $safeName;
+                if (move_uploaded_file($_FILES['company_logo']['tmp_name'], $dest)) {
+                    $companyLogo = $safeName;
+                }
+            }
+            
             $careerModel->create([
                 'company' => trim($_POST['company'] ?? ''),
                 'location' => trim($_POST['location'] ?? ''),
                 'job_title' => $jobTitle,
                 'description' => trim($_POST['description'] ?? ''),
+                'company_logo' => $companyLogo,
                 'user_id' => $_SESSION['user']['id'],
                 'date_created' => date('Y-m-d H:i:s'),
             ]);
@@ -312,11 +329,32 @@ if ($page === 'careers' && !empty($action) && $_SERVER['REQUEST_METHOD'] === 'PO
             
         case 'edit':
             $jobTitle = trim($_POST['job_title'] ?? '');
+            
+            // Handle company logo upload for edit
+            $companyLogo = $_POST['existing_company_logo'] ?? '';
+            if (!empty($_FILES['company_logo']['name']) && is_uploaded_file($_FILES['company_logo']['tmp_name'])) {
+                $ext = pathinfo($_FILES['company_logo']['name'], PATHINFO_EXTENSION);
+                $safeName = 'company_' . bin2hex(random_bytes(6)) . ($ext ? '.' . $ext : '');
+                $destDir = __DIR__ . '/uploads';
+                if (!is_dir($destDir)) {
+                    @mkdir($destDir, 0775, true);
+                }
+                $dest = $destDir . '/' . $safeName;
+                if (move_uploaded_file($_FILES['company_logo']['tmp_name'], $dest)) {
+                    // Delete old logo if exists
+                    if ($companyLogo && file_exists($destDir . '/' . $companyLogo)) {
+                        @unlink($destDir . '/' . $companyLogo);
+                    }
+                    $companyLogo = $safeName;
+                }
+            }
+            
             $careerModel->update((int)$_POST['id'], [
                 'company' => trim($_POST['company'] ?? ''),
                 'location' => trim($_POST['location'] ?? ''),
                 'job_title' => $jobTitle,
                 'description' => trim($_POST['description'] ?? ''),
+                'company_logo' => $companyLogo,
             ]);
             \ActivityLogger::logUpdate('Job Posting', $jobTitle);
             $_SESSION['success'] = 'Job posting updated successfully!';
@@ -333,6 +371,62 @@ if ($page === 'careers' && !empty($action) && $_SERVER['REQUEST_METHOD'] === 'PO
     }
     
     header('Location: /scratch/admin.php?page=careers');
+    exit;
+}
+
+// Handle job application actions
+if ($page === 'job-applications' && !empty($action) && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    $db = \App\Core\Database::getInstance();
+    $pdo = $db->getConnection();
+    
+    // Verify CSRF token
+    if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
+        die('Invalid CSRF token');
+    }
+    
+    $applicationId = (int)($_POST['application_id'] ?? 0);
+    
+    if ($applicationId <= 0) {
+        $_SESSION['error'] = 'Invalid application ID.';
+        header('Location: /scratch/admin.php?page=job-applications');
+        exit;
+    }
+    
+    switch ($action) {
+        case 'update_status':
+            $newStatus = $_POST['status'] ?? '';
+            $notes = trim($_POST['notes'] ?? '');
+            
+            if (!in_array($newStatus, ['pending', 'reviewed', 'accepted', 'rejected'])) {
+                $_SESSION['error'] = 'Invalid status.';
+                break;
+            }
+            
+            try {
+                $stmt = $pdo->prepare("UPDATE job_applications SET status = ?, notes = ? WHERE id = ?");
+                $stmt->execute([$newStatus, $notes, $applicationId]);
+                
+                \ActivityLogger::logUpdate('Job Application', 'Status updated to: ' . $newStatus);
+                $_SESSION['success'] = 'Application status updated successfully!';
+            } catch (Exception $e) {
+                $_SESSION['error'] = 'Failed to update application status.';
+            }
+            break;
+            
+        case 'delete':
+            try {
+                $stmt = $pdo->prepare("DELETE FROM job_applications WHERE id = ?");
+                $stmt->execute([$applicationId]);
+                
+                \ActivityLogger::logDelete('Job Application', 'Application ID: ' . $applicationId);
+                $_SESSION['success'] = 'Application deleted successfully!';
+            } catch (Exception $e) {
+                $_SESSION['error'] = 'Failed to delete application.';
+            }
+            break;
+    }
+    
+    header('Location: /scratch/admin.php?page=job-applications');
     exit;
 }
 
@@ -509,6 +603,9 @@ switch ($page) {
     case 'events':
         $controller->events();
         break;
+    case 'event-participants':
+        $controller->eventParticipants();
+        break;
     case 'announcements':
         $controller->announcements();
         break;
@@ -523,6 +620,9 @@ switch ($page) {
         break;
     case 'careers':
         $controller->careers();
+        break;
+    case 'job-applications':
+        $controller->jobApplications();
         break;
     case 'forum':
         $controller->forum();

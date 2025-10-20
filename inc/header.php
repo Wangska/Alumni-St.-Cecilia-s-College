@@ -195,6 +195,9 @@ $currentPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
           <li class="nav-item">
             <a class="nav-link <?= ($currentPath === '/scratch/jobs/index.php') ? 'active' : '' ?>" href="/scratch/jobs/index.php">Jobs</a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link <?= ($currentPath === '/scratch/events/index.php') ? 'active' : '' ?>" href="/scratch/events/index.php">Events</a>
+          </li>
           
         <li class="nav-item">
             <a class="nav-link <?= ($currentPath === '/scratch/testimonials/index.php') || ($currentPage === 'create.php' && strpos($_SERVER['REQUEST_URI'], 'testimonials') !== false) ? 'active' : '' ?>" href="/scratch/testimonials/index.php">Testimonials</a>

@@ -171,6 +171,9 @@ ob_start();
         </div>
         <div class="col-md"></div>
         <div class="col-md-auto">
+            <a href="/scratch/admin.php?page=job-applications" class="btn btn-outline-primary me-2" style="border-radius: 12px; padding: 12px 24px; font-weight: 600;">
+                <i class="fas fa-file-alt me-2"></i>View Applications
+            </a>
             <button class="btn-add-modern" data-bs-toggle="modal" data-bs-target="#addJobModal">
                 <i class="fas fa-plus me-2"></i>Add New Job
             </button>
@@ -247,7 +250,13 @@ ob_start();
         <div class="job-card-modern">
             <div class="job-header">
                 <div class="job-icon">
-                    <i class="fas fa-briefcase"></i>
+                    <?php if (!empty($career['company_logo']) && file_exists(__DIR__ . '/../uploads/' . $career['company_logo'])): ?>
+                        <img src="/scratch/uploads/<?= htmlspecialchars($career['company_logo']) ?>" 
+                             alt="<?= htmlspecialchars($career['company']) ?> Logo" 
+                             style="width: 100%; height: 100%; object-fit: contain; border-radius: 14px;">
+                    <?php else: ?>
+                        <i class="fas fa-briefcase"></i>
+                    <?php endif; ?>
                 </div>
                 <div class="flex-grow-1">
                     <h5 class="job-title-modern"><?= htmlspecialchars($career['job_title'] ?? '') ?></h5>
@@ -420,7 +429,7 @@ ob_start();
                 </div>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <form method="POST" action="/scratch/admin.php?page=careers&action=add">
+            <form method="POST" action="/scratch/admin.php?page=careers&action=add" enctype="multipart/form-data">
                 <div class="modal-body" style="padding: 30px; max-height: 70vh; overflow-y: auto;">
                     <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                     
@@ -458,6 +467,22 @@ ob_start();
                                 </span>
                                 <input type="text" name="location" class="form-control" required placeholder="e.g., Cebu City, Philippines" 
                                        style="border: 2px solid #e9ecef; border-left: none; border-radius: 0 12px 12px 0; padding: 12px 18px;">
+                            </div>
+                        </div>
+                        
+                        <div class="col-12">
+                            <label class="form-label" style="font-weight: 600; color: #2d3142; margin-bottom: 10px;">
+                                Company Logo
+                            </label>
+                            <div class="company-logo-upload" style="text-align: center; padding: 30px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 16px; border: 3px dashed #dee2e6; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);">
+                                <i class="fas fa-building fa-3x text-muted mb-3"></i>
+                                <p class="text-muted mb-3">Upload company logo (optional)</p>
+                                <label for="companyLogoInput" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-cloud-upload-alt me-2"></i>Choose Logo
+                                </label>
+                                <input type="file" id="companyLogoInput" name="company_logo" accept="image/*" style="display: none;">
+                                <img id="companyLogoPreview" class="company-logo-preview" style="max-width: 200px; max-height: 150px; border-radius: 12px; margin: 20px auto; display: none; box-shadow: 0 8px 24px rgba(13, 110, 253, 0.25);" alt="Company Logo Preview">
+                                <p class="text-muted small mt-2 mb-0">Recommended: Square logo, max 500x500px</p>
                             </div>
                         </div>
                         
@@ -694,6 +719,20 @@ function deleteJob(id, title) {
     document.getElementById('delete_job_title').textContent = title;
     new bootstrap.Modal(document.getElementById('deleteJobModal')).show();
 }
+
+// Company logo preview
+document.getElementById('companyLogoInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('companyLogoPreview');
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+});
 </script>
 
 <?php

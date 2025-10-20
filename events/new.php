@@ -25,12 +25,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     
     $eventTitle = trim($_POST['title'] ?? '');
-    $stmt = $pdo->prepare('INSERT INTO events (title, content, schedule, banner, date_created) VALUES (?,?,?,?,NOW())');
+    $participantLimit = !empty($_POST['participant_limit']) ? (int)$_POST['participant_limit'] : null;
+    
+    $stmt = $pdo->prepare('INSERT INTO events (title, content, schedule, banner, participant_limit, date_created) VALUES (?,?,?,?,?,NOW())');
     $stmt->execute([
         $eventTitle,
         trim($_POST['content'] ?? ''),
         trim($_POST['schedule'] ?? ''),
         $bannerFile,
+        $participantLimit,
     ]);
     
     // Log the creation
@@ -226,6 +229,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="mb-4">
                     <label class="form-label required">Event Description</label>
                     <textarea class="form-control" name="content" rows="8" required placeholder="Enter detailed event description..."></textarea>
+                </div>
+                
+                <!-- Participant Limit -->
+                <div class="mb-4">
+                    <label class="form-label">Participant Limit</label>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <input type="number" class="form-control" name="participant_limit" min="1" placeholder="Enter maximum number of participants (optional)">
+                        </div>
+                        <div class="col-md-4">
+                            <small class="text-muted d-block mt-2">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Leave empty for unlimited participants
+                            </small>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- Form Actions -->

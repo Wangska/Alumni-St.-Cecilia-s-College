@@ -275,6 +275,25 @@ ob_start();
     padding: 1.5rem;
 }
 
+/* Keep image rows aligned even when titles/meta vary */
+.story-title {
+    color: #2d3142;
+    font-weight: 700;
+    font-size: 1.25rem;
+    margin-bottom: .25rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* show up to 2 lines */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 2.8rem; /* reserve space for two lines */
+}
+
+.story-meta {
+    font-size: 0.9rem;
+    min-height: 1.2rem; /* reserve consistent meta height */
+    display: block;
+}
+
 .story-body {
     padding: 1.5rem;
 }
@@ -366,8 +385,8 @@ ob_start();
                                 <div class="story-header">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
-                                            <h5 class="mb-1" style="color: #2d3142; font-weight: 700; font-size: 1.25rem;"><?= htmlspecialchars($story['title']) ?></h5>
-                                            <small class="text-muted" style="font-size: 0.9rem;">
+                                            <h5 class="story-title mb-1"><?= htmlspecialchars($story['title']) ?></h5>
+                                            <small class="text-muted story-meta">
                                                 <i class="fas fa-user me-1"></i>
                                                 <?= htmlspecialchars($story['firstname'] . ' ' . $story['lastname']) ?>
                                                 <span class="mx-2">•</span>

@@ -254,6 +254,9 @@ try {
                         <a class="nav-link" href="/scratch/jobs/index.php">Jobs</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="/scratch/events/index.php">Events</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="/scratch/testimonials/index.php">Testimonials</a>
                     </li>
                     <li class="nav-item">

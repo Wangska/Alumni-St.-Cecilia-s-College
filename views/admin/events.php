@@ -258,8 +258,20 @@ ob_start();
                         <div class="text-muted small">
                             <i class="fas fa-user me-1"></i>
                             Created <?= date('M d, Y', strtotime($event['date_created'] ?? 'now')) ?>
+                            <br>
+                            <i class="fas fa-users me-1"></i>
+                            <?php if (isset($event['participant_limit']) && $event['participant_limit']): ?>
+                                <?= $event['participant_count'] ?? 0 ?> / <?= $event['participant_limit'] ?> participants
+                            <?php else: ?>
+                                <?= $event['participant_count'] ?? 0 ?> participants (unlimited)
+                            <?php endif; ?>
                         </div>
                         <div class="event-actions">
+                            <a href="/scratch/admin.php?page=event-participants&event_id=<?= $event['id'] ?>" 
+                               class="btn-action btn-primary" 
+                               title="View Participants">
+                                <i class="fas fa-users"></i>
+                            </a>
                             <a href="/scratch/events/edit.php?id=<?= $event['id'] ?>" 
                                class="btn-action btn-primary" 
                                title="Edit">

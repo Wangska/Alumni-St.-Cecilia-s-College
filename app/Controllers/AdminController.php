@@ -123,10 +123,59 @@ class AdminController extends Controller
     
     public function events(): void
     {
-        $events = $this->eventModel->getAllOrdered();
+        $events = $this->eventModel->getAllWithParticipantCounts();
         
         $this->view('admin.events', [
             'events' => $events,
+        ]);
+    }
+    
+    public function eventParticipants(): void
+    {
+        $db = \App\Core\Database::getInstance();
+        $pdo = $db->getConnection();
+        $filterEventId = isset($_GET['event_id']) ? (int)$_GET['event_id'] : 0;
+        
+        // Get events with participant counts
+        if ($filterEventId > 0) {
+            $stmt = $pdo->prepare("
+                SELECT e.*, COUNT(ec.id) as participant_count
+                FROM events e
+                LEFT JOIN event_commits ec ON e.id = ec.event_id AND ec.user_id != 1
+                WHERE e.id = ?
+                GROUP BY e.id
+            ");
+            $stmt->execute([$filterEventId]);
+        } else {
+            $stmt = $pdo->prepare("
+                SELECT e.*, COUNT(ec.id) as participant_count
+                FROM events e
+                LEFT JOIN event_commits ec ON e.id = ec.event_id AND ec.user_id != 1
+                GROUP BY e.id
+                ORDER BY e.schedule DESC
+            ");
+            $stmt->execute();
+        }
+        $events = $stmt->fetchAll();
+        
+        // Get detailed participant information for each event
+        $eventParticipants = [];
+        foreach ($events as $event) {
+            $stmt = $pdo->prepare("
+                SELECT ec.*, u.username, ab.firstname, ab.lastname, ab.email
+                FROM event_commits ec
+                LEFT JOIN users u ON ec.user_id = u.id
+                LEFT JOIN alumnus_bio ab ON u.alumnus_id = ab.id
+                WHERE ec.event_id = ? AND ec.user_id != 1
+                ORDER BY ec.id DESC
+            ");
+            $stmt->execute([$event['id']]);
+            $eventParticipants[$event['id']] = $stmt->fetchAll();
+        }
+        
+        $this->view('admin.event-participants', [
+            'events' => $events,
+            'eventParticipants' => $eventParticipants,
         ]);
     }
     
@@ -250,6 +299,33 @@ class AdminController extends Controller
         
         $this->view('admin.careers', [
             'careers' => $careers,
+        ]);
+    }
+    
+    public function jobApplications(): void
+    {
+        $db = \App\Core\Database::getInstance();
+        $pdo = $db->getConnection();
+        
+        try {
+            $stmt = $pdo->prepare("
+                SELECT ja.*, 
+                       c.job_title, 
+                       c.company,
+                       u.name as applicant_name
+                FROM job_applications ja
+                LEFT JOIN careers c ON ja.job_id = c.id
+                LEFT JOIN users u ON ja.user_id = u.id
+                ORDER BY ja.applied_at DESC
+            ");
+            $stmt->execute();
+            $applications = $stmt->fetchAll();
+        } catch (Exception $e) {
+            $applications = [];
+        }
+        
+        $this->view('admin.job-applications', [
+            'applications' => $applications,
         ]);
     }
     

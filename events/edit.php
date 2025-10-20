@@ -34,12 +34,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     
     $eventTitle = trim($_POST['title'] ?? '');
-    $stmt = $pdo->prepare('UPDATE events SET title=?, content=?, schedule=?, banner=? WHERE id=?');
+    $participantLimit = !empty($_POST['participant_limit']) ? (int)$_POST['participant_limit'] : null;
+    
+    $stmt = $pdo->prepare('UPDATE events SET title=?, content=?, schedule=?, banner=?, participant_limit=? WHERE id=?');
     $stmt->execute([
         $eventTitle,
         trim($_POST['content'] ?? ''),
         trim($_POST['schedule'] ?? ''),
         $bannerFile,
+        $participantLimit,
         $id,
     ]);
     
@@ -210,18 +213,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="mb-4">
                     <label class="form-label">Event Banner</label>
                     <div class="banner-upload">
-                        <?php if ($row['banner']): ?>
-                            <img id="bannerPreview" class="banner-preview" src="/scratch/uploads/<?= e($row['banner']) ?>" alt="Current Banner">
+                        <?php if ($row['banner'] && file_exists(__DIR__ . '/../uploads/' . $row['banner'])): ?>
+                            <div class="current-banner-section mb-3">
+                                <h6 class="text-muted mb-2"><i class="fas fa-image me-2"></i>Current Banner:</h6>
+                                <img id="bannerPreview" class="banner-preview" src="/scratch/uploads/<?= e($row['banner']) ?>" alt="Current Banner">
+                                <div class="mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        File: <?= e($row['banner']) ?>
+                                    </small>
+                                </div>
+                            </div>
                         <?php else: ?>
-                            <i class="fas fa-image fa-3x text-muted mb-3"></i>
-                            <p class="text-muted mb-3">No banner image uploaded</p>
-                            <img id="bannerPreview" class="banner-preview" style="display: none;" alt="Banner Preview">
+                            <div class="no-banner-section">
+                                <i class="fas fa-image fa-3x text-muted mb-3"></i>
+                                <p class="text-muted mb-3">No banner image uploaded</p>
+                            </div>
                         <?php endif; ?>
-                        <label for="bannerInput" class="btn btn-outline-primary btn-sm mt-3">
-                            <i class="fas fa-cloud-upload-alt me-2"></i>Change Banner
-                        </label>
-                        <input type="file" id="bannerInput" name="banner" accept="image/*" style="display: none;">
-                        <p class="text-muted small mt-2 mb-0">Upload a new banner (Optional)</p>
+                        
+                        <div class="upload-section">
+                            <label for="bannerInput" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-cloud-upload-alt me-2"></i>
+                                <?= ($row['banner'] && file_exists(__DIR__ . '/../uploads/' . $row['banner'])) ? 'Change Banner' : 'Upload Banner' ?>
+                            </label>
+                            <input type="file" id="bannerInput" name="banner" accept="image/*" style="display: none;">
+                            <p class="text-muted small mt-2 mb-0">
+                                <?= ($row['banner'] && file_exists(__DIR__ . '/../uploads/' . $row['banner'])) ? 'Upload a new banner to replace the current one' : 'Upload a banner image (Optional)' ?>
+                            </p>
+                        </div>
+                        
+                        <img id="newBannerPreview" class="banner-preview" style="display: none;" alt="New Banner Preview">
                     </div>
                 </div>
                 
@@ -242,6 +263,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="mb-4">
                     <label class="form-label required">Event Description</label>
                     <textarea class="form-control" name="content" rows="8" required><?= e($row['content']) ?></textarea>
+                </div>
+                
+                <!-- Participant Limit -->
+                <div class="mb-4">
+                    <label class="form-label">Participant Limit</label>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <input type="number" class="form-control" name="participant_limit" min="1" 
+                                   value="<?= isset($row['participant_limit']) ? $row['participant_limit'] : '' ?>" 
+                                   placeholder="Enter maximum number of participants (optional)">
+                        </div>
+                        <div class="col-md-4">
+                            <small class="text-muted d-block mt-2">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Leave empty for unlimited participants
+                            </small>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- Form Actions -->
@@ -266,9 +305,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    const preview = document.getElementById('bannerPreview');
-                    preview.src = e.target.result;
-                    preview.style.display = 'block';
+                    const newPreview = document.getElementById('newBannerPreview');
+                    newPreview.src = e.target.result;
+                    newPreview.style.display = 'block';
+                    
+                    // Show preview of new image
+                    newPreview.style.marginTop = '20px';
+                    newPreview.style.border = '2px solid #0d6efd';
+                    newPreview.style.borderRadius = '12px';
                 };
                 reader.readAsDataURL(file);
             }

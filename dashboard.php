@@ -74,6 +74,27 @@ $stmt = $pdo->prepare('
 ');
 $stmt->execute();
 $testimonials = $stmt->fetchAll();
+
+        // Get events using your existing table structure
+        try {
+            $stmt = $pdo->prepare('
+                SELECT e.*, 
+                       COUNT(ec.id) as participant_count,
+                       CASE WHEN EXISTS(
+                           SELECT 1 FROM event_commits ec2 
+                           WHERE ec2.event_id = e.id AND ec2.user_id = ?
+                       ) THEN 1 ELSE 0 END as is_registered
+                FROM events e 
+                LEFT JOIN event_commits ec ON e.id = ec.event_id AND ec.user_id != 1
+                GROUP BY e.id 
+                ORDER BY e.schedule ASC 
+                LIMIT 3
+            ');
+            $stmt->execute([$user['id']]);
+            $events = $stmt->fetchAll();
+        } catch (Exception $e) {
+            $events = [];
+        }
 ?>
 <!doctype html>
 <html lang="en">
@@ -575,6 +596,9 @@ $testimonials = $stmt->fetchAll();
               <a class="nav-link" href="/scratch/jobs/index.php">Jobs</a>
             </li>
             <li class="nav-item">
+              <a class="nav-link" href="/scratch/events/index.php">Events</a>
+            </li>
+            <li class="nav-item">
               <a class="nav-link" href="/scratch/testimonials/index.php">Testimonials</a>
             </li>
             <li class="nav-item">
@@ -681,9 +705,32 @@ $testimonials = $stmt->fetchAll();
                   <p class="card-text text-muted mb-4 flex-grow-1" style="line-height: 1.6;">
                     <?= htmlspecialchars(substr($announcement['content'] ?? '', 0, 120)) ?>...
                   </p>
-                  <a href="/scratch/announcements/index.php" class="btn w-100 mt-auto" style="background: #dc2626; color: white; border: none; padding: 12px; font-weight: 600; border-radius: 8px;">
+                  <button class="btn w-100 mt-auto" style="background: #dc2626; color: white; border: none; padding: 12px; font-weight: 600; border-radius: 8px;" data-bs-toggle="modal" data-bs-target="#dashAnnouncementModal<?= $announcement['id'] ?>">
                     Read More
-                  </a>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <!-- Dashboard Announcement Modal -->
+            <div class="modal fade" id="dashAnnouncementModal<?= $announcement['id'] ?>" tabindex="-1" aria-hidden="true">
+              <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content" style="border-radius:16px; border:none; box-shadow:0 20px 60px rgba(0,0,0,.3);">
+                  <div class="modal-header" style="background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%); color:#fff; border:none; border-radius:16px 16px 0 0;">
+                    <h5 class="modal-title mb-0" style="font-weight:700; font-size:20px;"><?= htmlspecialchars($announcement['title'] ?? 'Announcement') ?></h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body" style="padding:24px;">
+                    <?php if (!empty($announcement['image'])): ?>
+                      <img src="/scratch/uploads/<?= htmlspecialchars($announcement['image']) ?>" alt="<?= htmlspecialchars($announcement['title'] ?? 'Announcement') ?>" class="img-fluid mb-3" style="border-radius:12px; width:100%; max-height:420px; object-fit:cover;">
+                    <?php endif; ?>
+                    <div class="text-muted mb-3"><i class="fas fa-calendar me-1"></i><?= date('F d, Y - g:i A', strtotime($announcement['date_created'] ?? 'now')) ?></div>
+                    <div style="color:#374151; line-height:1.7; white-space:pre-wrap;">
+                      <?= nl2br(htmlspecialchars($announcement['content'] ?? '')) ?>
+                    </div>
+                  </div>
+                  <div class="modal-footer" style="background:#f8f9fa; border-top:1px solid #e5e7eb; border-radius:0 0 16px 16px;">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" style="border-radius:10px;">Close</button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -708,6 +755,136 @@ $testimonials = $stmt->fetchAll();
     </div>
   </section>
 
+  <!-- Upcoming Events Section -->
+  <section id="events" class="py-5" style="background: #f8f9fa;">
+    <div class="container">
+      <div class="row">
+        <div class="col-12">
+          <div class="text-center mb-5">
+            <h2 class="display-4 fw-bold" style="color: #dc2626; font-family: 'Times New Roman', serif;">UPCOMING EVENTS</h2>
+            <div class="mx-auto" style="width: 100px; height: 3px; background: #dc2626;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <?php if (empty($events)): ?>
+          <div class="col-12">
+            <div class="text-center py-5" style="background:#fff; border-radius:16px; box-shadow:0 4px 20px rgba(0,0,0,0.06);">
+              <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 90px; height: 90px;">
+                <i class="fas fa-calendar-alt" style="font-size:2rem; color:#dc2626;"></i>
+              </div>
+              <h4 class="text-muted">No upcoming events</h4>
+              <p class="text-muted">Check back later for new alumni events</p>
+            </div>
+          </div>
+        <?php else: ?>
+          <?php foreach ($events as $event): ?>
+            <?php
+              $eventDate = new DateTime($event['schedule']);
+              $now = new DateTime();
+              $isUpcoming = $eventDate > $now;
+              $limit = $event['participant_limit'] ?? ($event['max_participants'] ?? null);
+              $participantCount = (int)($event['participant_count'] ?? 0);
+              $isFull = $limit && $participantCount >= (int)$limit;
+              $statusText = !$isUpcoming ? 'Past Event' : ($isFull ? 'Event Full' : 'Registration Open');
+              $statusClass = !$isUpcoming ? 'bg-secondary' : ($isFull ? 'bg-danger' : 'bg-success');
+            ?>
+            <div class="col-lg-4 col-md-6">
+              <div class="card h-100 border-0 shadow d-flex flex-column" style="border-radius: 12px; overflow: hidden;">
+                <!-- Image Section -->
+                <div style="height: 200px; overflow: hidden; background: linear-gradient(135deg, #7f1d1d, #991b1b);">
+                  <?php if (!empty($event['banner']) && file_exists(__DIR__ . '/uploads/' . $event['banner'])): ?>
+                    <img src="/scratch/uploads/<?= htmlspecialchars($event['banner']) ?>" alt="<?= htmlspecialchars($event['title']) ?>" class="w-100 h-100" style="object-fit: cover;">
+                  <?php else: ?>
+                    <div class="d-flex align-items-center justify-content-center h-100 text-white">
+                      <div class="text-center">
+                        <i class="fas fa-calendar-alt" style="font-size: 3rem; margin-bottom: .5rem;"></i>
+                        <h6 class="mb-0"><?= htmlspecialchars($event['title']) ?></h6>
+                      </div>
+                    </div>
+                  <?php endif; ?>
+                </div>
+
+                <!-- Content Section -->
+                <div class="card-body p-4 d-flex flex-column flex-grow-1">
+                  <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h5 class="card-title fw-bold mb-0" style="color: #1f2937; font-size: 1.25rem;">
+                      <?= htmlspecialchars($event['title']) ?>
+                    </h5>
+                    <span class="badge <?= $statusClass ?> text-white"><?= $statusText ?></span>
+                  </div>
+                  <p class="text-muted small mb-2">
+                    <i class="fas fa-calendar me-1"></i><?= $eventDate->format('M d, Y \a\t g:i A') ?>
+                  </p>
+                  <p class="card-text text-muted mb-3" style="line-height: 1.6; min-height: 64px;">
+                    <?= htmlspecialchars(substr((string)($event['content'] ?? ''), 0, 120)) ?><?= strlen((string)($event['content'] ?? '')) > 120 ? '...' : '' ?>
+                  </p>
+
+                  <div class="mb-3" style="min-height: 72px;">
+                    <small class="text-muted">
+                      <i class="fas fa-users me-1"></i>
+                      <strong><?= $participantCount ?></strong>
+                      <?php if ($limit): ?>
+                        / <strong><?= (int)$limit ?></strong> participants
+                        <span class="badge bg-info ms-1" style="font-size: .75rem;"><?= max((int)$limit - $participantCount, 0) ?> left</span>
+                      <?php else: ?>
+                        participants
+                      <?php endif; ?>
+                    </small>
+
+                    <?php if ($limit): ?>
+                      <?php
+                        $percentage = $participantCount > 0 ? ($participantCount / (int)$limit) * 100 : 0;
+                        $barColor = $percentage >= 100 ? '#7f1d1d' : ($percentage >= 80 ? '#b45309' : '#dc2626');
+                      ?>
+                      <div class="mt-1 d-flex align-items-center" style="gap: 8px; margin-top: 6px;">
+                        <div style="background:#f0f0f0; height: 6px; border-radius: 3px; overflow:hidden; flex: 1;">
+                          <div style="background: <?= $barColor ?>; height: 100%; width: <?= min($percentage, 100) ?>%; transition: width .3s;"></div>
+                        </div>
+                        <small class="text-muted" style="width: 40px; text-align: right; flex-shrink: 0;"><?= round($percentage, 1) ?>%</small>
+                      </div>
+                    <?php else: ?>
+                      <div style="height: 14px;"></div>
+                    <?php endif; ?>
+                  </div>
+
+                  <!-- Participants and capacity sit directly above the button to align with other sections -->
+                  <div class="mt-auto">
+                    <?php if ($isUpcoming && !$isFull): ?>
+                      <form method="POST" action="/scratch/events/index.php" class="w-100">
+                        <input type="hidden" name="event_id" value="<?= (int)$event['id'] ?>">
+                        <?php if (!empty($event['is_registered'])): ?>
+                          <button type="submit" name="action" value="leave" class="btn btn-outline-danger w-100" style="border-radius: 8px;">
+                            <i class="fas fa-user-minus me-1"></i>Leave Event
+                          </button>
+                        <?php else: ?>
+                          <button type="submit" name="action" value="join" class="btn w-100" style="border-radius: 8px; background:#dc2626; color:#fff; border:none;">
+                            <i class="fas fa-user-plus me-1"></i>Join Event
+                          </button>
+                        <?php endif; ?>
+                      </form>
+                    <?php elseif ($isFull): ?>
+                      <button class="btn btn-secondary w-100" style="border-radius: 8px;" disabled>
+                        <i class="fas fa-users me-1"></i>Event Full
+                      </button>
+                    <?php endif; ?>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <?php endforeach; ?>
+        <?php endif; ?>
+      </div>
+
+      <div class="text-center mt-4">
+        <a href="/scratch/events/index.php" class="btn" style="background: #dc2626; color: white; border: none; padding: 12px 24px; font-weight: 600; border-radius: 8px;">
+          <i class="fas fa-arrow-right me-2"></i>View All Events
+        </a>
+      </div>
+    </div>
+  </section>
+
   <!-- Available Jobs Section -->
   <section id="jobs" class="py-5" style="background: #f8f9fa;">
     <div class="container">
@@ -726,33 +903,70 @@ $testimonials = $stmt->fetchAll();
             <div class="col-lg-4 col-md-6">
               <div class="card h-100 border-0 shadow d-flex flex-column" style="border-radius: 12px; overflow: hidden;">
                 <!-- Image Section -->
-                <div style="height: 200px; overflow: hidden; background: linear-gradient(135deg, #10b981, #059669);">
-                  <div class="d-flex align-items-center justify-content-center h-100">
-                    <i class="fas fa-briefcase text-white" style="font-size: 4rem;"></i>
-                  </div>
+                <div style="height: 200px; overflow: hidden; background: linear-gradient(135deg, #7f1d1d, #991b1b);">
+                  <?php if (!empty($job['company_logo']) && file_exists(__DIR__ . '/uploads/' . $job['company_logo'])): ?>
+                    <img src="/scratch/uploads/<?= htmlspecialchars($job['company_logo']) ?>" alt="<?= htmlspecialchars($job['company'] ?? 'Company') ?> Logo" class="w-100 h-100" style="object-fit: contain; background: #fff;">
+                  <?php else: ?>
+                    <div class="d-flex align-items-center justify-content-center h-100">
+                      <i class="fas fa-briefcase text-white" style="font-size: 4rem;"></i>
+                    </div>
+                  <?php endif; ?>
                 </div>
                 
                 <!-- Content Section -->
                 <div class="card-body p-4 d-flex flex-column flex-grow-1">
                   <h5 class="card-title fw-bold mb-3" style="color: #1f2937; font-size: 1.25rem;">
-                    <?= htmlspecialchars($job['title']) ?>
+                    <?= htmlspecialchars($job['job_title'] ?? ($job['title'] ?? '')) ?>
                   </h5>
                   <p class="card-text text-muted mb-4 flex-grow-1" style="line-height: 1.6;">
-                    <?= htmlspecialchars(substr($job['description'] ?? '', 0, 120)) ?>...
+                    <?= htmlspecialchars(substr((string)($job['description'] ?? ''), 0, 120)) ?>...
                   </p>
                   <div class="d-flex justify-content-between align-items-center mb-3">
                     <small class="text-muted">
                       <i class="fas fa-map-marker-alt me-1"></i>
-                      <?= htmlspecialchars($job['location'] ?? 'Location not specified') ?>
+                      <?= htmlspecialchars((string)($job['location'] ?? 'Location not specified')) ?>
                     </small>
                     <small class="text-muted">
                       <i class="fas fa-calendar me-1"></i>
                       <?= date('M d, Y', strtotime($job['date_created'])) ?>
                     </small>
                   </div>
-                  <a href="#" class="btn w-100 mt-auto" style="background: #dc2626; color: white; border: none; padding: 12px; font-weight: 600; border-radius: 8px;">
-                    Apply Now
-                  </a>
+                  <div class="d-flex gap-2 mt-auto">
+                    <button class="btn flex-fill" style="background: #6b7280; color: white; border: none; padding: 12px; font-weight: 600; border-radius: 8px;" data-bs-toggle="modal" data-bs-target="#jobModal<?= (int)$job['id'] ?>">Read More</button>
+                    <a href="/scratch/jobs/index.php" class="btn flex-fill" style="background: #dc2626; color: white; border: none; padding: 12px; font-weight: 600; border-radius: 8px;">Apply Now</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Job Details Modal -->
+            <div class="modal fade" id="jobModal<?= (int)$job['id'] ?>" tabindex="-1" aria-hidden="true">
+              <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content" style="border-radius:16px; border:none; box-shadow:0 20px 60px rgba(0,0,0,.3);">
+                  <div class="modal-header" style="background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%); color:#fff; border:none; border-radius:16px 16px 0 0;">
+                    <h5 class="modal-title mb-0" style="font-weight:700; font-size:20px;">
+                      <?= htmlspecialchars($job['job_title'] ?? ($job['title'] ?? 'Job')) ?> at <?= htmlspecialchars($job['company'] ?? 'Company') ?>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body" style="padding:24px;">
+                    <?php if (!empty($job['company_logo']) && file_exists(__DIR__ . '/uploads/' . $job['company_logo'])): ?>
+                      <div class="text-center mb-3">
+                        <img src="/scratch/uploads/<?= htmlspecialchars($job['company_logo']) ?>" alt="<?= htmlspecialchars($job['company'] ?? 'Company') ?> Logo" style="max-height: 120px; object-fit: contain; background:#fff; border-radius:12px; padding:8px;">
+                      </div>
+                    <?php endif; ?>
+                    <div class="text-muted mb-3">
+                      <i class="fas fa-map-marker-alt me-1"></i><?= htmlspecialchars((string)($job['location'] ?? 'Location not specified')) ?>
+                      <span class="mx-2">•</span>
+                      <i class="fas fa-calendar me-1"></i><?= date('F d, Y - g:i A', strtotime($job['date_created'] ?? 'now')) ?>
+                    </div>
+                    <div style="color:#374151; line-height:1.7; white-space:pre-wrap;">
+                      <?= nl2br(htmlspecialchars((string)($job['description'] ?? ''))) ?>
+                    </div>
+                  </div>
+                  <div class="modal-footer" style="background:#f8f9fa; border-top:1px solid #e5e7eb; border-radius:0 0 16px 16px;">
+                    <a href="/scratch/jobs/index.php" class="btn" style="background: #dc2626; color: white; border: none; padding: 10px 20px; font-weight: 600; border-radius: 8px;">Apply Now</a>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" style="border-radius:10px;">Close</button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -786,16 +1000,7 @@ $testimonials = $stmt->fetchAll();
             <h2 class="display-4 fw-bold" style="color: #dc2626; font-family: 'Times New Roman', serif;">SUCCESS STORIES</h2>
             <div class="mx-auto" style="width: 100px; height: 3px; background: #dc2626;"></div>
         <?php if (!empty($successStories)): ?>
-        <div class="mt-4">
-          <a href="success-stories/index.php" class="btn" style="background: #dc2626; color: white; border: none; padding: 12px 24px; font-weight: 600; border-radius: 8px;">
-            <i class="fas fa-arrow-right me-2"></i>View All Stories
-          </a>
-          <?php if (isset($user['type']) && $user['type'] == 1): ?>
-            <a href="success-stories/admin.php" class="btn ms-3" style="background: #6b7280; color: white; border: none; padding: 12px 24px; font-weight: 600; border-radius: 8px;">
-              <i class="fas fa-cogs me-2"></i>Manage Stories
-            </a>
-          <?php endif; ?>
-        </div>
+        <!-- Moved CTA to bottom of section for consistent layout -->
         <?php endif; ?>
           </div>
         </div>
@@ -872,6 +1077,18 @@ $testimonials = $stmt->fetchAll();
             <button class="carousel-control-next" type="button" data-bs-target="#storiesCarousel" data-bs-slide="next"><span class="control-btn" aria-hidden="true"><i class="fas fa-chevron-right"></i></span><span class="visually-hidden">Next</span></button>
           </div>
         <?php endif; ?>
+        <?php if (!empty($successStories)): ?>
+        <div class="text-center mt-4">
+          <a href="success-stories/index.php" class="btn" style="background: #dc2626; color: white; border: none; padding: 12px 24px; font-weight: 600; border-radius: 8px;">
+            <i class="fas fa-arrow-right me-2"></i>View All Stories
+          </a>
+          <?php if (isset($user['type']) && $user['type'] == 1): ?>
+            <a href="success-stories/admin.php" class="btn ms-3" style="background: #6b7280; color: white; border: none; padding: 12px 24px; font-weight: 600; border-radius: 8px;">
+              <i class="fas fa-cogs me-2"></i>Manage Stories
+            </a>
+          <?php endif; ?>
+        </div>
+        <?php endif; ?>
       </div>
     </div>
   </section>
@@ -885,11 +1102,7 @@ $testimonials = $stmt->fetchAll();
             <h2 class="display-4 fw-bold" style="color: #dc2626; font-family: 'Times New Roman', serif;">TESTIMONIALS</h2>
             <div class="mx-auto" style="width: 100px; height: 3px; background: #dc2626;"></div>
             <?php if (!empty($testimonials)): ?>
-            <div class="mt-4">
-              <a href="testimonials/index.php" class="btn" style="background: #dc2626; color: white; border: none; padding: 12px 24px; font-weight: 600; border-radius: 8px;">
-                <i class="fas fa-arrow-right me-2"></i>View All Testimonials
-              </a>
-            </div>
+            <!-- CTA moved to bottom of section -->
             <?php endif; ?>
           </div>
         </div>
@@ -981,6 +1194,11 @@ $testimonials = $stmt->fetchAll();
             <span class="control-btn" aria-hidden="true"><i class="fas fa-chevron-right"></i></span>
             <span class="visually-hidden">Next</span>
           </button>
+        </div>
+        <div class="text-center mt-4">
+          <a href="testimonials/index.php" class="btn" style="background: #dc2626; color: white; border: none; padding: 12px 24px; font-weight: 600; border-radius: 8px;">
+            <i class="fas fa-arrow-right me-2"></i>View All Testimonials
+          </a>
         </div>
       <?php endif; ?>
     </div>

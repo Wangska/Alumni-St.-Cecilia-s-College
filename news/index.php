@@ -63,7 +63,30 @@ try {
                 <?= htmlspecialchars(substr($a['content'] ?? '', 0, 140)) ?>...
               </p>
               <div class="mt-auto">
-                <a href="#" class="read-btn w-100 d-inline-block text-center">Read More</a>
+                <button class="read-btn w-100 d-inline-block text-center" data-bs-toggle="modal" data-bs-target="#announcementModal<?= $a['id'] ?>">Read More</button>
+              </div>
+            </div>
+          </div>
+          <!-- Details Modal -->
+          <div class="modal fade" id="announcementModal<?= $a['id'] ?>" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+              <div class="modal-content" style="border-radius:16px; border:none; box-shadow:0 20px 60px rgba(0,0,0,.3);">
+                <div class="modal-header" style="background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%); color:#fff; border:none; border-radius:16px 16px 0 0;">
+                  <h5 class="modal-title mb-0" style="font-weight:700; font-size:20px;"><?= htmlspecialchars($a['title'] ?? 'Announcement') ?></h5>
+                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="padding:24px;">
+                  <?php if (!empty($a['image'])): ?>
+                    <img src="/scratch/uploads/<?= htmlspecialchars($a['image']) ?>" alt="<?= htmlspecialchars($a['title'] ?? 'Announcement') ?>" class="img-fluid mb-3" style="border-radius:12px; width:100%; max-height:420px; object-fit:cover;">
+                  <?php endif; ?>
+                  <div class="text-muted mb-3"><i class="fas fa-calendar me-1"></i><?= date('F d, Y - g:i A', strtotime($a['date_created'] ?? 'now')) ?></div>
+                  <div style="color:#374151; line-height:1.7; white-space:pre-wrap;">
+                    <?= nl2br(htmlspecialchars($a['content'] ?? '')) ?>
+                  </div>
+                </div>
+                <div class="modal-footer" style="background:#f8f9fa; border-top:1px solid #e5e7eb; border-radius:0 0 16px 16px;">
+                  <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" style="border-radius:10px;">Close</button>
+                </div>
               </div>
             </div>
           </div>
