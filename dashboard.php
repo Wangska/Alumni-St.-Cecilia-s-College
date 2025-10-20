@@ -1250,11 +1250,18 @@ $testimonials = $stmt->fetchAll();
         </div>
       </div>
       <hr class="my-4 border-white opacity-25">
-      <div class="text-center small">
-        <p class="mb-0">&copy; <?php echo date('Y'); ?> St. Cecilia's College - Cebu, Inc. All rights reserved.</p>
+      <div class="text-center small text-white">
+        <p class="mb-0" style="color:#ffffff;">&copy; <?php echo date('Y'); ?> St. Cecilia's College - Cebu, Inc. All rights reserved.</p>
       </div>
     </div>
   </footer>
+  <style>
+    @media (min-width: 1200px) {
+      .display-4 {
+        font-size: 2.25rem;
+      }
+    }
+  </style>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

@@ -5,6 +5,56 @@ $pdo = get_pdo();
 $courses = $pdo->query('SELECT id, course FROM courses ORDER BY course')->fetchAll();
 $careers = $pdo->query('SELECT * FROM careers ORDER BY date_created DESC LIMIT 9')->fetchAll();
 $announcements = $pdo->query('SELECT * FROM announcements ORDER BY date_created DESC LIMIT 3')->fetchAll();
+
+// Landing page events (public view)
+try {
+    $stmt = $pdo->prepare('
+        SELECT e.*, COUNT(ec.id) as participant_count
+        FROM events e 
+        LEFT JOIN event_commits ec ON e.id = ec.event_id AND ec.user_id != 1
+        GROUP BY e.id 
+        ORDER BY e.schedule ASC 
+        LIMIT 3
+    ');
+    $stmt->execute();
+    $events = $stmt->fetchAll();
+} catch (Exception $e) {
+    $events = [];
+}
+
+// Public success stories (approved only)
+try {
+    $stmt = $pdo->prepare('
+        SELECT ss.*, ab.firstname, ab.lastname 
+        FROM success_stories ss 
+        LEFT JOIN users u ON ss.user_id = u.id 
+        LEFT JOIN alumnus_bio ab ON u.alumnus_id = ab.id 
+        WHERE ss.status = 1 
+        ORDER BY ss.created DESC 
+        LIMIT 6
+    ');
+    $stmt->execute();
+    $successStories = $stmt->fetchAll();
+} catch (Exception $e) {
+    $successStories = [];
+}
+
+// Public testimonials (approved only)
+try {
+    $stmt = $pdo->prepare('
+        SELECT t.*, ab.firstname, ab.lastname 
+        FROM testimonials t
+        LEFT JOIN users u ON t.user_id = u.id
+        LEFT JOIN alumnus_bio ab ON u.alumnus_id = ab.id
+        WHERE t.status = 1
+        ORDER BY t.created DESC
+        LIMIT 6
+    ');
+    $stmt->execute();
+    $testimonials = $stmt->fetchAll();
+} catch (Exception $e) {
+    $testimonials = [];
+}
 ?>
 <!doctype html>
 <html lang="en">
@@ -14,6 +64,20 @@ $announcements = $pdo->query('SELECT * FROM announcements ORDER BY date_created 
   <title>Alumni Management</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* About section theming - SCC red with soft gradient shapes */
+    .about-section { position: relative; background: linear-gradient(180deg, #fff5f5 0%, #ffffff 100%); }
+    .about-bg-shape { position: absolute; inset: 0; background:
+      radial-gradient(1200px 600px at -10% -10%, rgba(220,38,38,0.12), transparent 60%),
+      radial-gradient(900px 480px at 110% 0%, rgba(220,38,38,0.08), transparent 55%),
+      radial-gradient(800px 520px at 50% 120%, rgba(220,38,38,0.06), transparent 60%);
+      pointer-events: none; }
+    #about .card,
+    #about .h-full { border: 1px solid #f1f5f9; transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
+    #about .card:hover,
+    #about .h-full:hover { transform: translateY(-4px); box-shadow: 0 14px 36px rgba(220,38,38,0.12); border-color: #fecaca; }
+    #about .icon-circle { width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; background: linear-gradient(135deg, #7f1d1d, #dc2626); color:#fff; box-shadow: 0 8px 24px rgba(220,38,38,.25); }
+  </style>
 </head>
 <body>
   <!-- Top bar using Tailwind -->
@@ -86,10 +150,12 @@ $announcements = $pdo->query('SELECT * FROM announcements ORDER BY date_created 
   </section>
 
   <!-- About Us Section -->
-  <section id="about" class="py-16 bg-gray-50">
-    <div class="max-w-7xl mx-auto px-4">
+  <section id="about" class="about-section py-16">
+    <div class="about-bg-shape"></div>
+    <div class="max-w-7xl mx-auto px-4 position-relative" style="z-index: 1;">
       <div class="text-center mb-12">
         <h2 class="text-4xl font-bold text-gray-900 mb-3">About Us</h2>
+        <div class="mx-auto" style="width: 100px; height: 3px; background: #dc2626;"></div>
         <p class="text-gray-600 max-w-2xl mx-auto">Learn more about St. Cecilia's College Alumni Association</p>
       </div>
 
@@ -142,415 +208,349 @@ $announcements = $pdo->query('SELECT * FROM announcements ORDER BY date_created 
         <p class="text-gray-700 mb-0" style="line-height: 1.8;">In July 2008, the Preschool, Elementary, SPED, and Secondary curricula received Government Recognition from DepEd. In November 2008, Pensionne St. Cecilia—now the Basic Home Economics building—was acquired. To further enhance quality, SCC sought LASSO assistance in February 2009 and was granted Consultancy status, with services led by Br. Ophelia S. Fugoso AFSC, Ms. Isabel Macrina V. Encabo, and Mr. Mark Joel N. Go.</p>
       </div>
     </div>
+  </div>
   </section>
 
-  <!-- Testimonials Section -->
-  <section id="testimonials" class="py-16 bg-white">
-    <div class="max-w-7xl mx-auto px-4">
-      <div class="text-center mb-12">
-        <h2 class="text-4xl font-bold text-gray-900 mb-3">What Our Alumni Say</h2>
-        <p class="text-gray-600 max-w-2xl mx-auto">Hear from our successful alumni about their experiences and memories</p>
-      </div>
-
-      <div class="row g-4">
-        <!-- Testimonial Card 1 -->
-        <div class="col-md-4">
-          <div class="h-full p-6 bg-gray-50 rounded-3 shadow-sm">
-            <div class="mb-4">
-              <svg class="w-8 h-8 text-red-600" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
-              </svg>
-            </div>
-            <p class="text-gray-600 mb-4">
-              <!-- Add testimonial text here -->
-              "Lorem ipsum dolor sit amet, consectetur adipiscing elit. The education and memories I gained here shaped my career and life."
-            </p>
-            <div class="flex items-center gap-3">
-              <div class="w-12 h-12 rounded-full bg-red-600 text-white flex items-center justify-center font-bold">
-                JD
-              </div>
-              <div>
-                <p class="font-bold text-gray-900">John Doe</p>
-                <p class="text-sm text-gray-500">Class of 2020</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Testimonial Card 2 -->
-        <div class="col-md-4">
-          <div class="h-full p-6 bg-gray-50 rounded-3 shadow-sm">
-            <div class="mb-4">
-              <svg class="w-8 h-8 text-red-600" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
-              </svg>
-            </div>
-            <p class="text-gray-600 mb-4">
-              <!-- Add testimonial text here -->
-              "Lorem ipsum dolor sit amet, consectetur adipiscing elit. The friendships and connections I made here last a lifetime."
-            </p>
-            <div class="flex items-center gap-3">
-              <div class="w-12 h-12 rounded-full bg-red-600 text-white flex items-center justify-center font-bold">
-                JS
-              </div>
-              <div>
-                <p class="font-bold text-gray-900">Jane Smith</p>
-                <p class="text-sm text-gray-500">Class of 2019</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Testimonial Card 3 -->
-        <div class="col-md-4">
-          <div class="h-full p-6 bg-gray-50 rounded-3 shadow-sm">
-            <div class="mb-4">
-              <svg class="w-8 h-8 text-red-600" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
-              </svg>
-            </div>
-            <p class="text-gray-600 mb-4">
-              <!-- Add testimonial text here -->
-              "Lorem ipsum dolor sit amet, consectetur adipiscing elit. This institution prepared me for the challenges ahead."
-            </p>
-            <div class="flex items-center gap-3">
-              <div class="w-12 h-12 rounded-full bg-red-600 text-white flex items-center justify-center font-bold">
-                MB
-              </div>
-              <div>
-                <p class="font-bold text-gray-900">Mike Brown</p>
-                <p class="text-sm text-gray-500">Class of 2021</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Success Stories Section -->
-  <section id="success-stories" class="py-16 bg-gray-50">
-    <div class="max-w-7xl mx-auto px-4">
-      <div class="text-center mb-12">
-        <h2 class="text-4xl font-bold text-gray-900 mb-3">Success Stories</h2>
-        <p class="text-gray-600 max-w-2xl mx-auto">Celebrating the achievements of our outstanding alumni</p>
-      </div>
-
-      <div class="row g-4">
-        <!-- Success Story 1 -->
-        <div class="col-md-6">
-          <div class="h-full bg-white rounded-3 shadow-sm overflow-hidden">
-            <div class="row g-0">
-              <div class="col-md-4">
-                <div class="h-full bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center p-4">
-                  <div class="text-center text-white">
-                    <div class="w-24 h-24 rounded-full bg-white text-red-600 flex items-center justify-center font-bold text-2xl mx-auto mb-3">
-                      AS
-                    </div>
-                    <p class="text-sm font-semibold">Class of 2018</p>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-8">
-                <div class="p-6">
-                  <h3 class="text-xl font-bold text-gray-900 mb-2">Alex Santos</h3>
-                  <p class="text-red-600 font-semibold mb-3">CEO, Tech Startup</p>
-                  <p class="text-gray-600 mb-3">
-                    <!-- Add success story here -->
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Started from humble beginnings to building a successful tech company.
-                  </p>
-                  <p class="text-gray-600 text-sm">
-                    <!-- Add more details here -->
-                    "The values and education I received here gave me the foundation to pursue my entrepreneurial dreams."
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Success Story 2 -->
-        <div class="col-md-6">
-          <div class="h-full bg-white rounded-3 shadow-sm overflow-hidden">
-            <div class="row g-0">
-              <div class="col-md-4">
-                <div class="h-full bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center p-4">
-                  <div class="text-center text-white">
-                    <div class="w-24 h-24 rounded-full bg-white text-red-600 flex items-center justify-center font-bold text-2xl mx-auto mb-3">
-                      MR
-                    </div>
-                    <p class="text-sm font-semibold">Class of 2017</p>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-8">
-                <div class="p-6">
-                  <h3 class="text-xl font-bold text-gray-900 mb-2">Maria Rodriguez</h3>
-                  <p class="text-red-600 font-semibold mb-3">Award-Winning Engineer</p>
-                  <p class="text-gray-600 mb-3">
-                    <!-- Add success story here -->
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pioneering work in renewable energy and sustainable development.
-                  </p>
-                  <p class="text-gray-600 text-sm">
-                    <!-- Add more details here -->
-                    "The mentorship and support from faculty members here inspired me to make a difference in the world."
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Success Story 3 -->
-        <div class="col-md-6">
-          <div class="h-full bg-white rounded-3 shadow-sm overflow-hidden">
-            <div class="row g-0">
-              <div class="col-md-4">
-                <div class="h-full bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center p-4">
-                  <div class="text-center text-white">
-                    <div class="w-24 h-24 rounded-full bg-white text-red-600 flex items-center justify-center font-bold text-2xl mx-auto mb-3">
-                      DL
-                    </div>
-                    <p class="text-sm font-semibold">Class of 2016</p>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-8">
-                <div class="p-6">
-                  <h3 class="text-xl font-bold text-gray-900 mb-2">David Lee</h3>
-                  <p class="text-red-600 font-semibold mb-3">International Consultant</p>
-                  <p class="text-gray-600 mb-3">
-                    <!-- Add success story here -->
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Working with Fortune 500 companies across multiple continents.
-                  </p>
-                  <p class="text-gray-600 text-sm">
-                    <!-- Add more details here -->
-                    "The global perspective and critical thinking skills I developed here opened doors worldwide."
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Success Story 4 -->
-        <div class="col-md-6">
-          <div class="h-full bg-white rounded-3 shadow-sm overflow-hidden">
-            <div class="row g-0">
-              <div class="col-md-4">
-                <div class="h-full bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center p-4">
-                  <div class="text-center text-white">
-                    <div class="w-24 h-24 rounded-full bg-white text-red-600 flex items-center justify-center font-bold text-2xl mx-auto mb-3">
-                      SP
-                    </div>
-                    <p class="text-sm font-semibold">Class of 2015</p>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-8">
-                <div class="p-6">
-                  <h3 class="text-xl font-bold text-gray-900 mb-2">Sarah Peterson</h3>
-                  <p class="text-red-600 font-semibold mb-3">Published Author & Educator</p>
-                  <p class="text-gray-600 mb-3">
-                    <!-- Add success story here -->
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Multiple bestselling books and inspiring thousands of students.
-                  </p>
-                  <p class="text-gray-600 text-sm">
-                    <!-- Add more details here -->
-                    "The passion for learning I discovered here continues to drive my work in education today."
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- News & Announcements Section -->
+  <!-- News and Announcements (Dashboard style) -->
   <section id="news" class="py-16" style="background: #f9fafb;">
     <div class="max-w-7xl mx-auto px-4">
       <div class="text-center mb-12">
-        <h2 class="mb-3" style="font-size: 2.5rem; font-weight: 700; color: #7f1d1d; font-family: 'Georgia', serif;">NEWS & ANNOUNCEMENTS</h2>
-        <div style="width: 80px; height: 3px; background: linear-gradient(90deg, #dc2626, #991b1b); margin: 0 auto 16px;"></div>
+        <h2 class="text-4xl font-bold mb-2" style="color:#dc2626; font-family: 'Times New Roman', serif;">NEWS & ANNOUNCEMENTS</h2>
+        <div class="mx-auto" style="width: 100px; height: 3px; background: #dc2626;"></div>
       </div>
-
       <?php if (!empty($announcements)): ?>
-        <div class="row g-4">
-          <?php foreach ($announcements as $announcement): ?>
-            <div class="col-md-4">
-              <div class="card h-100 border-0 shadow-sm" style="border-radius: 0; overflow: hidden; transition: all 0.3s ease;">
-                <!-- Image -->
-                <div style="height: 280px; background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%); position: relative; overflow: hidden;">
-                  <?php if (!empty($announcement['image'])): ?>
-                    <img src="/scratch/uploads/<?= htmlspecialchars($announcement['image']) ?>" alt="<?= htmlspecialchars($announcement['title'] ?? 'Announcement') ?>" style="width: 100%; height: 100%; object-fit: cover;">
-                  <?php else: ?>
-                    <div class="d-flex align-items-center justify-content-center h-100">
-                      <i class="fas fa-bullhorn" style="font-size: 4rem; color: rgba(255,255,255,0.3);"></i>
-                    </div>
-                  <?php endif; ?>
-                </div>
-                
-                <!-- Content -->
-                <div class="card-body d-flex flex-column" style="padding: 32px;">
-                  <h5 class="card-title mb-3" style="font-size: 1.25rem; font-weight: 700; color: #1f2937; line-height: 1.4;">
-                    <?= htmlspecialchars($announcement['title'] ?? 'Announcement') ?>
-                  </h5>
-                  <p class="card-text text-muted mb-4 flex-grow-1" style="font-size: 0.95rem; line-height: 1.6;">
-                    <?= htmlspecialchars(substr(strip_tags($announcement['content'] ?? ''), 0, 150)) ?>...
-                  </p>
-                  <button class="btn w-100 text-white fw-semibold" style="background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%); border: none; padding: 12px; transition: all 0.3s ease;" data-bs-toggle="modal" data-bs-target="#announcementModal<?= $announcement['id'] ?>" onmouseover="this.style.background='linear-gradient(135deg, #991b1b 0%, #7f1d1d 100%)'" onmouseout="this.style.background='linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%)'">
-                    Read More
-                  </button>
-                </div>
-              </div>
+      <div class="row g-4">
+        <?php foreach ($announcements as $a): ?>
+        <div class="col-lg-4 col-md-6">
+          <div class="card h-100 border-0 shadow d-flex flex-column" style="border-radius:12px; overflow:hidden;">
+            <div style="height:200px; overflow:hidden; background:#f3f4f6;">
+              <?php if (!empty($a['image'])): ?>
+                <img src="/scratch/uploads/<?= htmlspecialchars($a['image']) ?>" alt="Announcement" class="w-100 h-100" style="object-fit:cover;">
+              <?php else: ?>
+                <div class="d-flex align-items-center justify-content-center h-100"><i class="fas fa-bullhorn text-muted" style="font-size:3rem;"></i></div>
+              <?php endif; ?>
             </div>
-
-            <!-- Announcement Detail Modal -->
-            <div class="modal fade" id="announcementModal<?= $announcement['id'] ?>" tabindex="-1" aria-hidden="true">
-              <div class="modal-dialog modal-lg modal-dialog-centered">
-                <div class="modal-content" style="border-radius: 16px; border: none; overflow: hidden;">
-                  <div class="modal-header" style="background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%); color: white; padding: 24px 30px; border: none;">
-                    <div class="d-flex align-items-center">
-                      <div style="width: 50px; height: 50px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 15px;">
-                        <i class="fas fa-bullhorn" style="font-size: 24px;"></i>
-                      </div>
-                      <h5 class="modal-title mb-0" style="font-weight: 700; font-size: 20px;"><?= htmlspecialchars($announcement['title'] ?? 'Announcement') ?></h5>
-                    </div>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                  </div>
-                  <div class="modal-body" style="padding: 30px;">
-                    <?php if (!empty($announcement['image'])): ?>
-                      <img src="/scratch/uploads/<?= htmlspecialchars($announcement['image']) ?>" alt="<?= htmlspecialchars($announcement['title'] ?? 'Announcement') ?>" class="img-fluid mb-4" style="border-radius: 12px; max-height: 400px; width: 100%; object-fit: cover;">
-                    <?php endif; ?>
-                    <div class="mb-3">
-                      <small class="text-muted">
-                        <i class="far fa-calendar me-2"></i>
-                        <?= date('F d, Y - g:i A', strtotime($announcement['date_created'] ?? 'now')) ?>
-                      </small>
-                    </div>
-                    <div style="line-height: 1.8; color: #374151;">
-                      <?= nl2br(htmlspecialchars($announcement['content'] ?? '')) ?>
-                    </div>
-                  </div>
-                  <div class="modal-footer" style="padding: 20px 30px; border-top: 1px solid #e5e7eb; background: #f9fafb;">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 12px; padding: 12px 28px; font-weight: 600;">Close</button>
-                  </div>
-                </div>
-              </div>
+            <div class="p-4 d-flex flex-column flex-grow-1">
+              <h5 class="fw-bold mb-2" style="color:#1f2937; font-size:1.15rem;"><?= htmlspecialchars($a['title'] ?? 'Announcement') ?></h5>
+              <div class="text-muted small mb-2"><i class="fas fa-calendar me-1"></i><?= date('M d, Y', strtotime($a['date_created'])) ?></div>
+              <p class="text-muted mb-4" style="line-height:1.6;"><?= htmlspecialchars(substr($a['content'] ?? '', 0, 140)) ?>...</p>
+              <button class="btn mt-auto" style="background:#dc2626; color:#fff; border:none; padding:12px; font-weight:600; border-radius:8px;" data-bs-toggle="modal" data-bs-target="#landingAnnouncement<?= (int)$a['id'] ?>">Read More</button>
             </div>
-          <?php endforeach; ?>
+          </div>
         </div>
+        <!-- Modal -->
+        <div class="modal fade" id="landingAnnouncement<?= (int)$a['id'] ?>" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content" style="border-radius:16px; border:none; box-shadow:0 20px 60px rgba(0,0,0,.3);">
+              <div class="modal-header" style="background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%); color:#fff; border:none; border-radius:16px 16px 0 0;">
+                <h5 class="modal-title mb-0" style="font-weight:700; font-size:20px;"><?= htmlspecialchars($a['title'] ?? 'Announcement') ?></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body" style="padding:24px;">
+                <?php if (!empty($a['image'])): ?>
+                  <img src="/scratch/uploads/<?= htmlspecialchars($a['image']) ?>" alt="<?= htmlspecialchars($a['title'] ?? 'Announcement') ?>" class="img-fluid mb-3" style="border-radius:12px; width:100%; max-height:420px; object-fit:cover;">
+                <?php endif; ?>
+                <div class="text-muted mb-3"><i class="fas fa-calendar me-1"></i><?= date('F d, Y - g:i A', strtotime($a['date_created'] ?? 'now')) ?></div>
+                <div style="color:#374151; line-height:1.7; white-space:pre-wrap;"><?= nl2br(htmlspecialchars($a['content'] ?? '')) ?></div>
+              </div>
+              <div class="modal-footer" style="background:#f8f9fa; border-top:1px solid #e5e7eb; border-radius:0 0 16px 16px;">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" style="border-radius:10px;">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <?php endforeach; ?>
+      </div>
+      <div class="text-center mt-4"><button type="button" class="btn" style="background:#dc2626; color:#fff; border:none; padding:12px 24px; font-weight:600; border-radius:8px;" data-bs-toggle="modal" data-bs-target="#loginModal">View All News</button></div>
       <?php else: ?>
-        <div class="text-center py-5">
-          <i class="fas fa-bullhorn fa-4x text-muted mb-3"></i>
-          <p class="text-muted">No announcements available at the moment.</p>
+        <div class="text-center py-5" style="background:#fff; border-radius:16px; box-shadow:0 4px 20px rgba(0,0,0,0.06);">
+          <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 90px; height: 90px;"><i class="fas fa-bullhorn text-muted" style="font-size:2rem;"></i></div>
+          <h4 class="text-muted">No announcements yet</h4>
         </div>
       <?php endif; ?>
     </div>
   </section>
 
-  <!-- Available Jobs Section -->
-  <section id="jobs" class="py-16 bg-white">
+  <!-- Upcoming Events (Dashboard style, requires login to join) -->
+  <section id="events" class="py-16" style="background: #f8f9fa;">
     <div class="max-w-7xl mx-auto px-4">
       <div class="text-center mb-12">
-        <h2 class="text-4xl font-bold text-gray-900 mb-3">Available Jobs</h2>
-        <p class="text-gray-600 max-w-2xl mx-auto">Explore career opportunities from our alumni network and partner companies</p>
+        <h2 class="text-4xl font-bold mb-2" style="color:#dc2626; font-family: 'Times New Roman', serif;">UPCOMING EVENTS</h2>
+        <div class="mx-auto" style="width: 100px; height: 3px; background: #dc2626;"></div>
       </div>
-
-      <?php if (!empty($careers)): ?>
-        <!-- Jobs Carousel -->
-        <div id="jobsCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
-          <div class="carousel-indicators">
-            <?php 
-            $totalSlides = ceil(count($careers) / 3);
-            for ($i = 0; $i < $totalSlides; $i++): 
-            ?>
-              <button type="button" data-bs-target="#jobsCarousel" data-bs-slide-to="<?= $i ?>" <?= $i === 0 ? 'class="active" aria-current="true"' : '' ?> aria-label="Slide <?= $i + 1 ?>"></button>
-            <?php endfor; ?>
-          </div>
-          
-          <div class="carousel-inner pb-5">
-            <?php 
-            $chunks = array_chunk($careers, 3);
-            foreach ($chunks as $index => $chunk): 
-            ?>
-              <div class="carousel-item <?= $index === 0 ? 'active' : '' ?>">
-                <div class="row g-4 px-md-5">
-                  <?php foreach ($chunk as $job): ?>
-                    <div class="col-md-4">
-                      <div class="card h-100 border-0 shadow-sm hover:shadow-lg transition-shadow" style="border-left: 4px solid #dc2626;">
-                        <div class="card-body p-4">
-                          <div class="d-flex align-items-start mb-3">
-                            <div class="flex-shrink-0 bg-danger bg-opacity-10 p-3 rounded">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#dc2626" viewBox="0 0 16 16">
-                                <path d="M6.5 1A1.5 1.5 0 0 0 5 2.5V3H1.5A1.5 1.5 0 0 0 0 4.5v1.384l7.614 2.03a1.5 1.5 0 0 0 .772 0L16 5.884V4.5A1.5 1.5 0 0 0 14.5 3H11v-.5A1.5 1.5 0 0 0 9.5 1h-3zm0 1h3a.5.5 0 0 1 .5.5V3H6v-.5a.5.5 0 0 1 .5-.5z"/>
-                                <path d="M0 12.5A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5V6.85L8.129 8.947a.5.5 0 0 1-.258 0L0 6.85v5.65z"/>
-                              </svg>
-                            </div>
-                            <div class="ms-3 flex-grow-1">
-                              <h5 class="card-title mb-1 fw-bold text-danger"><?= htmlspecialchars($job['job_title']) ?></h5>
-                              <h6 class="text-muted mb-0" style="font-size: 0.9rem;"><?= htmlspecialchars($job['company']) ?></h6>
-                            </div>
-                          </div>
-                          
-                          <div class="mb-3">
-                            <span class="badge bg-light text-dark border mb-2">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-geo-alt-fill me-1" viewBox="0 0 16 16">
-                                <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
-                              </svg>
-                              <?= htmlspecialchars($job['location']) ?>
-                            </span>
-                          </div>
-                          
-                          <p class="card-text text-muted small mb-3" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
-                            <?= htmlspecialchars(strip_tags($job['description'])) ?>
-                          </p>
-                          
-                          <div class="d-flex justify-content-between align-items-center mt-auto">
-                            <small class="text-muted">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-clock me-1" viewBox="0 0 16 16">
-                                <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/>
-                                <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/>
-                              </svg>
-                              <?= date('M d, Y', strtotime($job['date_created'])) ?>
-                            </small>
-                            <button class="btn btn-sm btn-danger" onclick="alert('Please login to view full job details and apply.')">
-                              View Details
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  <?php endforeach; ?>
-                </div>
+      <div class="row g-4">
+        <?php if (!empty($events)): ?>
+          <?php foreach ($events as $event): $limit = $event['participant_limit'] ?? null; $count = (int)($event['participant_count'] ?? 0); ?>
+          <div class="col-lg-4 col-md-6">
+            <div class="card h-100 border-0 shadow d-flex flex-column" style="border-radius:12px; overflow:hidden;">
+              <div style="height:200px; overflow:hidden; background:linear-gradient(135deg,#7f1d1d,#991b1b);">
+                <?php if (!empty($event['banner']) && file_exists(__DIR__ . '/uploads/' . $event['banner'])): ?>
+                  <img src="/scratch/uploads/<?= htmlspecialchars($event['banner']) ?>" class="w-100 h-100" style="object-fit:cover;" alt="<?= htmlspecialchars($event['title']) ?>">
+                <?php else: ?>
+                  <div class="d-flex align-items-center justify-content-center h-100 text-white"><div class="text-center"><i class="fas fa-calendar-alt" style="font-size:3rem; margin-bottom:.5rem;"></i><h6 class="mb-0"><?= htmlspecialchars($event['title']) ?></h6></div></div>
+                <?php endif; ?>
               </div>
-            <?php endforeach; ?>
+              <div class="p-4 d-flex flex-column flex-grow-1">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <h5 class="fw-bold mb-0" style="color:#1f2937; font-size:1.25rem;"><?= htmlspecialchars($event['title']) ?></h5>
+                  <span class="badge bg-success text-white">Registration Open</span>
+                </div>
+                <p class="text-muted small mb-2"><i class="fas fa-calendar me-1"></i><?= date('M d, Y \a\t g:i A', strtotime($event['schedule'])) ?></p>
+                <p class="text-muted mb-3" style="line-height:1.6; min-height:64px;"><?= htmlspecialchars(substr((string)($event['content'] ?? ''), 0, 120)) ?><?= strlen((string)($event['content'] ?? ''))>120?'...':'' ?></p>
+                <div class="mb-3" style="min-height:72px;">
+                  <small class="text-muted"><i class="fas fa-users me-1"></i><strong><?= $count ?></strong><?php if ($limit): ?>/ <strong><?= (int)$limit ?></strong> participants <span class="badge bg-info ms-1" style="font-size:.75rem;"><?= max((int)$limit-$count,0) ?> left</span><?php else: ?> participants<?php endif; ?></small>
+                  <?php if ($limit): $pct = $count>0?($count/(int)$limit)*100:0; $bar = $pct>=100?'#7f1d1d':($pct>=80?'#b45309':'#dc2626'); ?>
+                  <div class="d-flex align-items-center" style="gap:8px; margin-top:6px;">
+                    <div style="background:#f0f0f0; height:6px; border-radius:3px; overflow:hidden; flex:1;"><div style="background:<?= $bar ?>; height:100%; width:<?= min($pct,100) ?>%;"></div></div>
+                    <small class="text-muted" style="width:40px; text-align:right; flex-shrink:0;"><?= round($pct,1) ?>%</small>
+                  </div>
+                  <?php endif; ?>
+                </div>
+                <button class="btn mt-auto w-100" style="background:#dc2626; color:#fff; border:none; padding:12px; font-weight:600; border-radius:8px;" data-bs-toggle="modal" data-bs-target="#loginModal">Login to Join</button>
+              </div>
+            </div>
           </div>
-          
-          <?php if ($totalSlides > 1): ?>
-            <button class="carousel-control-prev" type="button" data-bs-target="#jobsCarousel" data-bs-slide="prev" style="width: 5%;">
-              <span class="carousel-control-prev-icon bg-danger rounded-circle p-3" aria-hidden="true"></span>
-              <span class="visually-hidden">Previous</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#jobsCarousel" data-bs-slide="next" style="width: 5%;">
-              <span class="carousel-control-next-icon bg-danger rounded-circle p-3" aria-hidden="true"></span>
-              <span class="visually-hidden">Next</span>
-            </button>
-          <?php endif; ?>
-        </div>
-      <?php else: ?>
-        <div class="text-center py-5">
-          <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="#dc2626" class="mb-3" viewBox="0 0 16 16">
-            <path d="M6.5 1A1.5 1.5 0 0 0 5 2.5V3H1.5A1.5 1.5 0 0 0 0 4.5v1.384l7.614 2.03a1.5 1.5 0 0 0 .772 0L16 5.884V4.5A1.5 1.5 0 0 0 14.5 3H11v-.5A1.5 1.5 0 0 0 9.5 1h-3zm0 1h3a.5.5 0 0 1 .5.5V3H6v-.5a.5.5 0 0 1 .5-.5z"/>
-            <path d="M0 12.5A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5V6.85L8.129 8.947a.5.5 0 0 1-.258 0L0 6.85v5.65z"/>
-          </svg>
-          <p class="text-muted">No job listings available at the moment. Check back soon!</p>
-        </div>
-      <?php endif; ?>
+          <?php endforeach; ?>
+        <?php else: ?>
+          <div class="text-center py-5" style="background:#fff; border-radius:16px; box-shadow:0 4px 20px rgba(0,0,0,0.06);"><div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 90px; height: 90px;"><i class="fas fa-calendar-alt text-muted" style="font-size:2rem;"></i></div><h4 class="text-muted">No upcoming events</h4></div>
+        <?php endif; ?>
+      </div>
+      <div class="text-center mt-4"><button type="button" class="btn" style="background:#dc2626; color:#fff; border:none; padding:12px 24px; font-weight:600; border-radius:8px;" data-bs-toggle="modal" data-bs-target="#loginModal">View All Events</button></div>
     </div>
   </section>
+
+  <!-- Available Jobs (Dashboard style, requires login to apply) -->
+  <section id="jobs" class="py-16" style="background:#f8f9fa;">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="text-center mb-12">
+        <h2 class="text-4xl font-bold mb-2" style="color:#dc2626; font-family: 'Times New Roman', serif;">AVAILABLE JOBS</h2>
+        <div class="mx-auto" style="width: 100px; height: 3px; background: #dc2626;"></div>
+      </div>
+      <div class="row g-4">
+        <?php if (!empty($careers)): ?>
+          <?php foreach ($careers as $job): ?>
+          <div class="col-lg-4 col-md-6">
+            <div class="card h-100 border-0 shadow d-flex flex-column" style="border-radius:12px; overflow:hidden;">
+              <div style="height:200px; overflow:hidden; background:linear-gradient(135deg,#7f1d1d,#991b1b);">
+                <?php if (!empty($job['company_logo']) && file_exists(__DIR__ . '/uploads/' . $job['company_logo'])): ?>
+                  <img src="/scratch/uploads/<?= htmlspecialchars($job['company_logo']) ?>" class="w-100 h-100" style="object-fit:contain; background:#fff;" alt="<?= htmlspecialchars($job['company'] ?? 'Company') ?> Logo">
+                <?php else: ?>
+                  <div class="d-flex align-items-center justify-content-center h-100"><i class="fas fa-briefcase text-white" style="font-size:4rem;"></i></div>
+                <?php endif; ?>
+              </div>
+              <div class="p-4 d-flex flex-column flex-grow-1">
+                <h5 class="fw-bold mb-3" style="color:#1f2937; font-size:1.25rem;"><?= htmlspecialchars($job['job_title'] ?? ($job['title'] ?? '')) ?></h5>
+                <p class="text-muted mb-4" style="line-height:1.6; flex-grow:1;"><?= htmlspecialchars(substr((string)($job['description'] ?? ''), 0, 120)) ?>...</p>
+                <div class="d-flex justify-content-between align-items-center mb-3"><small class="text-muted"><i class="fas fa-map-marker-alt me-1"></i><?= htmlspecialchars((string)($job['location'] ?? 'Location not specified')) ?></small><small class="text-muted"><i class="fas fa-calendar me-1"></i><?= date('M d, Y', strtotime($job['date_created'])) ?></small></div>
+                <div class="d-flex gap-2 mt-auto"><button class="btn flex-fill" style="background:#6b7280; color:#fff; border:none; padding:12px; font-weight:600; border-radius:8px;" data-bs-toggle="modal" data-bs-target="#landingJob<?= (int)$job['id'] ?>">Read More</button><button class="btn flex-fill" style="background:#dc2626; color:#fff; border:none; padding:12px; font-weight:600; border-radius:8px;" data-bs-toggle="modal" data-bs-target="#loginModal">Login to Apply</button></div>
+              </div>
+            </div>
+          </div>
+          <!-- Job Modal -->
+          <div class="modal fade" id="landingJob<?= (int)$job['id'] ?>" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+              <div class="modal-content" style="border-radius:16px; border:none; box-shadow:0 20px 60px rgba(0,0,0,.3);">
+                <div class="modal-header" style="background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%); color:#fff; border:none; border-radius:16px 16px 0 0;">
+                  <h5 class="modal-title mb-0" style="font-weight:700; font-size:20px;"><?= htmlspecialchars($job['job_title'] ?? ($job['title'] ?? 'Job')) ?> at <?= htmlspecialchars($job['company'] ?? 'Company') ?></h5>
+                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" style="padding:24px;">
+                  <?php if (!empty($job['company_logo']) && file_exists(__DIR__ . '/uploads/' . $job['company_logo'])): ?>
+                    <div class="text-center mb-3"><img src="/scratch/uploads/<?= htmlspecialchars($job['company_logo']) ?>" alt="<?= htmlspecialchars($job['company'] ?? 'Company') ?> Logo" style="max-height:120px; object-fit:contain; background:#fff; border-radius:12px; padding:8px;"></div>
+                  <?php endif; ?>
+                  <div class="text-muted mb-3"><i class="fas fa-map-marker-alt me-1"></i><?= htmlspecialchars((string)($job['location'] ?? 'Location not specified')) ?><span class="mx-2">•</span><i class="fas fa-calendar me-1"></i><?= date('F d, Y - g:i A', strtotime($job['date_created'] ?? 'now')) ?></div>
+                  <div style="color:#374151; line-height:1.7; white-space:pre-wrap;"><?= nl2br(htmlspecialchars((string)($job['description'] ?? ''))) ?></div>
+                </div>
+                <div class="modal-footer" style="background:#f8f9fa; border-top:1px solid #e5e7eb; border-radius:0 0 16px 16px;">
+                  <button class="btn" style="background:#dc2626; color:#fff; border:none; padding:10px 20px; font-weight:600; border-radius:8px;" data-bs-toggle="modal" data-bs-target="#loginModal" data-bs-dismiss="modal">Login to Apply</button>
+                  <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" style="border-radius:10px;">Close</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <?php endforeach; ?>
+        <?php else: ?>
+          <div class="text-center py-5" style="background:#fff; border-radius:16px; box-shadow:0 4px 20px rgba(0,0,0,0.06);"><div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 90px; height: 90px;"><i class="fas fa-briefcase text-muted" style="font-size:2rem;"></i></div><h4 class="text-muted">No job openings available</h4></div>
+        <?php endif; ?>
+      </div>
+      <div class="text-center mt-4"><button type="button" class="btn" style="background:#dc2626; color:#fff; border:none; padding:12px 24px; font-weight:600; border-radius:8px;" data-bs-toggle="modal" data-bs-target="#loginModal">View All Jobs</button></div>
+    </div>
+  </section>
+
+  <!-- Success Stories (Dashboard style) -->
+  <section id="success-stories" class="py-16" style="background:#f8f9fa;">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="text-center mb-12"><h2 class="text-4xl font-bold mb-2" style="color:#dc2626; font-family: 'Times New Roman', serif;">SUCCESS STORIES</h2><div class="mx-auto" style="width:100px; height:3px; background:#dc2626;"></div></div>
+      <?php if (!empty($successStories)): ?>
+      <?php 
+        $storiesItems = array_slice($successStories, 0, 6);
+        $storySlides = array_chunk($storiesItems, 3);
+      ?>
+      <style>
+        /* Modern glass buttons with subtle red glow */
+        .landing-stories .control-btn {
+          width: 52px; height: 52px; border-radius: 14px;
+          background: rgba(15, 23, 42, 0.25);
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+          color: #ffffff;
+          display: inline-flex; align-items: center; justify-content: center;
+          border: 1px solid rgba(255,255,255,0.35);
+          box-shadow: 0 8px 24px rgba(220, 38, 38, 0.35), inset 0 0 0 1px rgba(255,255,255,0.08);
+          transition: transform .2s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease;
+          font-size: 22px; font-weight: 800; line-height: 1;
+        }
+        .landing-stories .control-btn:hover {
+          transform: translateY(-2px);
+          background: rgba(220, 38, 38, 0.22);
+          border-color: rgba(255,255,255,0.55);
+          box-shadow: 0 14px 30px rgba(220, 38, 38, 0.45);
+        }
+        .landing-stories .control-btn:focus { outline: none; box-shadow: 0 0 0 4px rgba(220,38,38,0.25), 0 10px 24px rgba(220,38,38,0.35); }
+        .landing-stories .carousel-control-prev-icon, .landing-stories .carousel-control-next-icon { display: none; }
+        .landing-stories .carousel-control-prev, .landing-stories .carousel-control-next { width: auto; opacity: 1; top: 50%; transform: translateY(-50%); }
+        .landing-stories .carousel-control-prev { left: -12px; }
+        .landing-stories .carousel-control-next { right: -12px; }
+        @media (max-width: 576px) {
+          .landing-stories .control-btn { width: 44px; height: 44px; border-radius: 12px; font-size: 20px; }
+          .landing-stories .carousel-control-prev { left: -8px; }
+          .landing-stories .carousel-control-next { right: -8px; }
+        }
+      </style>
+      <div id="landingStoriesCarousel" class="carousel slide landing-stories" data-bs-ride="carousel">
+        <div class="carousel-inner">
+          <?php foreach ($storySlides as $slideIndex => $slideStories): ?>
+          <div class="carousel-item <?= $slideIndex === 0 ? 'active' : '' ?>">
+            <div class="row g-4">
+              <?php foreach ($slideStories as $index => $story): ?>
+              <div class="col-12 col-md-6 col-lg-4">
+                <div class="card h-100 border-0 shadow d-flex flex-column" style="border-radius:12px; overflow:hidden;">
+                  <div style="height:480px; overflow:hidden; background: linear-gradient(135deg, #ef4444, #dc2626);">
+                    <?php if (!empty($story['image'])): ?>
+                      <img src="/scratch/<?= htmlspecialchars($story['image']) ?>" alt="<?= htmlspecialchars($story['title'] ?? 'Story') ?>" style="width:100%; height:100%; object-fit:cover; object-position:top center;">
+                    <?php else: ?>
+                      <div class="d-flex align-items-center justify-content-center h-100"><i class="fas fa-star text-white" style="font-size:4rem;"></i></div>
+                    <?php endif; ?>
+                  </div>
+                  <div class="p-4 d-flex flex-column flex-grow-1">
+                    <h5 class="fw-bold mb-3" style="color:#1f2937; font-size:1.25rem;"><?= htmlspecialchars(($story['firstname'] ?? '').' '.($story['lastname'] ?? '')) ?></h5>
+                    <p class="text-muted mb-4" style="line-height:1.6; flex-grow:1;"><?= htmlspecialchars(substr((string)($story['content'] ?? ''),0,120)) ?><?= strlen((string)($story['content'] ?? ''))>120?'...':'' ?></p>
+                    <div class="d-flex justify-content-between align-items-center mt-auto"><small class="text-muted"><i class="fas fa-calendar me-1"></i><?= date('M d, Y', strtotime($story['created'])) ?></small><button type="button" class="btn" style="background:#dc2626; color:#fff; border:none; padding:8px 16px; font-weight:600; border-radius:8px; font-size:.9rem;" data-bs-toggle="modal" data-bs-target="#loginModal">Read More</button></div>
+                  </div>
+                </div>
+              </div>
+              <?php endforeach; ?>
+            </div>
+          </div>
+          <?php endforeach; ?>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#landingStoriesCarousel" data-bs-slide="prev">
+          <span class="control-btn" aria-hidden="true">
+            <img src="/scratch/images/icons8-arrow-96.png" alt="Prev" style="width:22px;height:22px;object-fit:contain;transform: rotate(0deg);" />
+          </span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#landingStoriesCarousel" data-bs-slide="next">
+          <span class="control-btn" aria-hidden="true">
+            <img src="/scratch/images/icons8-arrow-96.png" alt="Next" style="width:22px;height:22px;object-fit:contain;transform: rotate(180deg);" />
+          </span>
+          <span class="visually-hidden">Next</span>
+        </button>
+      </div>
+      <?php else: ?>
+        <div class="text-center py-5" style="background:#fff; border-radius:16px; box-shadow:0 4px 20px rgba(0,0,0,0.06);"><i class="fas fa-star text-muted" style="font-size:4rem;"></i><h4 class="text-muted mt-3">No Success Stories Yet</h4></div>
+      <?php endif; ?>
+      <div class="text-center mt-4"><button type="button" class="btn" style="background:#dc2626; color:#fff; border:none; padding:12px 24px; font-weight:600; border-radius:8px;" data-bs-toggle="modal" data-bs-target="#loginModal">View All Stories</button></div>
+    </div>
+  </section>
+
+  <!-- Testimonials (Dashboard style) -->
+  <section id="testimonials" class="py-16" style="background:#f8f9fa;">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="text-center mb-12"><h2 class="text-4xl font-bold mb-2" style="color:#dc2626; font-family: 'Times New Roman', serif;">TESTIMONIALS</h2><div class="mx-auto" style="width:100px; height:3px; background:#dc2626;"></div></div>
+      <?php if (!empty($testimonials)): ?>
+      <?php 
+        $items = array_slice($testimonials, 0, 6);
+        $slides = array_chunk($items, 3);
+      ?>
+      <style>
+        /* Same glass button treatment for testimonials */
+        .landing-testimonials .control-btn {
+          width: 52px; height: 52px; border-radius: 14px;
+          background: rgba(15, 23, 42, 0.25);
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+          color: #ffffff;
+          display: inline-flex; align-items: center; justify-content: center;
+          border: 1px solid rgba(255,255,255,0.35);
+          box-shadow: 0 8px 24px rgba(220, 38, 38, 0.35), inset 0 0 0 1px rgba(255,255,255,0.08);
+          transition: transform .2s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease;
+          font-size: 22px; font-weight: 800; line-height: 1;
+        }
+        .landing-testimonials .control-btn:hover {
+          transform: translateY(-2px);
+          background: rgba(220, 38, 38, 0.22);
+          border-color: rgba(255,255,255,0.55);
+          box-shadow: 0 14px 30px rgba(220, 38, 38, 0.45);
+        }
+        .landing-testimonials .control-btn:focus { outline: none; box-shadow: 0 0 0 4px rgba(220,38,38,0.25), 0 10px 24px rgba(220,38,38,0.35); }
+        .landing-testimonials .carousel-control-prev-icon, .landing-testimonials .carousel-control-next-icon { display: none; }
+        .landing-testimonials .carousel-control-prev, .landing-testimonials .carousel-control-next { width: auto; opacity: 1; top: 50%; transform: translateY(-50%); }
+        .landing-testimonials .carousel-control-prev { left: -12px; }
+        .landing-testimonials .carousel-control-next { right: -12px; }
+        @media (max-width: 576px) {
+          .landing-testimonials .control-btn { width: 44px; height: 44px; border-radius: 12px; font-size: 20px; }
+          .landing-testimonials .carousel-control-prev { left: -8px; }
+          .landing-testimonials .carousel-control-next { right: -8px; }
+        }
+      </style>
+      <div id="landingTestimonialsCarousel" class="carousel slide landing-testimonials" data-bs-ride="carousel">
+        <div class="carousel-inner">
+          <?php foreach ($slides as $slideIndex => $slideItems): ?>
+          <div class="carousel-item <?= $slideIndex === 0 ? 'active' : '' ?>">
+            <div class="row g-4">
+              <?php foreach ($slideItems as $t): ?>
+              <div class="col-12 col-md-6 col-lg-4">
+                <div class="card border-0 shadow h-100" style="border-radius:12px; overflow:hidden;">
+                  <div style="height:480px; overflow:hidden; background:linear-gradient(135deg,#3b82f6,#1d4ed8);">
+                    <?php if (!empty($t['graduation_photo'])): ?>
+                      <img src="/scratch/<?= htmlspecialchars($t['graduation_photo']) ?>" alt="<?= htmlspecialchars($t['author_name'] ?? (($t['firstname'] ?? '').' '.($t['lastname'] ?? ''))) ?>" style="width:100%; height:100%; object-fit:cover; object-position:top center;">
+                    <?php else: ?>
+                      <div class="d-flex align-items-center justify-content-center h-100"><i class="fas fa-user-graduate text-white" style="font-size:4rem;"></i></div>
+                    <?php endif; ?>
+                  </div>
+                  <div class="p-4 d-flex flex-column">
+                    <h5 class="fw-bold mb-2" style="color:#1f2937;"><?= htmlspecialchars($t['author_name'] ?? (($t['firstname'] ?? '').' '.($t['lastname'] ?? ''))) ?></h5>
+                    <p class="text-muted small mb-2"><?= htmlspecialchars($t['course'] ?? '') ?><?= !empty($t['graduation_year']) ? ', Class of '.(int)$t['graduation_year'] : '' ?></p>
+                    <p class="mb-0" style="line-height:1.7; font-style:italic; color:#4b5563;">"<?= htmlspecialchars($t['quote'] ?? '') ?>"</p>
+                  </div>
+                </div>
+              </div>
+              <?php endforeach; ?>
+            </div>
+          </div>
+          <?php endforeach; ?>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#landingTestimonialsCarousel" data-bs-slide="prev">
+          <span class="control-btn" aria-hidden="true">
+            <img src="/scratch/images/icons8-arrow-96.png" alt="Prev" style="width:22px;height:22px;object-fit:contain;transform: rotate(0deg);" />
+          </span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#landingTestimonialsCarousel" data-bs-slide="next">
+          <span class="control-btn" aria-hidden="true">
+            <img src="/scratch/images/icons8-arrow-96.png" alt="Next" style="width:22px;height:22px;object-fit:contain;transform: rotate(180deg);" />
+          </span>
+          <span class="visually-hidden">Next</span>
+        </button>
+      </div>
+      <?php else: ?>
+        <div class="text-center py-5" style="background:#fff; border-radius:16px; box-shadow:0 4px 20px rgba(0,0,0,0.06);"><i class="fas fa-quote-left text-muted" style="font-size:4rem;"></i><h4 class="text-muted mt-3">No Testimonials Yet</h4></div>
+      <?php endif; ?>
+      <div class="text-center mt-4"><button type="button" class="btn" style="background:#dc2626; color:#fff; border:none; padding:12px 24px; font-weight:600; border-radius:8px;" data-bs-toggle="modal" data-bs-target="#loginModal">View All Testimonials</button></div>
+    </div>
+  </section>
+
 
   <!-- Login Modal -->
   <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
@@ -784,8 +784,10 @@ $announcements = $pdo->query('SELECT * FROM announcements ORDER BY date_created 
         </div>
       </div>
       <hr class="my-4 border-white opacity-25">
-      <div class="text-center small">
-        <p class="mb-0">&copy; <?php echo date('Y'); ?> St. Cecilia's College - Cebu, Inc. All rights reserved.</p>
+      <div class="text-center small text-white">
+        <p class="mb-0" style="color:#ffffff;">
+          &copy; <?php echo date('Y'); ?> St. Cecilia's College - Cebu, Inc. All rights reserved.
+        </p>
       </div>
     </div>
   </footer>
