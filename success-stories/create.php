@@ -2,6 +2,7 @@
 declare(strict_types=1);
 require_once __DIR__ . '/../inc/config.php';
 require_once __DIR__ . '/../inc/auth.php';
+require_once __DIR__ . '/../inc/logger.php';
 require_login();
 $user = current_user();
 
@@ -56,6 +57,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 $stmt = $pdo->prepare('INSERT INTO success_stories (user_id, title, content, image, created, status) VALUES (?, ?, ?, ?, NOW(), 0)');
                 $stmt->execute([$user['id'], $title, $content, $imagePath]);
+                // Log create
+                ActivityLogger::logCreate('Success Story', 'Alumni submitted success story', [
+                    'user_id' => (int)$user['id'],
+                    'title' => $title
+                ]);
                 
                 // Return JSON response for AJAX
                 header('Content-Type: application/json');

@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../inc/config.php';
 require_once __DIR__ . '/../inc/auth.php';
+require_once __DIR__ . '/../inc/logger.php';
 
 // Check if user is logged in
 if (!current_user()) {
@@ -41,6 +42,11 @@ try {
     // Delete the comment
     $stmt = $pdo->prepare("DELETE FROM forum_comments WHERE id = ?");
     $stmt->execute([$commentId]);
+    // Log delete
+    ActivityLogger::logDelete('Forum Comment', 'User deleted comment', [
+        'comment_id' => $commentId,
+        'user_id' => (int)$user['id']
+    ]);
     
     echo json_encode(['success' => true, 'message' => 'Comment deleted successfully']);
     

@@ -38,6 +38,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                         $stmt = $pdo->prepare("INSERT INTO event_commits (event_id, user_id) VALUES (?, ?)");
                         $stmt->execute([$eventId, $user['id']]);
                         $_SESSION['success'] = 'Successfully registered for the event!';
+                        // Log join
+                        ActivityLogger::logCreate('Event Join', 'User joined event', [
+                            'event_id' => $eventId,
+                            'user_id' => $user['id']
+                        ]);
                     }
                 }
             } elseif ($action === 'leave') {
@@ -45,6 +50,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 $stmt = $pdo->prepare("DELETE FROM event_commits WHERE event_id = ? AND user_id = ?");
                 $stmt->execute([$eventId, $user['id']]);
                 $_SESSION['success'] = 'Successfully unregistered from the event.';
+                // Log leave
+                ActivityLogger::logDelete('Event Leave', 'User left event', [
+                    'event_id' => $eventId,
+                    'user_id' => $user['id']
+                ]);
             }
         } catch (Exception $e) {
             $_SESSION['error'] = 'An error occurred. Please try again.';

@@ -2,6 +2,7 @@
 declare(strict_types=1);
 require_once __DIR__ . '/../inc/config.php';
 require_once __DIR__ . '/../inc/auth.php';
+require_once __DIR__ . '/../inc/logger.php';
 require_login();
 
 $user = current_user();
@@ -141,6 +142,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $pdo->prepare('INSERT INTO testimonials (user_id, quote, author_name, graduation_year, course, graduation_photo, created, status) VALUES (?, ?, ?, ?, ?, ?, NOW(), 0)');
         $stmt->execute([$user['id'], $quote, $authorName, $graduationYear, $course, $imagePath]);
         
+        // Log create
+        ActivityLogger::logCreate('Testimonial', 'Alumni submitted testimonial', [
+            'user_id' => (int)$user['id'],
+            'author_name' => $authorName,
+            'graduation_year' => $graduationYear
+        ]);
+
         // Return JSON response for AJAX
         header('Content-Type: application/json');
         echo json_encode([

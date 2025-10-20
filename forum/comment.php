@@ -27,7 +27,11 @@ if ($_POST && isset($_POST['comment']) && isset($_POST['topic_id'])) {
             $commentId = $pdo->lastInsertId();
             
             // Log the comment activity
-            ActivityLogger::logCreate($user['username'], 'Forum Comment', 'Commented on topic ID: ' . $topicId);
+            ActivityLogger::logCreate('Forum Comment', 'User commented', [
+                'topic_id' => $topicId,
+                'comment_id' => (int)$commentId,
+                'user_id' => (int)$user['id']
+            ]);
             
             echo json_encode(['success' => true, 'message' => 'Comment posted successfully', 'comment_id' => $commentId]);
             exit;

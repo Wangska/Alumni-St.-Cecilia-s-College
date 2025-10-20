@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../inc/config.php';
 require_once __DIR__ . '/../inc/auth.php';
+require_once __DIR__ . '/../inc/logger.php';
 
 // Check if user is logged in
 if (!current_user()) {
@@ -47,6 +48,11 @@ try {
     // Update the comment
     $stmt = $pdo->prepare("UPDATE forum_comments SET comment = ? WHERE id = ?");
     $stmt->execute([$newComment, $commentId]);
+    // Log edit
+    ActivityLogger::logUpdate('Forum Comment', 'User edited comment', [
+        'comment_id' => $commentId,
+        'user_id' => (int)$user['id']
+    ]);
     
     echo json_encode(['success' => true, 'message' => 'Comment updated successfully']);
     

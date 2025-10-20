@@ -55,6 +55,20 @@ try {
 } catch (Exception $e) {
     $testimonials = [];
 }
+
+// Public gallery images
+try {
+    $stmt = $pdo->prepare('
+        SELECT id, image_path, about, created
+        FROM gallery
+        ORDER BY created DESC
+        LIMIT 20
+    ');
+    $stmt->execute();
+    $galleryImages = $stmt->fetchAll();
+} catch (Exception $e) {
+    $galleryImages = [];
+}
 ?>
 <!doctype html>
 <html lang="en">
@@ -65,6 +79,10 @@ try {
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
+    /* Smooth scroll for in-page navigation */
+    html { scroll-behavior: smooth; }
+    /* Prevent anchor targets from hiding under sticky header */
+    section { scroll-margin-top: 88px; }
     /* About section theming - SCC red with soft gradient shapes */
     .about-section { position: relative; background: linear-gradient(180deg, #fff5f5 0%, #ffffff 100%); }
     .about-bg-shape { position: absolute; inset: 0; background:
@@ -77,19 +95,24 @@ try {
     #about .card:hover,
     #about .h-full:hover { transform: translateY(-4px); box-shadow: 0 14px 36px rgba(220,38,38,0.12); border-color: #fecaca; }
     #about .icon-circle { width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; background: linear-gradient(135deg, #7f1d1d, #dc2626); color:#fff; box-shadow: 0 8px 24px rgba(220,38,38,.25); }
+    /* About section title and headings in SCC red and serif font */
+    #about .section-title { color:#dc2626 !important; font-family: 'Times New Roman', serif; font-weight:700; letter-spacing:.5px; }
+    #about h3 { color:#dc2626 !important; font-family: 'Times New Roman', serif; font-weight:700; }
   </style>
 </head>
 <body>
+  <div id="top"></div>
   <!-- Top bar using Tailwind -->
   <div class="w-full sticky top-0 z-30 shadow-sm" style="background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);">
     <div class="max-w-7xl mx-auto flex items-center justify-between px-4" style="padding-top: 0.5rem; padding-bottom: 0.5rem;">
-      <div class="flex items-center gap-3">
+      <a href="#top" class="flex items-center gap-3 text-decoration-none" style="color:#ffffff;">
         <img src="/scratch/images/scc.png" alt="SCC Logo" class="h-16 w-16 object-contain" />
         <div class="text-lg font-semibold tracking-wide text-white">St. Cecilia's Alumni</div>
-      </div>
+      </a>
       <div class="hidden md:flex items-center gap-6 text-sm font-medium">
         <a href="#about" class="text-white hover:text-gray-200 transition">About Us</a>
         <a href="#news" class="text-white hover:text-gray-200 transition">News</a>
+        <a href="#events" class="text-white hover:text-gray-200 transition">Events</a>
         <a href="#jobs" class="text-white hover:text-gray-200 transition">Jobs</a>
         <a href="#testimonials" class="text-white hover:text-gray-200 transition">Testimonials</a>
         <a href="#success-stories" class="text-white hover:text-gray-200 transition">Success Stories</a>
@@ -149,12 +172,78 @@ try {
     </div>
   </section>
 
+  <!-- Gallery (Glassmorphism, compact, 1-by-1 looping carousel) -->
+  <section id="gallery" class="py-12" style="background:#f9fafb;">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="text-center mb-4">
+        <h2 class="text-3xl font-bold mb-2" style="color:#dc2626; font-family: 'Times New Roman', serif;">GALLERY</h2>
+        <div class="mx-auto" style="width: 80px; height: 3px; background: #dc2626;"></div>
+      </div>
+      <div class="mx-auto" style="max-width: 960px;">
+        <div class="p-3 rounded-4 shadow-sm position-relative" style="background: rgba(255,255,255,0.18); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.35);">
+          <?php if (!empty($galleryImages)): ?>
+          <style>
+            /* Subtle glass edge and hover lift */
+            #gallery .glass-wrap:hover { box-shadow: 0 16px 40px rgba(220,38,38,0.10); }
+            #gallery .carousel-control-prev-icon, #gallery .carousel-control-next-icon { display:none; }
+            #gallery .control-btn {
+              width: 44px; height: 44px; border-radius: 12px;
+              background: rgba(15, 23, 42, 0.25);
+              backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+              color: #ffffff; display: inline-flex; align-items: center; justify-content: center;
+              border: 1px solid rgba(255,255,255,0.35);
+              box-shadow: 0 8px 20px rgba(0,0,0,0.20);
+              transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+            }
+            #gallery .control-btn:hover { transform: translateY(-2px); background: rgba(220,38,38,0.22); box-shadow: 0 12px 28px rgba(220,38,38,0.35); }
+          </style>
+          <div id="landingGalleryCarousel" class="carousel slide glass-wrap" data-bs-ride="carousel" data-bs-interval="2500" data-bs-wrap="true">
+            <div class="carousel-inner" style="height: 420px; border-radius: 14px; overflow:hidden;">
+              <?php foreach ($galleryImages as $index => $g): $file = (string)($g['image_path'] ?? ''); $hasFile = $file !== '' && file_exists(__DIR__ . '/uploads/' . $file); ?>
+              <div class="carousel-item <?= $index === 0 ? 'active' : '' ?> h-100">
+                <?php if ($hasFile): ?>
+                  <img src="/scratch/uploads/<?= htmlspecialchars($file) ?>" alt="<?= htmlspecialchars($g['about'] ?? 'Gallery image') ?>" class="d-block w-100 h-100" style="object-fit:cover;" />
+                <?php else: ?>
+                  <div class="d-flex align-items-center justify-content-center h-100 w-100" style="background:linear-gradient(135deg,#f3f4f6,#e5e7eb);">
+                    <div class="text-center">
+                      <i class="fas fa-image text-muted" style="font-size:3rem;"></i>
+                      <div class="text-muted mt-2 small">No image available</div>
+                    </div>
+                  </div>
+                <?php endif; ?>
+              </div>
+              <?php endforeach; ?>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#landingGalleryCarousel" data-bs-slide="prev">
+              <span class="control-btn" aria-hidden="true">
+                <img src="/scratch/images/icons8-arrow-96.png" alt="Prev" style="width:18px;height:18px;object-fit:contain;transform: rotate(0deg);" />
+              </span>
+              <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#landingGalleryCarousel" data-bs-slide="next">
+              <span class="control-btn" aria-hidden="true">
+                <img src="/scratch/images/icons8-arrow-96.png" alt="Next" style="width:18px;height:18px;object-fit:contain;transform: rotate(180deg);" />
+              </span>
+              <span class="visually-hidden">Next</span>
+            </button>
+          </div>
+          <?php else: ?>
+            <div class="text-center py-5" style="background:rgba(255,255,255,0.35); border-radius:14px;">
+              <i class="fas fa-images text-muted" style="font-size:2rem;"></i>
+              <div class="text-muted mt-2">No gallery images yet</div>
+            </div>
+          <?php endif; ?>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- About Us Section -->
   <section id="about" class="about-section py-16">
     <div class="about-bg-shape"></div>
     <div class="max-w-7xl mx-auto px-4 position-relative" style="z-index: 1;">
       <div class="text-center mb-12">
-        <h2 class="text-4xl font-bold text-gray-900 mb-3">About Us</h2>
+        <h2 class="text-4xl font-bold section-title mb-3">About Us</h2>
         <div class="mx-auto" style="width: 100px; height: 3px; background: #dc2626;"></div>
         <p class="text-gray-600 max-w-2xl mx-auto">Learn more about St. Cecilia's College Alumni Association</p>
       </div>
@@ -162,7 +251,7 @@ try {
       <div class="row g-4">
         <div class="col-md-6">
           <div class="h-full p-6 bg-white rounded-3 shadow-sm">
-            <h3 class="text-2xl font-bold text-gray-900 mb-4 d-flex align-items-center gap-2"><i class="fas fa-bullseye text-danger"></i>Our Mission</h3>
+            <h3 class="text-2xl font-bold mb-4 d-flex align-items-center gap-2"><i class="fas fa-bullseye text-danger"></i>Our Mission</h3>
             <p class="text-gray-600 mb-3">In pursuing the mission, St. Cecilia's College commits itself to:</p>
             <ol class="text-gray-700 ps-3" style="line-height: 1.8;">
               <li class="mb-2">Cultivate and inculcate Christian values in pupils/students to become men and women of faith and integrity;</li>
@@ -177,7 +266,7 @@ try {
         </div>
         <div class="col-md-6">
           <div class="h-full p-6 bg-white rounded-3 shadow-sm">
-            <h3 class="text-2xl font-bold text-gray-900 mb-4 d-flex align-items-center gap-2"><i class="fas fa-lightbulb text-warning"></i>Our Vision</h3>
+            <h3 class="text-2xl font-bold mb-4 d-flex align-items-center gap-2"><i class="fas fa-lightbulb text-warning"></i>Our Vision</h3>
             <p class="text-gray-700" style="line-height: 1.8;">SCC is a non-stock, non-profit educational institution that envisions itself to be a Center of Excellence in Academics, Technology, and the Arts. It aspires to produce professionals and leaders who are globally competitive, imbued with Christian values, integrity, patriotism, and stewardship, through quality human education.</p>
           </div>
         </div>
@@ -185,22 +274,22 @@ try {
 
       <!-- Core Values -->
       <div class="mt-8 p-6 bg-white rounded-3 shadow-sm">
-        <h3 class="text-2xl font-bold text-gray-900 mb-4 d-flex align-items-center gap-2"><i class="fas fa-heart text-danger"></i>Core Values</h3>
+         <h3 class="text-2xl font-bold mb-4 d-flex align-items-center gap-2"><i class="fas fa-heart text-danger"></i>Core Values</h3>
         <div class="row g-4">
-          <div class="col-md-6 col-lg-4"><div class="h-100 p-4 bg-gray-50 rounded-3 border"><h5 class="fw-bold mb-2 d-flex align-items-center gap-2"><i class="fas fa-cross text-danger"></i>Christ-centeredness</h5><p class="mb-0 text-gray-700">Cecilians put Christ at the center of thoughts and actions for the common good, showing sympathy and empathy for others.</p></div></div>
-          <div class="col-md-6 col-lg-4"><div class="h-100 p-4 bg-gray-50 rounded-3 border"><h5 class="fw-bold mb-2 d-flex align-items-center gap-2"><i class="fas fa-award text-warning"></i>Excellence</h5><p class="mb-0 text-gray-700">Cecilians strive to excel in imparting knowledge and skills with enthusiasm and goodwill.</p></div></div>
-          <div class="col-md-6 col-lg-4"><div class="h-100 p-4 bg-gray-50 rounded-3 border"><h5 class="fw-bold mb-2 d-flex align-items-center gap-2"><i class="fas fa-handshake text-success"></i>Commitment</h5><p class="mb-0 text-gray-700">Cecilians give their best and go beyond expectations; they are self‑motivated and holistic in growth.</p></div></div>
-          <div class="col-md-6 col-lg-4"><div class="h-100 p-4 bg-gray-50 rounded-3 border"><h5 class="fw-bold mb-2 d-flex align-items-center gap-2"><i class="fas fa-shield-alt text-primary"></i>Integrity</h5><p class="mb-0 text-gray-700">Cecilians act honestly and responsibly, guided by moral conviction to do what is right.</p></div></div>
-          <div class="col-md-6 col-lg-4"><div class="h-100 p-4 bg-gray-50 rounded-3 border"><h5 class="fw-bold mb-2 d-flex align-items-center gap-2"><i class="fas fa-flag text-info"></i>Love of Country</h5><p class="mb-0 text-gray-700">Cecilians prioritize national interest, respect Filipino culture and tradition, support local products, and serve the community.</p></div></div>
-          <div class="col-md-6 col-lg-4"><div class="h-100 p-4 bg-gray-50 rounded-3 border"><h5 class="fw-bold mb-2 d-flex align-items-center gap-2"><i class="fas fa-lightbulb text-warning"></i>Innovativeness</h5><p class="mb-0 text-gray-700">Cecilians are open‑minded, creative, functional, and resourceful—logical and artistic in bringing ideas to life.</p></div></div>
-          <div class="col-md-6 col-lg-4"><div class="h-100 p-4 bg-gray-50 rounded-3 border"><h5 class="fw-bold mb-2 d-flex align-items-center gap-2"><i class="fas fa-palette" style="color:#8b5cf6"></i>Arts Lover</h5><p class="mb-0 text-gray-700">Cecilians have a heart for the arts—creating, appreciating, and understanding God’s creation and human works to inspire others.</p></div></div>
-          <div class="col-md-6 col-lg-4"><div class="h-100 p-4 bg-gray-50 rounded-3 border"><h5 class="fw-bold mb-2 d-flex align-items-center gap-2"><i class="fas fa-seedling text-success"></i>Nurturance</h5><p class="mb-0 text-gray-700">Cecilians care for God’s creation, value knowledge and skills, and nurture peaceful, harmonious relationships.</p></div></div>
+           <div class="col-md-6 col-lg-3"><div class="h-100 p-4 bg-gray-50 rounded-3 border"><h5 class="fw-bold mb-2 d-flex align-items-center gap-2"><i class="fas fa-cross text-danger"></i>Christ-centeredness</h5><p class="mb-0 text-gray-700">Cecilians put Christ at the center of thoughts and actions for the common good, showing sympathy and empathy for others.</p></div></div>
+           <div class="col-md-6 col-lg-3"><div class="h-100 p-4 bg-gray-50 rounded-3 border"><h5 class="fw-bold mb-2 d-flex align-items-center gap-2"><i class="fas fa-award text-warning"></i>Excellence</h5><p class="mb-0 text-gray-700">Cecilians strive to excel in imparting knowledge and skills with enthusiasm and goodwill.</p></div></div>
+           <div class="col-md-6 col-lg-3"><div class="h-100 p-4 bg-gray-50 rounded-3 border"><h5 class="fw-bold mb-2 d-flex align-items-center gap-2"><i class="fas fa-handshake text-success"></i>Commitment</h5><p class="mb-0 text-gray-700">Cecilians give their best and go beyond expectations; they are self‑motivated and holistic in growth.</p></div></div>
+           <div class="col-md-6 col-lg-3"><div class="h-100 p-4 bg-gray-50 rounded-3 border"><h5 class="fw-bold mb-2 d-flex align-items-center gap-2"><i class="fas fa-shield-alt text-primary"></i>Integrity</h5><p class="mb-0 text-gray-700">Cecilians act honestly and responsibly, guided by moral conviction to do what is right.</p></div></div>
+           <div class="col-md-6 col-lg-3"><div class="h-100 p-4 bg-gray-50 rounded-3 border"><h5 class="fw-bold mb-2 d-flex align-items-center gap-2"><i class="fas fa-flag text-info"></i>Love of Country</h5><p class="mb-0 text-gray-700">Cecilians prioritize national interest, respect Filipino culture and tradition, support local products, and serve the community.</p></div></div>
+           <div class="col-md-6 col-lg-3"><div class="h-100 p-4 bg-gray-50 rounded-3 border"><h5 class="fw-bold mb-2 d-flex align-items-center gap-2"><i class="fas fa-lightbulb text-warning"></i>Innovativeness</h5><p class="mb-0 text-gray-700">Cecilians are open‑minded, creative, functional, and resourceful—logical and artistic in bringing ideas to life.</p></div></div>
+           <div class="col-md-6 col-lg-3"><div class="h-100 p-4 bg-gray-50 rounded-3 border"><h5 class="fw-bold mb-2 d-flex align-items-center gap-2"><i class="fas fa-palette" style="color:#8b5cf6"></i>Arts Lover</h5><p class="mb-0 text-gray-700">Cecilians have a heart for the arts—creating, appreciating, and understanding God’s creation and human works to inspire others.</p></div></div>
+           <div class="col-md-6 col-lg-3"><div class="h-100 p-4 bg-gray-50 rounded-3 border"><h5 class="fw-bold mb-2 d-flex align-items-center gap-2"><i class="fas fa-seedling text-success"></i>Nurturance</h5><p class="mb-0 text-gray-700">Cecilians care for God’s creation, value knowledge and skills, and nurture peaceful, harmonious relationships.</p></div></div>
         </div>
       </div>
 
       <!-- History -->
       <div class="mt-4 p-6 bg-white rounded-3 shadow-sm">
-        <h3 class="text-2xl font-bold text-gray-900 mb-3 d-flex align-items-center gap-2"><i class="fas fa-history text-secondary"></i>Our History</h3>
+         <h3 class="text-2xl font-bold mb-3 d-flex align-items-center gap-2"><i class="fas fa-history text-secondary"></i>Our History</h3>
         <h5 class="fw-bold text-gray-800 mb-2">Formative Years (1999–2009)</h5>
         <p class="text-gray-700 mb-3" style="line-height: 1.8;">The formative years saw the development of the first ten pupils and the construction of essential facilities. Enrollment grew steadily, and within five years SCC was considered the “Performing Arts Center of the South” for its Summer Workshops in Music, Painting, Speech, and more. After the fifth year, the founder sold the school to the current owner, Mrs. Rosalina N. Go.</p>
         <p class="text-gray-700 mb-3" style="line-height: 1.8;">The Preschool expanded to Primary and Elementary; a complete High School followed. In June 2005, SCC was registered with the SEC as a non‑stock, non‑profit corporation under the name St. Cecilia’s College – Cebu, Inc., with Mrs. Maria de la Rosa as Principal. As the population grew, SCC rented nearby space for Elementary and High School while constructing the five‑story St. La Salle Building at the original Preschool location.</p>
@@ -971,6 +1060,21 @@ try {
   <script>
     // Show registration success modal if redirected with success parameter
     document.addEventListener('DOMContentLoaded', function() {
+      // Smooth scroll for all in-page anchors with fallback JS (for browsers ignoring CSS smooth)
+      document.querySelectorAll('a[href^="#"]').forEach(function(anchor){
+        anchor.addEventListener('click', function(e){
+          const targetId = this.getAttribute('href');
+          if (targetId.length > 1) {
+            const el = document.querySelector(targetId);
+            if (el) {
+              e.preventDefault();
+              const y = el.getBoundingClientRect().top + window.pageYOffset - 88; // account for sticky header
+              window.scrollTo({ top: y, behavior: 'smooth' });
+            }
+          }
+        });
+      });
+
       const urlParams = new URLSearchParams(window.location.search);
       
       if (urlParams.get('register') === 'success') {
