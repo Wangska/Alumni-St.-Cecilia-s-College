@@ -1,8 +1,12 @@
 <?php
 declare(strict_types=1);
 
-// Database configuration (reads from env via config/database.php for deploys like Coolify)
-$dbConfig = require __DIR__ . '/../config/database.php';
+// Basic configuration for XAMPP + MariaDB
+// Adjust if your MySQL credentials differ
+const DB_HOST = '127.0.0.1';
+const DB_NAME = 'sccalumni_db';
+const DB_USER = 'root';
+const DB_PASS = '';
 
 // Start session early for auth and CSRF with secure settings
 if (session_status() === PHP_SESSION_NONE) {
@@ -32,21 +36,13 @@ function get_pdo(): PDO {
     if ($pdo instanceof PDO) {
         return $pdo;
     }
-    $driver = $GLOBALS['dbConfig']['driver'] ?? 'mysql';
-    $host = $GLOBALS['dbConfig']['host'] ?? '127.0.0.1';
-    $port = (int)($GLOBALS['dbConfig']['port'] ?? 3306);
-    $name = $GLOBALS['dbConfig']['database'] ?? '';
-    $charset = $GLOBALS['dbConfig']['charset'] ?? 'utf8mb4';
-    $user = $GLOBALS['dbConfig']['username'] ?? '';
-    $pass = $GLOBALS['dbConfig']['password'] ?? '';
-
-    $dsn = sprintf('%s:host=%s;port=%d;dbname=%s;charset=%s', $driver, $host, $port, $name, $charset);
+    $dsn = 'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8mb4';
     $options = [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         PDO::ATTR_EMULATE_PREPARES => false,
     ];
-    $pdo = new PDO($dsn, $user, $pass, $options);
+    $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
     return $pdo;
 }
 
