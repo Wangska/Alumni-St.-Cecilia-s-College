@@ -178,8 +178,8 @@ $currentPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
       <a class="navbar-brand d-flex align-items-center" href="/scratch/dashboard.php">
         <img src="/scratch/images/scc.png" alt="SCC Logo" class="me-3">
         <div class="navbar-brand-text">
-          <div style="font-size: 1.1rem; font-weight: 700; line-height: 1.2; color: white;">ST. CECILIA'S COLLEGE</div>
-          <div style="font-size: 0.75rem; font-weight: 500; letter-spacing: 0.5px; margin-top: 2px; color: rgba(255,255,255,0.9);">ALUMNI PORTAL</div>
+          <div style="font-size: 1.1rem; font-weight: 700; line-height: 1.2; color: white;">ALUMNI NEXUS</div>
+          <div style="font-size: 0.75rem; font-weight: 500; letter-spacing: 0.5px; margin-top: 2px; color: rgba(255,255,255,0.9);">ST. CECILIA'S COLLEGE</div>
         </div>
       </a>
       
@@ -200,10 +200,10 @@ $currentPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
           </li>
           
         <li class="nav-item">
-            <a class="nav-link <?= ($currentPath === '/scratch/testimonials/index.php') || ($currentPage === 'create.php' && strpos($_SERVER['REQUEST_URI'], 'testimonials') !== false) ? 'active' : '' ?>" href="/scratch/testimonials/index.php">Testimonials</a>
+            <a class="nav-link <?= ($currentPath === '/scratch/success-stories/index.php') || ($currentPage === 'create.php' && strpos($_SERVER['REQUEST_URI'], 'success-stories') !== false) ? 'active' : '' ?>" href="/scratch/success-stories/index.php">Success Stories</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link <?= ($currentPath === '/scratch/success-stories/index.php') || ($currentPage === 'create.php' && strpos($_SERVER['REQUEST_URI'], 'success-stories') !== false) ? 'active' : '' ?>" href="/scratch/success-stories/index.php">Success Stories</a>
+            <a class="nav-link <?= ($currentPath === '/scratch/testimonials/index.php') || ($currentPage === 'create.php' && strpos($_SERVER['REQUEST_URI'], 'testimonials') !== false) ? 'active' : '' ?>" href="/scratch/testimonials/index.php">Testimonials</a>
         </li>
           <li class="nav-item">
             <a class="nav-link" href="/scratch/forum/index.php">Forum</a>

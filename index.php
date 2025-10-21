@@ -107,7 +107,7 @@ try {
     <div class="max-w-7xl mx-auto flex items-center justify-between px-4" style="padding-top: 0.5rem; padding-bottom: 0.5rem;">
       <a href="#top" class="flex items-center gap-3 text-decoration-none" style="color:#ffffff;">
         <img src="/scratch/images/scc.png" alt="SCC Logo" class="h-16 w-16 object-contain" />
-        <div class="text-lg font-semibold tracking-wide text-white">St. Cecilia's Alumni</div>
+        <div class="text-lg font-semibold tracking-wide text-white">Alumni Nexus</div>
       </a>
       <div class="hidden md:flex items-center gap-6 text-sm font-medium">
         <a href="#about" class="text-white hover:text-gray-200 transition">About Us</a>

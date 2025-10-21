@@ -209,13 +209,13 @@ try {
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="/scratch/dashboard.php#testimonials">
-              <i class="fas fa-quote-left me-2"></i>Testimonials
+            <a class="nav-link active" href="/scratch/dashboard.php#success-stories">
+              <i class="fas fa-star me-2"></i>Success Stories
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link active" href="/scratch/dashboard.php#success-stories">
-              <i class="fas fa-star me-2"></i>Success Stories
+            <a class="nav-link" href="/scratch/dashboard.php#testimonials">
+              <i class="fas fa-quote-left me-2"></i>Testimonials
             </a>
           </li>
           <li class="nav-item">

@@ -236,7 +236,7 @@ try {
             <a class="navbar-brand d-flex align-items-center" href="/scratch/dashboard.php">
                 <img src="/scratch/images/scc.png" alt="SCC Logo">
                 <div>
-                    <div style="font-size: 1.2rem;">ST. CECILIA'S COLLEGE</div>
+                    <div style="font-size: 1.2rem;">ALUMNI NEXUS</div>
                     <div style="font-size: 0.8rem; opacity: 0.9;">ALUMNI PORTAL</div>
                 </div>
             </a>
@@ -257,10 +257,10 @@ try {
                         <a class="nav-link" href="/scratch/events/index.php">Events</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/scratch/testimonials/index.php">Testimonials</a>
+                        <a class="nav-link" href="/scratch/success-stories/index.php">Success Stories</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/scratch/success-stories/index.php">Success Stories</a>
+                        <a class="nav-link" href="/scratch/testimonials/index.php">Testimonials</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/scratch/forum/index.php">Forum</a>

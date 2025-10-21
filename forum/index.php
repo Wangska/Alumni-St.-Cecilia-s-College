@@ -451,7 +451,7 @@ try {
       <a class="navbar-brand d-flex align-items-center" href="/scratch/dashboard.php">
         <img src="/scratch/images/scc.png" alt="SCC Logo" class="me-3">
         <div class="navbar-brand-text">
-          <div style="font-size: 1.1rem; font-weight: 700; line-height: 1.2; color: white;">ST. CECILIA'S COLLEGE</div>
+          <div style="font-size: 1.1rem; font-weight: 700; line-height: 1.2; color: white;">ALUMNI NEXUS</div>
           <div style="font-size: 0.75rem; font-weight: 500; letter-spacing: 0.5px; margin-top: 2px; color: rgba(255,255,255,0.9);">ALUMNI PORTAL</div>
         </div>
       </a>
@@ -472,10 +472,10 @@ try {
               <a class="nav-link" href="/scratch/events/index.php">Events</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/scratch/testimonials/index.php">Testimonials</a>
+              <a class="nav-link" href="/scratch/success-stories/index.php">Success Stories</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/scratch/success-stories/index.php">Success Stories</a>
+              <a class="nav-link" href="/scratch/testimonials/index.php">Testimonials</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="/scratch/forum/index.php">Forum</a>

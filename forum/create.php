@@ -198,7 +198,7 @@ if ($_POST) {
             <a class="navbar-brand d-flex align-items-center" href="/scratch/dashboard.php">
                 <img src="/scratch/images/scc.png" alt="SCC Logo">
                 <div>
-                    <div style="font-size: 1.2rem;">ST. CECILIA'S COLLEGE</div>
+                    <div style="font-size: 1.2rem;">ALUMNI NEXUS</div>
                     <div style="font-size: 0.8rem; opacity: 0.9;">ALUMNI PORTAL</div>
                 </div>
             </a>
