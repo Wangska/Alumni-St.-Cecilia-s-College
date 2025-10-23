@@ -390,3 +390,28 @@ include __DIR__ . '/../inc/header.php';
 </div>
 
 <?php include __DIR__ . '/../inc/footer.php'; ?>
+
+<script>
+// Prevent scroll to top after form submission
+document.addEventListener('DOMContentLoaded', function() {
+    // Store scroll position before form submission
+    const forms = document.querySelectorAll('form[method="POST"]');
+    forms.forEach(form => {
+        form.addEventListener('submit', function() {
+            // Store current scroll position
+            sessionStorage.setItem('scrollPosition', window.pageYOffset);
+        });
+    });
+    
+    // Restore scroll position after page load
+    const savedScrollPosition = sessionStorage.getItem('scrollPosition');
+    if (savedScrollPosition !== null) {
+        // Use setTimeout to ensure the page has fully loaded
+        setTimeout(function() {
+            window.scrollTo(0, parseInt(savedScrollPosition));
+            // Clear the stored position
+            sessionStorage.removeItem('scrollPosition');
+        }, 100);
+    }
+});
+</script>
