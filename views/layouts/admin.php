@@ -216,6 +216,165 @@
             z-index: 10;
         }
         
+        /* Notification Dropdown Styles */
+        .notification-container {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .notification-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 350px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-top: 10px;
+        }
+        
+        .notification-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .notification-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px 12px 0 0;
+        }
+        
+        .notification-header h6 {
+            margin: 0;
+            font-weight: 600;
+            color: #2d3142;
+            font-size: 16px;
+        }
+        
+        .notification-list {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 0;
+        }
+        
+        .notification-item {
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .notification-item:hover {
+            background: rgba(220, 53, 69, 0.05);
+        }
+        
+        .notification-item.unread {
+            background: rgba(220, 53, 69, 0.08);
+            border-left: 4px solid #dc3545;
+        }
+        
+        .notification-item.unread::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            background: #dc3545;
+            border-radius: 50%;
+        }
+        
+        .notification-title {
+            font-weight: 600;
+            color: #2d3142;
+            font-size: 14px;
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+        
+        .notification-message {
+            color: #666;
+            font-size: 13px;
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+        
+        .notification-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .notification-type {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .notification-type.info {
+            background: rgba(13, 110, 253, 0.1);
+            color: #0d6efd;
+        }
+        
+        .notification-type.success {
+            background: rgba(25, 135, 84, 0.1);
+            color: #198754;
+        }
+        
+        .notification-type.warning {
+            background: rgba(255, 193, 7, 0.1);
+            color: #ffc107;
+        }
+        
+        .notification-type.danger {
+            background: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+        }
+        
+        .notification-footer {
+            padding: 16px 20px;
+            border-top: 1px solid rgba(0, 0, 0, 0.08);
+            text-align: center;
+            background: rgba(248, 249, 250, 0.5);
+            border-radius: 0 0 12px 12px;
+        }
+        
+        .notification-loading {
+            padding: 40px 20px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .notification-empty {
+            padding: 40px 20px;
+            text-align: center;
+            color: #999;
+        }
+        
+        .notification-empty i {
+            font-size: 48px;
+            color: #ddd;
+            margin-bottom: 16px;
+        }
+        
         .user-profile {
             display: flex;
             align-items: center;
@@ -406,9 +565,36 @@
             <h4><?= $pageTitle ?? 'Dashboard' ?></h4>
             <div class="navbar-right">
                 <?php 
-                // Get unread notification count
+                // Get unread notification count from the new notification system
                 require_once __DIR__ . '/../../inc/logger.php';
-                $unreadCount = NotificationManager::getAdminNotificationCount();
+                
+                // Get comprehensive notification count
+                $notifications = [];
+                try {
+                    // Get system logs
+                    $logs = ActivityLogger::getRecentLogs(50);
+                    foreach ($logs as $log) {
+                        $logId = 'log_' . $log['id'];
+                        $isRead = isset($_SESSION['read_notifications']) && in_array($logId, $_SESSION['read_notifications']);
+                        if (!$isRead) {
+                            $notifications[] = $logId;
+                        }
+                    }
+                    
+                    // Get database notifications
+                    $userId = $_SESSION['user']['id'];
+                    $dbNotifications = NotificationManager::getUserNotifications($userId, 20);
+                    foreach ($dbNotifications as $notification) {
+                        if (!$notification['is_read']) {
+                            $notifications[] = 'notif_' . $notification['id'];
+                        }
+                    }
+                } catch (Exception $e) {
+                    // Fallback to original method
+                    $notifications = [];
+                }
+                
+                $unreadCount = count($notifications);
                 
                 // Get user status (for regular users, admins are always connected)
                 $userType = $_SESSION['user']['type'] ?? 0;
@@ -429,12 +615,34 @@
                     </div>
                 </div>
                 
-                <a href="/scratch/admin.php?page=users" class="notification-icon" style="text-decoration: none; color: inherit;" title="<?= $unreadCount > 0 ? $unreadCount . ' pending user approval' . ($unreadCount > 1 ? 's' : '') : 'No pending approvals' ?>">
-                    <i class="fas fa-bell"></i>
-                    <?php if ($unreadCount > 0): ?>
-                        <span class="notification-badge"><?= $unreadCount ?></span>
-                    <?php endif; ?>
-                </a>
+                <!-- Notification Bell with Dropdown -->
+                <div class="notification-container">
+                    <div class="notification-icon" id="notificationBell" style="text-decoration: none; color: inherit;" title="<?= $unreadCount > 0 ? $unreadCount . ' unread notification' . ($unreadCount > 1 ? 's' : '') : 'No unread notifications' ?>">
+                        <i class="fas fa-bell"></i>
+                        <?php if ($unreadCount > 0): ?>
+                            <span class="notification-badge"><?= $unreadCount ?></span>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <!-- Notification Dropdown -->
+                    <div class="notification-dropdown" id="notificationDropdown">
+                        <div class="notification-header">
+                            <h6>Notifications</h6>
+                            <button class="btn btn-sm btn-outline-primary" id="markAllReadBtn" style="display: none;">Mark All Read</button>
+                        </div>
+                        <div class="notification-list" id="notificationList">
+                            <div class="notification-loading">
+                                <div class="spinner-border spinner-border-sm" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                Loading notifications...
+                            </div>
+                        </div>
+                        <div class="notification-footer">
+                            <a href="/scratch/admin.php?page=logs" class="btn btn-sm btn-outline-secondary">View All Logs</a>
+                        </div>
+                    </div>
+                </div>
                 <div class="user-profile">
                     <img src="/scratch/images/scc.png" alt="User">
                     <span><?= htmlspecialchars($_SESSION['user']['name'] ?? 'Admin') ?></span>
@@ -538,6 +746,231 @@
     <!-- Toast Auto-hide Script -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Notification Dropdown Functionality
+            const notificationBell = document.getElementById('notificationBell');
+            const notificationDropdown = document.getElementById('notificationDropdown');
+            const notificationList = document.getElementById('notificationList');
+            const markAllReadBtn = document.getElementById('markAllReadBtn');
+            
+            let isDropdownOpen = false;
+            
+            // Toggle dropdown
+            notificationBell.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                if (isDropdownOpen) {
+                    closeDropdown();
+                } else {
+                    openDropdown();
+                }
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!notificationDropdown.contains(e.target) && !notificationBell.contains(e.target)) {
+                    closeDropdown();
+                }
+            });
+            
+            function openDropdown() {
+                notificationDropdown.classList.add('show');
+                isDropdownOpen = true;
+                loadNotifications();
+            }
+            
+            function closeDropdown() {
+                notificationDropdown.classList.remove('show');
+                isDropdownOpen = false;
+            }
+            
+            // Load notifications from system logs
+            function loadNotifications() {
+                notificationList.innerHTML = `
+                    <div class="notification-loading">
+                        <div class="spinner-border spinner-border-sm" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        Loading notifications...
+                    </div>
+                `;
+                
+                fetch('/scratch/api/notifications.php')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            displayNotifications(data.notifications);
+                        } else {
+                            notificationList.innerHTML = `
+                                <div class="notification-empty">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <div>Error loading notifications</div>
+                                </div>
+                            `;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        notificationList.innerHTML = `
+                            <div class="notification-empty">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <div>Error loading notifications</div>
+                            </div>
+                        `;
+                    });
+            }
+            
+            function displayNotifications(notifications) {
+                if (notifications.length === 0) {
+                    notificationList.innerHTML = `
+                        <div class="notification-empty">
+                            <i class="fas fa-bell-slash"></i>
+                            <div>No notifications</div>
+                        </div>
+                    `;
+                    markAllReadBtn.style.display = 'none';
+                    return;
+                }
+                
+                const unreadCount = notifications.filter(n => !n.is_read).length;
+                if (unreadCount > 0) {
+                    markAllReadBtn.style.display = 'inline-block';
+                } else {
+                    markAllReadBtn.style.display = 'none';
+                }
+                
+                notificationList.innerHTML = notifications.map(notification => `
+                    <div class="notification-item ${!notification.is_read ? 'unread' : ''}" data-id="${notification.id}">
+                        <div class="notification-title">${notification.title}</div>
+                        <div class="notification-message">${notification.message}</div>
+                        <div class="notification-meta">
+                            <span class="notification-type ${notification.type}">${notification.type}</span>
+                            <span class="notification-time">${formatTime(notification.created_at)}</span>
+                        </div>
+                    </div>
+                `).join('');
+                
+                // Add click handlers to notification items
+                notificationList.querySelectorAll('.notification-item').forEach(item => {
+                    item.addEventListener('click', function() {
+                        const notificationId = this.dataset.id;
+                        markAsRead(notificationId);
+                        this.classList.remove('unread');
+                    });
+                });
+            }
+            
+            // Mark notification as read
+            function markAsRead(notificationId) {
+                fetch('/scratch/api/notifications.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'mark_read',
+                        notification_id: notificationId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update the visual state immediately
+                        const notificationItem = document.querySelector(`[data-id="${notificationId}"]`);
+                        if (notificationItem) {
+                            notificationItem.classList.remove('unread');
+                        }
+                        
+                        // Update badge count
+                        updateNotificationBadge();
+                        
+                        // Reload notifications to get updated state
+                        if (isDropdownOpen) {
+                            loadNotifications();
+                        }
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            }
+            
+            // Mark all as read
+            markAllReadBtn.addEventListener('click', function() {
+                fetch('/scratch/api/notifications.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'mark_all_read'
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        notificationList.querySelectorAll('.notification-item').forEach(item => {
+                            item.classList.remove('unread');
+                        });
+                        markAllReadBtn.style.display = 'none';
+                        updateNotificationBadge();
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            });
+            
+            // Update notification badge
+            function updateNotificationBadge() {
+                fetch('/scratch/api/notifications.php?action=get_count')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const badge = document.querySelector('.notification-badge');
+                            if (data.count > 0) {
+                                if (!badge) {
+                                    const newBadge = document.createElement('span');
+                                    newBadge.className = 'notification-badge';
+                                    notificationBell.appendChild(newBadge);
+                                }
+                                document.querySelector('.notification-badge').textContent = data.count;
+                                // Update tooltip
+                                notificationBell.title = data.count + ' unread notification' + (data.count > 1 ? 's' : '');
+                            } else {
+                                if (badge) {
+                                    badge.remove();
+                                }
+                                // Update tooltip
+                                notificationBell.title = 'No unread notifications';
+                            }
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+            
+            // Format time
+            function formatTime(timestamp) {
+                const date = new Date(timestamp);
+                const now = new Date();
+                const diff = now - date;
+                
+                if (diff < 60000) { // Less than 1 minute
+                    return 'Just now';
+                } else if (diff < 3600000) { // Less than 1 hour
+                    return Math.floor(diff / 60000) + 'm ago';
+                } else if (diff < 86400000) { // Less than 1 day
+                    return Math.floor(diff / 3600000) + 'h ago';
+                } else {
+                    return Math.floor(diff / 86400000) + 'd ago';
+                }
+            }
+            
+            // Auto-refresh notifications every 10 seconds for better responsiveness
+            setInterval(updateNotificationBadge, 10000);
+            
+            // Also refresh when the page becomes visible (user switches back to tab)
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden) {
+                    updateNotificationBadge();
+                }
+            });
             // Auto-hide toasts after 5 seconds
             const toasts = document.querySelectorAll('.toast');
             toasts.forEach(toast => {
