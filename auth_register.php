@@ -13,6 +13,7 @@ $courseId = (int)($_POST['course_id'] ?? 0);
 $email = trim($_POST['email'] ?? '');
 $contact = trim($_POST['contact'] ?? '');
 $address = trim($_POST['address'] ?? '');
+$occupation = trim($_POST['occupation'] ?? '');
 $username = trim($_POST['username'] ?? '');
 $password = (string)($_POST['password'] ?? '');
 $passwordConfirm = (string)($_POST['password_confirm'] ?? '');
@@ -45,8 +46,8 @@ if ($firstname && $lastname && $gender && $batch && $courseId && $email && $cont
             }
         }
 
-        $stmtA = $pdo->prepare('INSERT INTO alumnus_bio (firstname, middlename, lastname, gender, batch, course_id, email, contact, address, connected_to, avatar, status, date_created) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,NOW())');
-        $stmtA->execute([$firstname, $middlename, $lastname, $gender, $batch, $courseId, $email, $contact, $address, '', $avatarFile, 0]);
+        $stmtA = $pdo->prepare('INSERT INTO alumnus_bio (firstname, middlename, lastname, gender, batch, course_id, email, contact, address, occupation, connected_to, avatar, status, date_created) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,NOW())');
+        $stmtA->execute([$firstname, $middlename, $lastname, $gender, $batch, $courseId, $email, $contact, $address, $occupation, '', $avatarFile, 0]);
         $alumnusId = (int)$pdo->lastInsertId();
 
         // Process document uploads

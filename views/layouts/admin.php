@@ -979,6 +979,75 @@
                     bsToast.hide();
                 }, 5000);
             });
+            
+            // Store scroll position before navigation
+            const menuItems = document.querySelectorAll('.sidebar-menu .menu-item');
+            menuItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    // Store current scroll position in sessionStorage
+                    const currentScrollY = window.scrollY;
+                    sessionStorage.setItem('adminScrollPosition', currentScrollY);
+                    console.log('Stored scroll position:', currentScrollY);
+                });
+            });
+            
+            // Restore scroll position after page load with multiple attempts
+            function restoreScrollPosition() {
+                const savedScrollPosition = sessionStorage.getItem('adminScrollPosition');
+                if (savedScrollPosition !== null) {
+                    const scrollY = parseInt(savedScrollPosition);
+                    console.log('Attempting to restore scroll position:', scrollY);
+                    
+                    // Try multiple times with increasing delays to ensure page is fully loaded
+                    const attempts = [0, 100, 300, 500, 1000];
+                    attempts.forEach(delay => {
+                        setTimeout(() => {
+                            window.scrollTo(0, scrollY);
+                            console.log('Scroll restored to:', scrollY, 'at delay:', delay);
+                        }, delay);
+                    });
+                    
+                    // Clear the saved position after a delay
+                    setTimeout(() => {
+                        sessionStorage.removeItem('adminScrollPosition');
+                        console.log('Cleared saved scroll position');
+                    }, 1500);
+                }
+            }
+            
+            // Restore scroll position immediately and after DOM is ready
+            restoreScrollPosition();
+            
+            // Also try when window loads completely
+            window.addEventListener('load', function() {
+                restoreScrollPosition();
+            });
+            
+            // Additional attempt when all resources are loaded
+            window.addEventListener('DOMContentLoaded', function() {
+                restoreScrollPosition();
+            });
+            
+            // Use MutationObserver to detect when content is fully loaded
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                        // Content was added, try to restore scroll position
+                        setTimeout(() => {
+                            restoreScrollPosition();
+                        }, 200);
+                    }
+                });
+            });
+            
+            // Start observing the content area for changes
+            const contentArea = document.querySelector('.content-area');
+            if (contentArea) {
+                observer.observe(contentArea, {
+                    childList: true,
+                    subtree: true
+                });
+            }
         });
     </script>
 </body>

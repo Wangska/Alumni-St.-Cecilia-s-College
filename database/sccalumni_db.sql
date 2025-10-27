@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 20, 2025 at 11:42 AM
+-- Generation Time: Oct 27, 2025 at 08:40 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -68,6 +68,7 @@ CREATE TABLE `alumnus_bio` (
   `email` varchar(250) NOT NULL,
   `contact` varchar(20) NOT NULL DEFAULT '',
   `address` varchar(255) NOT NULL DEFAULT '',
+  `occupation` varchar(255) DEFAULT NULL COMMENT 'Current occupation/job title',
   `connected_to` text DEFAULT NULL,
   `avatar` text DEFAULT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0= Unverified, 1= Verified',
@@ -78,9 +79,9 @@ CREATE TABLE `alumnus_bio` (
 -- Dumping data for table `alumnus_bio`
 --
 
-INSERT INTO `alumnus_bio` (`id`, `firstname`, `middlename`, `lastname`, `gender`, `batch`, `course_id`, `email`, `contact`, `address`, `connected_to`, `avatar`, `status`, `date_created`) VALUES
-(22, 'Joshua', '', 'Espanillo', 'Male', '2014', 3, 'wangska1283@gmail.com', '09666091329', 'Little Valley Colon City of Naga Cebu', '', 'avatar_2af301c3f9bf.png', 1, '2025-10-19 14:55:14'),
-(24, 'johnrey', '', 'cambaya', 'Male', '2014', 11, 'johnreycanete2001@gmail.com', '09927854615', 'Little Valley\r\nColon', '', 'avatar_6d3e76cf286c.jpg', 1, '2025-10-20 02:11:02');
+INSERT INTO `alumnus_bio` (`id`, `firstname`, `middlename`, `lastname`, `gender`, `batch`, `course_id`, `email`, `contact`, `address`, `occupation`, `connected_to`, `avatar`, `status`, `date_created`) VALUES
+(22, 'Joshua', '', 'Espanillo', 'Male', '2014', 3, 'wangska1283@gmail.com', '09666091329', 'Little Valley Colon City of Naga Cebu', 'Software engineer', '', 'avatar_2886dfc05ee7.png', 1, '2025-10-19 14:55:14'),
+(24, 'johnrey', '', 'cambaya', 'Male', '2014', 11, 'johnreycanete2001@gmail.com', '09927854615', 'Little Valley\r\nColon', NULL, '', 'avatar_6d3e76cf286c.jpg', 1, '2025-10-20 02:11:02');
 
 -- --------------------------------------------------------
 
@@ -181,7 +182,7 @@ CREATE TABLE `events` (
 INSERT INTO `events` (`id`, `title`, `content`, `schedule`, `banner`, `participant_limit`, `max_participants`, `date_created`) VALUES
 (36, 'Tree Planting Activity', 'The Tree Planting Activity aims to promote environmental awareness and sustainability by encouraging participants to take part in greening the community. This event provides an opportunity for volunteers, students, and local residents to work together in planting trees that will contribute to cleaner air, improved biodiversity, and a healthier ecosystem.\r\n\r\nThrough this initiative, participants will not only help combat climate change but also learn the importance of environmental stewardship and teamwork. The activity includes a short orientation on proper tree planting techniques, followed by the actual planting session and post-care instructions.\r\n\r\nBy planting trees today, we are investing in a greener and more sustainable future for the next generations. 🌱', '2025-10-21 05:00:00', 'banner_74f533dd6796.png', 10, 50, '2025-10-20 13:28:28'),
 (37, 'Clean Up Drive', 'Let’s keep our surroundings clean and beautiful! 💪\r\nThe Clean-Up Drive aims to inspire everyone to take part in preserving our environment by collecting litter and properly disposing of waste in public areas. Together, we can make a big difference in keeping our community pollution-free and welcoming for all.', '2025-10-23 08:11:00', 'banner_f44e74b0cde6.png', 20, NULL, '2025-10-20 15:12:18'),
-(38, 'Environmental Awareness Seminar', 'Learn. Act. Inspire. 🌎\r\nJoin our Environmental Awareness Seminar and discover how small actions can create a big change for the planet. Speakers will share insights on waste management, climate change, and sustainable living — empowering everyone to be an eco-warrior!', '2025-10-25 08:00:00', 'banner_296f8a6a8d88.png', 50, NULL, '2025-10-20 15:14:32');
+(38, 'Environmental Awareness Seminar', 'Learn. Act. Inspire. 🌎\r\nJoin our Environmental Awareness Seminar and discover how small actions can create a big change for the planet. Speakers will share insights on waste management, climate change, and sustainable living — empowering everyone to be an eco-warrior!', '2025-10-25 08:00:00', 'banner_296f8a6a8d88.png', 20, NULL, '2025-10-20 15:14:32');
 
 -- --------------------------------------------------------
 
@@ -306,6 +307,13 @@ CREATE TABLE `job_applications` (
   `notes` text DEFAULT NULL COMMENT 'Admin notes about the application'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `job_applications`
+--
+
+INSERT INTO `job_applications` (`id`, `job_id`, `user_id`, `cover_letter`, `resume_file`, `status`, `applied_at`, `notes`) VALUES
+(7, 7, 7, 'test', 'resume_13dbf6409a43.pdf', 'pending', '2025-10-23 11:12:39', NULL);
+
 -- --------------------------------------------------------
 
 --
@@ -320,6 +328,43 @@ CREATE TABLE `notifications` (
   `type` enum('info','success','warning','danger') DEFAULT 'info',
   `is_read` tinyint(1) DEFAULT 0,
   `link` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `notifications`
+--
+
+INSERT INTO `notifications` (`id`, `user_id`, `title`, `message`, `type`, `is_read`, `link`, `created_at`) VALUES
+(1, 1, 'Welcome to SCC Alumni Portal!', 'Welcome to the St. Cecilia\'s College Alumni Portal. Connect with fellow alumni, share success stories, and stay updated with college events.', 'success', 1, NULL, '2025-10-23 01:52:27'),
+(2, 1, 'New Event: Alumni Homecoming 2024', 'Join us for the annual alumni homecoming on December 15, 2024. Register now to secure your spot!', 'info', 1, NULL, '2025-10-23 01:52:27'),
+(3, 1, 'Profile Update Required', 'Please update your contact information to ensure you receive important updates from the college.', 'warning', 1, NULL, '2025-10-23 01:52:27'),
+(4, 1, 'Job Opportunity Available', 'A new job posting matching your profile has been added. Check the careers section for more details.', 'info', 1, NULL, '2025-10-23 01:52:27'),
+(5, 1, 'Success Story Approved', 'Your success story has been approved and is now visible to the alumni community. Thank you for sharing!', 'success', 1, NULL, '2025-10-23 01:52:27'),
+(6, 1, 'Forum Discussion Update', 'There are new replies in the \"Career Development\" forum discussion you\'re following.', 'info', 1, NULL, '2025-10-23 01:52:27'),
+(7, 1, 'Document Upload Required', 'Please upload your graduation certificate to complete your alumni profile verification.', 'warning', 1, NULL, '2025-10-23 01:52:27'),
+(8, 1, 'Monthly Newsletter Available', 'The December 2024 alumni newsletter is now available. Read about recent college updates and alumni achievements.', 'info', 1, NULL, '2025-10-23 01:52:27'),
+(9, 1, 'New User Registration', 'A new alumni has registered and is waiting for approval. Please review their profile and documents.', 'warning', 1, NULL, '2025-10-23 02:01:25'),
+(10, 1, 'System Maintenance Scheduled', 'Scheduled maintenance will occur on Sunday, December 22, 2024 from 2:00 AM to 4:00 AM. The system will be temporarily unavailable.', 'info', 1, NULL, '2025-10-23 02:01:25'),
+(11, 1, 'Database Backup Completed', 'Daily database backup has been completed successfully. All data is secure and up to date.', 'success', 1, NULL, '2025-10-23 02:01:25'),
+(12, 1, 'High Server Load Detected', 'Server load has exceeded normal thresholds. Consider scaling resources or investigating potential issues.', 'danger', 1, NULL, '2025-10-23 02:01:25'),
+(13, 1, 'New Success Story Submitted', 'A new success story has been submitted and is pending review. Please review and approve if appropriate.', 'info', 1, NULL, '2025-10-23 02:01:25'),
+(14, 1, 'Security Alert: Multiple Failed Login Attempts', 'Multiple failed login attempts detected from IP address 192.168.1.100. Consider blocking this IP if suspicious.', 'danger', 1, NULL, '2025-10-23 02:01:25'),
+(15, 1, 'New Job Posting Added', 'A new job opportunity has been posted by a company. Review the posting for appropriateness and accuracy.', 'info', 1, NULL, '2025-10-23 02:01:25'),
+(16, 1, 'System Update Available', 'A new system update is available. Review the changelog and schedule the update during low-traffic hours.', 'warning', 1, NULL, '2025-10-23 02:01:25'),
+(17, 1, 'Monthly Report Generated', 'The monthly alumni portal report has been generated. View statistics on user activity, registrations, and engagement.', 'success', 1, NULL, '2025-10-23 02:01:25'),
+(18, 1, 'Storage Space Warning', 'Server storage is at 85% capacity. Consider cleaning up old files or expanding storage to prevent issues.', 'warning', 1, NULL, '2025-10-23 02:01:25');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `read_logs`
+--
+
+CREATE TABLE `read_logs` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `log_id` varchar(50) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -414,7 +459,7 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `name`, `username`, `password`, `type`, `auto_generated_pass`, `alumnus_id`) VALUES
 (1, 'Admin', 'admin', '0192023a7bbd73250516f069df18b500', 1, '', NULL),
-(7, 'Joshua  Espanillo', 'wangska', 'bbec9b9dde115310d162c4bb1e1bb374', 3, '', 22),
+(7, 'Joshua Espanillo', 'wangska', 'bbec9b9dde115310d162c4bb1e1bb374', 3, '', 22),
 (8, 'johnrey  cambaya', 'johnrey2001', 'bbec9b9dde115310d162c4bb1e1bb374', 3, '', 24);
 
 -- --------------------------------------------------------
@@ -667,7 +712,74 @@ INSERT INTO `user_logs` (`id`, `user_id`, `username`, `action`, `action_type`, `
 (223, 1, 'admin', 'Created new Announcement', 'create', 'Announcement', 'Item: Career Opportunity Announcement', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-20 08:57:59'),
 (224, 1, 'admin', 'Created new Job Posting', 'create', 'Job Posting', 'Item: Administrative Assistant', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-20 09:27:10'),
 (225, 1, 'admin', 'Created new Job Posting', 'create', 'Job Posting', 'Item: Accountant', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-20 09:28:03'),
-(226, 1, 'admin', 'Created new Announcement', 'create', 'Announcement', 'Item: Alumni Spotlight Announcement', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-20 09:29:34');
+(226, 1, 'admin', 'Created new Announcement', 'create', 'Announcement', 'Item: Alumni Spotlight Announcement', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-20 09:29:34'),
+(227, 8, 'johnrey2001', 'User logged out', 'logout', 'Authentication', 'User: johnrey2001', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36 Edg/141.0.0.0', '2025-10-20 09:51:40'),
+(228, 7, 'wangska', 'User logged out', 'logout', 'Authentication', 'User: wangska', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-20 10:02:29'),
+(229, 7, 'wangska', 'User logged in', 'login', 'Authentication', 'User: wangska', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-20 10:03:23'),
+(230, 8, 'johnrey2001', 'User logged in', 'login', 'Authentication', 'User: johnrey2001', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36 Edg/141.0.0.0', '2025-10-20 10:18:06'),
+(231, 8, 'johnrey2001', 'User logged out', 'logout', 'Authentication', 'User: johnrey2001', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36 Edg/141.0.0.0', '2025-10-20 10:22:27'),
+(232, 1, 'admin', 'Updated Event', 'update', 'Event', 'Item: Environmental Awareness Seminar', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-20 13:35:41'),
+(233, 7, 'wangska', 'Created new Event Join', 'create', 'Event Join', 'Item: User joined event', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-20 13:46:03'),
+(234, 7, 'wangska', 'Deleted Event Leave', 'delete', 'Event Leave', 'Item: User left event', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-20 13:46:07'),
+(235, 7, 'wangska', 'Created new Event Join', 'create', 'Event Join', 'Item: User joined event', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-20 13:46:15'),
+(236, 7, 'wangska', 'Deleted Event Leave', 'delete', 'Event Leave', 'Item: User left event', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-20 13:46:19'),
+(237, 7, 'wangska', 'Created new Job Application', 'create', 'Job Application', 'Item: Applied for job ID: 7', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-20 13:46:59'),
+(238, 1, 'admin', 'Updated Job Application', 'update', 'Job Application', 'Item: Status updated to: accepted', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-20 13:48:01'),
+(239, 7, 'wangska', 'Created new Job Application', 'create', 'Job Application', 'Item: Applied for job ID: 7', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-20 13:49:15'),
+(240, 1, 'admin', 'Updated Job Application', 'update', 'Job Application', 'Item: Status updated to: rejected', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-20 13:49:38'),
+(241, 7, 'wangska', 'Created new Job Application', 'create', 'Job Application', 'Item: Applied for job ID: 7', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-20 13:50:09'),
+(242, 1, 'admin', 'Updated Job Application', 'update', 'Job Application', 'Item: Status updated to: reviewed', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-20 13:50:19'),
+(243, 1, 'admin', 'Updated Job Application', 'update', 'Job Application', 'Item: Status updated to: accepted', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-20 13:50:28'),
+(244, 7, 'wangska', 'User logged in', 'login', 'Authentication', 'User: wangska', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-21 13:58:49'),
+(245, 7, 'wangska', 'User logged out', 'logout', 'Authentication', 'User: wangska', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-21 13:59:02'),
+(246, 8, 'johnrey2001', 'User logged in', 'login', 'Authentication', 'User: johnrey2001', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-21 13:59:13'),
+(247, 8, 'johnrey2001', 'User logged out', 'logout', 'Authentication', 'User: johnrey2001', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-21 13:59:41'),
+(248, 7, 'wangska', 'User logged in', 'login', 'Authentication', 'User: wangska', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-21 14:04:03'),
+(249, 7, 'wangska', 'User logged out', 'logout', 'Authentication', 'User: wangska', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-21 14:45:38'),
+(250, 8, 'johnrey2001', 'User logged in', 'login', 'Authentication', 'User: johnrey2001', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-21 14:45:49'),
+(251, 8, 'johnrey2001', 'User logged out', 'logout', 'Authentication', 'User: johnrey2001', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-21 14:48:54'),
+(252, 1, 'admin', 'User logged in', 'login', 'Authentication', 'User: admin', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-21 14:48:59'),
+(253, 1, 'admin', 'User logged out', 'logout', 'Authentication', 'User: admin', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-21 14:51:19'),
+(254, 1, 'admin', 'User logged in', 'login', 'Authentication', 'User: admin', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-23 01:47:12'),
+(255, 7, 'wangska', 'User logged in', 'login', 'Authentication', 'User: wangska', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-23 01:54:27'),
+(256, NULL, 'Guest', 'User Registration', 'create', 'Authentication', 'New user registered: John Doe (john.doe@email.com)', 'Unknown', NULL, '2025-10-23 02:03:21'),
+(257, NULL, 'Guest', 'Profile Update', 'update', 'Profile', 'User profile updated: Contact information changed', 'Unknown', NULL, '2025-10-23 02:03:21'),
+(258, NULL, 'Guest', 'Event Registration', 'create', 'Events', 'User registered for Alumni Homecoming 2024', 'Unknown', NULL, '2025-10-23 02:03:21'),
+(259, NULL, 'Guest', 'Success Story Submission', 'create', 'Success Stories', 'New success story submitted for review', 'Unknown', NULL, '2025-10-23 02:03:21'),
+(260, NULL, 'Guest', 'Job Application', 'create', 'Careers', 'User applied for Software Engineer position at TechCorp', 'Unknown', NULL, '2025-10-23 02:03:21'),
+(261, NULL, 'Guest', 'Forum Post', 'create', 'Forum', 'New discussion started: Career Development Tips', 'Unknown', NULL, '2025-10-23 02:03:21'),
+(262, NULL, 'Guest', 'Document Upload', 'create', 'Documents', 'User uploaded graduation certificate', 'Unknown', NULL, '2025-10-23 02:03:21'),
+(263, NULL, 'Guest', 'Password Reset', 'update', 'Authentication', 'User requested password reset', 'Unknown', NULL, '2025-10-23 02:03:21'),
+(264, NULL, 'Guest', 'Login Attempt', 'login', 'Authentication', 'Successful login from IP: 192.168.1.100', 'Unknown', NULL, '2025-10-23 02:03:21'),
+(265, NULL, 'Guest', 'System Backup', 'create', 'System', 'Daily database backup completed successfully', 'Unknown', NULL, '2025-10-23 02:03:21'),
+(266, 7, 'wangska', 'User logged out', 'logout', 'Authentication', 'User: wangska', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-23 02:13:59'),
+(267, 7, 'wangska', 'User logged in', 'login', 'Authentication', 'User: wangska', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-23 02:18:44'),
+(268, 7, 'wangska', 'User logged out', 'logout', 'Authentication', 'User: wangska', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-23 02:20:19'),
+(269, 7, 'wangska', 'User logged in', 'login', 'Authentication', 'User: wangska', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-23 02:26:29'),
+(270, 7, 'wangska', 'User logged out', 'logout', 'Authentication', 'User: wangska', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-23 02:26:52'),
+(271, 7, 'wangska', 'User logged in', 'login', 'Authentication', 'User: wangska', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-23 02:28:43'),
+(272, 7, 'wangska', 'Created new Event Join', 'create', 'Event Join', 'Item: User joined event', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-23 02:29:55'),
+(273, 7, 'wangska', 'Deleted Event Leave', 'delete', 'Event Leave', 'Item: User left event', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-23 02:29:57'),
+(274, 7, 'wangska', 'Created new Event Join', 'create', 'Event Join', 'Item: User joined event', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-23 02:31:43'),
+(275, 7, 'wangska', 'Deleted Event Leave', 'delete', 'Event Leave', 'Item: User left event', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-23 02:31:52'),
+(276, 7, 'wangska', 'Created new Event Join', 'create', 'Event Join', 'Item: User joined event', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-23 02:31:53'),
+(277, 7, 'wangska', 'Deleted Event Leave', 'delete', 'Event Leave', 'Item: User left event', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-23 02:31:54'),
+(278, 7, 'wangska', 'Created new Event Join', 'create', 'Event Join', 'Item: User joined event', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-23 02:31:55'),
+(279, 7, 'wangska', 'Deleted Event Leave', 'delete', 'Event Leave', 'Item: User left event', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-23 02:31:56'),
+(280, 7, 'wangska', 'Created new Event Join', 'create', 'Event Join', 'Item: User joined event', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-23 02:31:56'),
+(281, 7, 'wangska', 'Deleted Event Leave', 'delete', 'Event Leave', 'Item: User left event', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-23 02:32:00'),
+(282, 7, 'wangska', 'Created new Event Join', 'create', 'Event Join', 'Item: User joined event', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-23 02:32:18'),
+(283, 7, 'wangska', 'Deleted Event Leave', 'delete', 'Event Leave', 'Item: User left event', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-23 02:32:20'),
+(284, 7, 'wangska', 'Created new Event Join', 'create', 'Event Join', 'Item: User joined event', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-23 02:33:12'),
+(285, 7, 'wangska', 'Deleted Event Leave', 'delete', 'Event Leave', 'Item: User left event', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-23 02:33:17'),
+(286, 7, 'wangska', 'Created new Event Join', 'create', 'Event Join', 'Item: User joined event', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-23 02:33:40'),
+(287, 7, 'wangska', 'Deleted Event Leave', 'delete', 'Event Leave', 'Item: User left event', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-23 02:33:42'),
+(288, 7, 'wangska', 'Created new Event Join', 'create', 'Event Join', 'Item: User joined event', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-23 02:33:45'),
+(289, 7, 'wangska', 'Deleted Event Leave', 'delete', 'Event Leave', 'Item: User left event', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-23 02:33:46'),
+(290, 7, 'wangska', 'Created new Job Application', 'create', 'Job Application', 'Item: Applied for job ID: 7', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-23 03:12:39'),
+(291, 7, 'wangska', 'User logged in', 'login', 'Authentication', 'User: wangska', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-27 19:33:13'),
+(292, 1, 'admin', 'User logged in', 'login', 'Authentication', 'User: admin', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-27 19:34:26'),
+(293, 1, 'admin', 'User logged out', 'logout', 'Authentication', 'User: admin', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', '2025-10-27 19:39:20');
 
 --
 -- Indexes for dumped tables
@@ -687,7 +799,8 @@ ALTER TABLE `alumni_documents`
 ALTER TABLE `alumnus_bio`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `uniq_email` (`email`),
-  ADD KEY `idx_course_id` (`course_id`);
+  ADD KEY `idx_course_id` (`course_id`),
+  ADD KEY `idx_occupation` (`occupation`);
 
 --
 -- Indexes for table `announcements`
@@ -771,6 +884,16 @@ ALTER TABLE `notifications`
   ADD KEY `created_at` (`created_at`);
 
 --
+-- Indexes for table `read_logs`
+--
+ALTER TABLE `read_logs`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `user_log_unique` (`user_id`,`log_id`),
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `log_id` (`log_id`),
+  ADD KEY `created_at` (`created_at`);
+
+--
 -- Indexes for table `success_stories`
 --
 ALTER TABLE `success_stories`
@@ -851,7 +974,7 @@ ALTER TABLE `events`
 -- AUTO_INCREMENT for table `event_commits`
 --
 ALTER TABLE `event_commits`
-  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT for table `event_participants`
@@ -881,12 +1004,18 @@ ALTER TABLE `gallery`
 -- AUTO_INCREMENT for table `job_applications`
 --
 ALTER TABLE `job_applications`
-  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+
+--
+-- AUTO_INCREMENT for table `read_logs`
+--
+ALTER TABLE `read_logs`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
@@ -917,7 +1046,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `user_logs`
 --
 ALTER TABLE `user_logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=227;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=294;
 
 --
 -- Constraints for dumped tables
@@ -974,6 +1103,12 @@ ALTER TABLE `forum_topics`
 --
 ALTER TABLE `notifications`
   ADD CONSTRAINT `notifications_user_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `read_logs`
+--
+ALTER TABLE `read_logs`
+  ADD CONSTRAINT `read_logs_user_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `success_stories`

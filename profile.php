@@ -64,6 +64,7 @@ if ($_POST) {
     $email = trim($_POST['email'] ?? '');
     $phone = trim($_POST['contact'] ?? '');
     $address = trim($_POST['address'] ?? '');
+    $occupation = trim($_POST['occupation'] ?? '');
     $batch = trim($_POST['batch'] ?? '');
     $courseId = (int)($_POST['course_id'] ?? 0);
     $bio = trim($_POST['bio'] ?? '');
@@ -97,7 +98,7 @@ if ($_POST) {
             }
             
             // Update alumni record
-            $stmt = $pdo->prepare('UPDATE alumnus_bio SET firstname=?, middlename=?, lastname=?, gender=?, batch=?, course_id=?, email=?, contact=?, address=?, avatar=? WHERE id=?');
+            $stmt = $pdo->prepare('UPDATE alumnus_bio SET firstname=?, middlename=?, lastname=?, gender=?, batch=?, course_id=?, email=?, contact=?, address=?, occupation=?, avatar=? WHERE id=?');
             $stmt->execute([
                 $firstName,
                 $middleName,
@@ -108,6 +109,7 @@ if ($_POST) {
                 $email,
                 $phone,
                 $address,
+                $occupation,
                 $avatarFile,
                 $alumnusId
             ]);
@@ -635,6 +637,14 @@ if ($_POST) {
                         <div class="col-12">
                             <label class="form-label">Address</label>
                             <textarea class="form-control" name="address" rows="3" placeholder="Enter complete address"><?= e($alumni['address']) ?></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="row g-3 mb-3">
+                        <div class="col-12">
+                            <label class="form-label">Current Occupation</label>
+                            <input type="text" class="form-control" name="occupation" value="<?= e($alumni['occupation'] ?? '') ?>" placeholder="e.g., Software Engineer, Teacher, Business Owner">
+                            <small class="text-muted">What is your current job or profession?</small>
                         </div>
                     </div>
                     

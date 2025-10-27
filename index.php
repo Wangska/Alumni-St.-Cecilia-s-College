@@ -663,7 +663,12 @@ try {
           </div>
           <div class="mb-4">
             <label class="form-label text-danger fw-medium small">Password</label>
-            <input type="password" class="form-control rounded-3 py-2" name="password" placeholder="Enter your password" required style="background:#fef2f2;border-color:#fecaca;">
+            <div class="input-group">
+              <input type="password" class="form-control rounded-3 py-2" name="password" id="loginPassword" placeholder="Enter your password" required style="background:#fef2f2;border-color:#fecaca;">
+              <button class="btn btn-outline-secondary" type="button" id="toggleLoginPassword" style="background:#fef2f2;border-color:#fecaca;border-left:0;">
+                <i class="fas fa-eye" id="toggleLoginPasswordIcon"></i>
+              </button>
+            </div>
           </div>
           <button class="btn btn-danger w-100 py-2 fw-medium rounded-3 d-flex align-items-center justify-content-center gap-2" style="background:#dc2626;">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="white" viewBox="0 0 16 16">
@@ -749,17 +754,32 @@ try {
               <label class="form-label text-danger fw-medium small">Address <span>*</span></label>
               <textarea class="form-control rounded-3" name="address" rows="2" required style="background:#fef2f2;border-color:#fecaca;"></textarea>
             </div>
+            <div class="col-12">
+              <label class="form-label text-danger fw-medium small">Current Occupation</label>
+              <input class="form-control rounded-3" name="occupation" placeholder="e.g., Software Engineer, Teacher, Business Owner" style="background:#fef2f2;border-color:#fecaca;">
+              <small class="text-muted">What is your current job or profession? (Optional)</small>
+            </div>
             <div class="col-md-6">
               <label class="form-label text-danger fw-medium small">Username <span>*</span></label>
               <input class="form-control rounded-3" name="username" required style="background:#fef2f2;border-color:#fecaca;">
             </div>
             <div class="col-md-6">
               <label class="form-label text-danger fw-medium small">Password <span>*</span></label>
-              <input type="password" class="form-control rounded-3" name="password" required style="background:#fef2f2;border-color:#fecaca;">
+              <div class="input-group">
+                <input type="password" class="form-control rounded-3" name="password" id="password" required style="background:#fef2f2;border-color:#fecaca;">
+                <button class="btn btn-outline-secondary" type="button" id="togglePassword" style="background:#fef2f2;border-color:#fecaca;border-left:0;">
+                  <i class="fas fa-eye" id="togglePasswordIcon"></i>
+                </button>
+              </div>
             </div>
             <div class="col-md-6">
               <label class="form-label text-danger fw-medium small">Confirm Password <span>*</span></label>
-              <input type="password" class="form-control rounded-3" name="password_confirm" required style="background:#fef2f2;border-color:#fecaca;">
+              <div class="input-group">
+                <input type="password" class="form-control rounded-3" name="password_confirm" id="password_confirm" required style="background:#fef2f2;border-color:#fecaca;">
+                <button class="btn btn-outline-secondary" type="button" id="togglePasswordConfirm" style="background:#fef2f2;border-color:#fecaca;border-left:0;">
+                  <i class="fas fa-eye" id="togglePasswordConfirmIcon"></i>
+                </button>
+              </div>
             </div>
             <div class="col-md-6">
               <label class="form-label text-danger fw-medium small">Avatar (Optional)</label>
@@ -803,12 +823,19 @@ try {
               </div>
             </div>
             
-            <div class="alert alert-info small mb-0">
+            <div class="alert alert-info small mb-2">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16" class="me-1">
                 <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                 <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
               </svg>
               <strong>Note:</strong> Your account will be reviewed by administrators. You'll be notified once approved.
+            </div>
+            
+            <div class="alert alert-warning small mb-0">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16" class="me-1">
+                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+              </svg>
+              <strong>Data Usage:</strong> The information you provide will be used for alumni network purposes, including networking, event notifications, and maintaining alumni records. Your data will be kept secure and will not be shared with third parties without your consent.
             </div>
           </div>
           
@@ -1112,6 +1139,35 @@ try {
         window.history.replaceState({}, document.title, cleanUrl);
       }
     });
+
+    // Password toggle functionality
+    function togglePasswordVisibility(inputId, iconId) {
+      const passwordInput = document.getElementById(inputId);
+      const toggleIcon = document.getElementById(iconId);
+      
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.classList.remove('fa-eye');
+        toggleIcon.classList.add('fa-eye-slash');
+      } else {
+        passwordInput.type = 'password';
+        toggleIcon.classList.remove('fa-eye-slash');
+        toggleIcon.classList.add('fa-eye');
+      }
+    }
+
+    // Add event listeners for password toggle buttons
+    document.getElementById('togglePassword').addEventListener('click', function() {
+      togglePasswordVisibility('password', 'togglePasswordIcon');
+    });
+
+    document.getElementById('togglePasswordConfirm').addEventListener('click', function() {
+      togglePasswordVisibility('password_confirm', 'togglePasswordConfirmIcon');
+    });
+
+    document.getElementById('toggleLoginPassword').addEventListener('click', function() {
+      togglePasswordVisibility('loginPassword', 'toggleLoginPasswordIcon');
+    });
   </script>
   <style>
     .modal-backdrop.show {
@@ -1124,6 +1180,35 @@ try {
     #news .card:hover {
       transform: translateY(-8px);
       box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    /* Password toggle button styling */
+    .input-group .btn {
+      border-top-right-radius: 12px !important;
+      border-bottom-right-radius: 12px !important;
+      border-top-left-radius: 0 !important;
+      border-bottom-left-radius: 0 !important;
+      border-left: none !important;
+      transition: all 0.3s ease;
+    }
+
+    .input-group .btn:hover {
+      background: #fecaca !important;
+      border-color: #f87171 !important;
+    }
+
+    .input-group .form-control {
+      border-top-right-radius: 0 !important;
+      border-bottom-right-radius: 0 !important;
+    }
+
+    .input-group .form-control:focus {
+      border-right: none !important;
+      box-shadow: none !important;
+    }
+
+    .input-group .form-control:focus + .btn {
+      border-color: #dc2626 !important;
     }
 
     /* Success Modal Animations */
