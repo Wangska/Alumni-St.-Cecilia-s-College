@@ -83,6 +83,16 @@ try {
     html { scroll-behavior: smooth; }
     /* Prevent anchor targets from hiding under sticky header */
     section { scroll-margin-top: 88px; }
+    /* Hero and carousel responsive sizing */
+    .hero-section { height: 85vh; }
+    .hero-title { font-family: 'Brush Script MT', cursive; color:#fff; font-weight:600; font-size: clamp(2.25rem, 6vw, 4.5rem); line-height: 1.05; }
+    .hero-subtitle { font-size: clamp(1rem, 2.8vw, 1.5rem); }
+    @media (min-width: 768px) {
+      .hero-section { height: 90vh; }
+    }
+    @media (max-width: 576px) {
+      #landingGalleryCarousel .carousel-inner { height: 240px !important; }
+    }
     /* About section theming - SCC red with soft gradient shapes */
     .about-section { position: relative; background: linear-gradient(180deg, #fff5f5 0%, #ffffff 100%); }
     .about-bg-shape { position: absolute; inset: 0; background:
@@ -109,6 +119,11 @@ try {
         <img src="/scratch/images/scc.png" alt="SCC Logo" class="h-16 w-16 object-contain" />
         <div class="text-lg font-semibold tracking-wide text-white">Alumni Nexus</div>
       </a>
+      <button id="mobileMenuToggle" class="md:hidden inline-flex items-center justify-center text-white" style="border:2px solid rgba(255,255,255,0.5); border-radius:12px; padding:8px 10px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="white" viewBox="0 0 16 16">
+          <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 0-1h11a.5.5 0 0 1 0 1h-11zm0-4a.5.5 0 0 1 0-1h11a.5.5 0 0 1 0 1h-11zm0-4a.5.5 0 0 1 0-1h11a.5.5 0 0 1 0 1h-11z"/>
+        </svg>
+      </button>
       <div class="hidden md:flex items-center gap-6 text-sm font-medium">
         <a href="#about" class="text-white hover:text-gray-200 transition">About Us</a>
         <a href="#news" class="text-white hover:text-gray-200 transition">News</a>
@@ -131,10 +146,25 @@ try {
         </button>
       </div>
     </div>
+    <!-- Mobile menu -->
+    <div id="mobileMenu" class="md:hidden hidden px-4 pb-3">
+      <div class="flex flex-col gap-2 text-sm font-medium">
+        <a href="#about" class="text-white py-2 px-3 rounded" style="background: rgba(255,255,255,0.1);">About Us</a>
+        <a href="#news" class="text-white py-2 px-3 rounded" style="background: rgba(255,255,255,0.1);">News</a>
+        <a href="#events" class="text-white py-2 px-3 rounded" style="background: rgba(255,255,255,0.1);">Events</a>
+        <a href="#jobs" class="text-white py-2 px-3 rounded" style="background: rgba(255,255,255,0.1);">Jobs</a>
+        <a href="#success-stories" class="text-white py-2 px-3 rounded" style="background: rgba(255,255,255,0.1);">Success Stories</a>
+        <a href="#testimonials" class="text-white py-2 px-3 rounded" style="background: rgba(255,255,255,0.1);">Testimonials</a>
+        <div class="flex gap-2 mt-2">
+          <button class="btn flex-fill d-flex align-items-center gap-2 px-3 py-2 text-white fw-semibold" style="border-radius: 10px; border: 2px solid white; background: transparent;" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
+          <button class="btn flex-fill d-flex align-items-center gap-2 px-3 py-2 fw-semibold" style="border-radius: 10px; background: white; color: #dc2626; border: none;" data-bs-toggle="modal" data-bs-target="#registerModal">Register</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Hero section with carousel -->
-  <section class="relative h-[85vh] md:h-[90vh]">
+  <section class="relative hero-section">
     <div id="heroCarousel" class="carousel slide carousel-fade h-full" data-bs-ride="carousel" data-bs-interval="4000">
       <div class="carousel-inner h-full">
         <div class="carousel-item active h-full">
@@ -151,8 +181,8 @@ try {
     <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/40" style="backdrop-filter: blur(1px); -webkit-backdrop-filter: blur(1px);"></div>
     <div class="absolute inset-0 z-10 max-w-7xl mx-auto h-full flex items-center px-4">
       <div class="text-white max-w-4xl">
-          <p class="leading-tight text-shadow" style="font-family: 'Brush Script MT', cursive; color:rgb(255, 255, 255); font-weight: 600; font-size: 7rem;">"Welcome Home,<br/>St. Cecilia's Alumni!"</p>
-         <p class="mt-4 text-white text-shadow" style="font-size: 1.5rem; font-family: 'Poppins', sans-serif;">Reconnect, Remember, and Relive Your College Moments.</p>
+          <p class="leading-tight text-shadow hero-title">"Welcome Home,<br/>St. Cecilia's Alumni!"</p>
+         <p class="mt-4 text-white text-shadow hero-subtitle" style="font-family: 'Poppins', sans-serif;">Reconnect, Remember, and Relive Your College Moments.</p>
         <div class="mt-6 flex gap-3">
           <button class="btn btn-danger d-flex align-items-center gap-2 px-4 py-3 fw-semibold" style="border-radius: 50px; background: #dc2626; border: none;" data-bs-toggle="modal" data-bs-target="#registerModal">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white" viewBox="0 0 16 16">
@@ -1087,6 +1117,25 @@ try {
   <script>
     // Show registration success modal if redirected with success parameter
     document.addEventListener('DOMContentLoaded', function() {
+      // Mobile menu toggle
+      var mobileToggle = document.getElementById('mobileMenuToggle');
+      var mobileMenu = document.getElementById('mobileMenu');
+      if (mobileToggle && mobileMenu) {
+        mobileToggle.addEventListener('click', function() {
+          if (mobileMenu.classList.contains('hidden')) {
+            mobileMenu.classList.remove('hidden');
+          } else {
+            mobileMenu.classList.add('hidden');
+          }
+        });
+        // Close on link click
+        mobileMenu.querySelectorAll('a').forEach(function(link){
+          link.addEventListener('click', function(){
+            mobileMenu.classList.add('hidden');
+          });
+        });
+      }
+
       // Smooth scroll for all in-page anchors with fallback JS (for browsers ignoring CSS smooth)
       document.querySelectorAll('a[href^="#"]').forEach(function(anchor){
         anchor.addEventListener('click', function(e){

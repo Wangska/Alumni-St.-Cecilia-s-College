@@ -35,6 +35,12 @@ $currentPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
       min-height: 100vh;
     }
     
+    /* Fluid media */
+    img, video, canvas, svg {
+      max-width: 100%;
+      height: auto;
+    }
+    
     .navbar {
       background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%) !important;
       box-shadow: 0 8px 32px rgba(0,0,0,0.15);
@@ -168,6 +174,28 @@ $currentPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
     .main-content {
       padding-top: 2rem;
       padding-bottom: 2rem;
+    }
+    
+    @media (max-width: 992px) {
+      .navbar .nav-link {
+        padding: 0.5rem 1rem !important;
+      }
+      .navbar-brand img {
+        height: 44px;
+      }
+      .navbar-brand-text div:first-child {
+        font-size: 1rem !important;
+      }
+      .navbar-brand-text div:last-child {
+        font-size: 0.7rem !important;
+      }
+      .profile-btn span {
+        display: none;
+      }
+      .dropdown-menu {
+        max-width: 90vw;
+        width: 90vw;
+      }
     }
   </style>
 </head>

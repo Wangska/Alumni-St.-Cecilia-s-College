@@ -23,6 +23,12 @@
             min-height: 100vh;
         }
         
+        /* Fluid media */
+        img, video, canvas, svg {
+            max-width: 100%;
+            height: auto;
+        }
+        
         /* Sidebar Styles */
         .sidebar {
             position: fixed;
@@ -172,6 +178,15 @@
             top: 0;
             z-index: 999;
             border-bottom: 2px solid rgba(220, 53, 69, 0.1);
+        }
+        
+        .sidebar-toggle {
+            display: none;
+            border: none;
+            background: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+            border-radius: 10px;
+            padding: 8px 10px;
         }
         
         .top-navbar h4 {
@@ -456,7 +471,7 @@
         }
         
         /* Responsive */
-        @media (max-width: 768px) {
+        @media (max-width: 992px) {
             .sidebar {
                 left: -260px;
             }
@@ -467,6 +482,26 @@
             
             .main-content {
                 margin-left: 0;
+            }
+            
+            .sidebar-toggle {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+            }
+            
+            .top-navbar h4 {
+                font-size: 20px;
+            }
+            
+            .navbar-right {
+                gap: 12px;
+            }
+            
+            .notification-dropdown {
+                width: min(90vw, 360px);
+                right: 10px;
             }
         }
     </style>
@@ -562,7 +597,12 @@
     <div class="main-content">
         <!-- Top Navbar -->
         <div class="top-navbar">
-            <h4><?= $pageTitle ?? 'Dashboard' ?></h4>
+            <div style="display:flex; align-items:center; gap:12px;">
+                <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h4 style="margin:0;"><?= $pageTitle ?? 'Dashboard' ?></h4>
+            </div>
             <div class="navbar-right">
                 <?php 
                 // Get unread notification count from the new notification system
@@ -746,6 +786,15 @@
     <!-- Toast Auto-hide Script -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Sidebar toggle for mobile
+            const sidebar = document.querySelector('.sidebar');
+            const toggleBtn = document.getElementById('sidebarToggle');
+            if (toggleBtn && sidebar) {
+                toggleBtn.addEventListener('click', function() {
+                    sidebar.classList.toggle('active');
+                });
+            }
+            
             // Notification Dropdown Functionality
             const notificationBell = document.getElementById('notificationBell');
             const notificationDropdown = document.getElementById('notificationDropdown');
@@ -1048,6 +1097,19 @@
                     subtree: true
                 });
             }
+
+            // Make wide tables horizontally scrollable on small screens
+            const tables = document.querySelectorAll('.content-area table');
+            tables.forEach(function(tbl) {
+                if (!tbl.parentElement || tbl.parentElement.classList.contains('table-responsive-wrapper')) return;
+                const wrapper = document.createElement('div');
+                wrapper.className = 'table-responsive-wrapper';
+                wrapper.style.overflowX = 'auto';
+                wrapper.style.webkitOverflowScrolling = 'touch';
+                tbl.style.width = '100%';
+                tbl.parentNode.insertBefore(wrapper, tbl);
+                wrapper.appendChild(tbl);
+            });
         });
     </script>
 </body>
