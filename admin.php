@@ -627,6 +627,9 @@ switch ($page) {
     case 'forum':
         $controller->forum();
         break;
+    case 'forum-view':
+        $controller->forumTopic();
+        break;
         case 'success-stories':
             $controller->successStories();
             break;

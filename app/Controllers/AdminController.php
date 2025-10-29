@@ -422,9 +422,67 @@ class AdminController extends Controller
     public function forum(): void
     {
         $forumTopics = $this->forumTopicModel->getAllWithCommentCounts();
-        
+
+        // Fetch recent comments with associated topic and user
+        try {
+            $db = \App\Core\Database::getInstance();
+            $pdo = $db->getConnection();
+            $stmt = $pdo->prepare("
+                SELECT fc.*, ft.title as topic_title, u.name as author_name
+                FROM forum_comments fc
+                LEFT JOIN forum_topics ft ON fc.topic_id = ft.id
+                LEFT JOIN users u ON fc.user_id = u.id
+                ORDER BY fc.date_created DESC
+                LIMIT 100
+            ");
+            $stmt->execute();
+            $recentComments = $stmt->fetchAll();
+        } catch (\Exception $e) {
+            $recentComments = [];
+        }
+
         $this->view('admin.forum', [
             'forumTopics' => $forumTopics,
+            'recentComments' => $recentComments,
+        ]);
+    }
+
+    public function forumTopic(): void
+    {
+        $topicId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+        if ($topicId <= 0) {
+            $_SESSION['error'] = 'Invalid forum topic ID.';
+            $this->redirect('/scratch/admin.php?page=forum');
+            return;
+        }
+
+        try {
+            $db = \App\Core\Database::getInstance();
+            $pdo = $db->getConnection();
+
+            // Topic
+            $stmt = $pdo->prepare("SELECT ft.*, u.name as author_name FROM forum_topics ft LEFT JOIN users u ON ft.user_id = u.id WHERE ft.id = ?");
+            $stmt->execute([$topicId]);
+            $topic = $stmt->fetch();
+
+            if (!$topic) {
+                $_SESSION['error'] = 'Forum topic not found.';
+                $this->redirect('/scratch/admin.php?page=forum');
+                return;
+            }
+
+            // Comments
+            $stmt = $pdo->prepare("SELECT fc.*, u.name as author_name FROM forum_comments fc LEFT JOIN users u ON fc.user_id = u.id WHERE fc.topic_id = ? ORDER BY fc.date_created ASC");
+            $stmt->execute([$topicId]);
+            $comments = $stmt->fetchAll();
+        } catch (\Exception $e) {
+            $topic = null;
+            $comments = [];
+        }
+
+        $this->view('admin.forum-topic', [
+            'topic' => $topic,
+            'comments' => $comments,
         ]);
     }
     

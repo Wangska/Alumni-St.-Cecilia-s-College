@@ -87,6 +87,34 @@ ob_start();
     font-weight: 600;
     font-size: 14px;
 }
+
+/* Comments List */
+.comments-card {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    margin-top: 24px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+.comment-row {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr 0.8fr 0.6fr;
+    gap: 12px;
+    align-items: start;
+    padding: 12px 0;
+    border-bottom: 1px solid #f1f3f5;
+}
+.comment-row.header { font-weight: 600; color: #2d3142; }
+.comment-row:last-child { border-bottom: none; }
+.comment-text-cell { color: #6c757d; font-size: 14px; line-height: 1.5; }
+.comment-author { font-weight: 600; color: #2d3142; }
+.comment-topic { color: #4a4f63; }
+.comment-date { color: #6c757d; font-size: 13px; white-space: nowrap; }
+
+@media (max-width: 992px) {
+    .comment-row { grid-template-columns: 1fr; }
+    .comment-date { white-space: normal; }
+}
 </style>
 
 <!-- Success/Error Messages -->
@@ -129,6 +157,9 @@ ob_start();
                 <p class="forum-description"><?= nl2br(htmlspecialchars($topic['description'])) ?></p>
             </div>
             <div class="d-flex gap-2">
+                <a class="btn btn-sm" href="/scratch/admin.php?page=forum-view&id=<?= (int)$topic['id'] ?>" style="background: linear-gradient(135deg, #0d6efd, #0b5ed7); color: white; border: none; border-radius: 10px; padding: 8px 16px; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(13, 110, 253, 0.3);" title="View Topic" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(13,110,253,0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(13,110,253,0.3)';">
+                    <i class="fas fa-eye"></i>
+                </a>
                 <button class="btn btn-sm" style="background: linear-gradient(135deg, #ffc107, #ffb300); color: white; border: none; border-radius: 10px; padding: 8px 16px; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);" data-bs-toggle="modal" data-bs-target="#editTopicModal<?= $topic['id'] ?>" title="Edit" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(255, 193, 7, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(255, 193, 7, 0.3)';">
                     <i class="fas fa-edit"></i>
                 </button>
@@ -202,6 +233,35 @@ ob_start();
         </button>
     </div>
 <?php endif; ?>
+
+<!-- Recent Comments -->
+<div class="comments-card">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="mb-0" style="font-weight:700; color:#2d3142;">Recent Comments</h5>
+        <span class="badge bg-secondary">Last 100</span>
+    </div>
+    <?php if (!empty($recentComments ?? [])): ?>
+        <div class="comment-row header" style="border-bottom: 2px solid #eef1f5;">
+            <div>Comment</div>
+            <div>Topic</div>
+            <div>Author</div>
+            <div>Date</div>
+        </div>
+        <?php foreach ($recentComments as $comment): ?>
+            <div class="comment-row">
+                <div class="comment-text-cell"><?= nl2br(htmlspecialchars($comment['comment'] ?? '')) ?></div>
+                <div class="comment-topic"><?= htmlspecialchars($comment['topic_title'] ?? 'Untitled Topic') ?></div>
+                <div class="comment-author"><?= htmlspecialchars($comment['author_name'] ?? 'Anonymous') ?></div>
+                <div class="comment-date"><?= date('M d, Y - g:i A', strtotime($comment['date_created'] ?? 'now')) ?></div>
+            </div>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <div class="text-center py-4 text-muted">No comments yet.</div>
+    <?php endif; ?>
+    <div class="mt-2 small text-muted">Tip: Use your browser search (Ctrl/Cmd+F) to quickly find comments.</div>
+    <div class="mt-2 small text-muted">Tables are scrollable on mobile.</div>
+    
+</div>
 
 <!-- Add Topic Modal -->
 <div class="modal fade" id="addTopicModal" tabindex="-1">
