@@ -293,41 +293,43 @@ class AdminController extends Controller
         ]);
     }
     
-    public function careers(): void
-    {
-        $careers = $this->careerModel->getAllOrdered();
-        
-        $this->view('admin.careers', [
-            'careers' => $careers,
-        ]);
-    }
+    // Job posting feature removed - careers and job applications methods disabled
     
-    public function jobApplications(): void
-    {
-        $db = \App\Core\Database::getInstance();
-        $pdo = $db->getConnection();
-        
-        try {
-            $stmt = $pdo->prepare("
-                SELECT ja.*, 
-                       c.job_title, 
-                       c.company,
-                       u.name as applicant_name
-                FROM job_applications ja
-                LEFT JOIN careers c ON ja.job_id = c.id
-                LEFT JOIN users u ON ja.user_id = u.id
-                ORDER BY ja.applied_at DESC
-            ");
-            $stmt->execute();
-            $applications = $stmt->fetchAll();
-        } catch (Exception $e) {
-            $applications = [];
-        }
-        
-        $this->view('admin.job-applications', [
-            'applications' => $applications,
-        ]);
-    }
+    // public function careers(): void
+    // {
+    //     $careers = $this->careerModel->getAllOrdered();
+    //     
+    //     $this->view('admin.careers', [
+    //         'careers' => $careers,
+    //     ]);
+    // }
+    
+    // public function jobApplications(): void
+    // {
+    //     $db = \App\Core\Database::getInstance();
+    //     $pdo = $db->getConnection();
+    //     
+    //     try {
+    //         $stmt = $pdo->prepare("
+    //             SELECT ja.*, 
+    //                    c.job_title, 
+    //                    c.company,
+    //                    u.name as applicant_name
+    //             FROM job_applications ja
+    //             LEFT JOIN careers c ON ja.job_id = c.id
+    //             LEFT JOIN users u ON ja.user_id = u.id
+    //             ORDER BY ja.applied_at DESC
+    //         ");
+    //         $stmt->execute();
+    //         $applications = $stmt->fetchAll();
+    //     } catch (Exception $e) {
+    //         $applications = [];
+    //     }
+    //     
+    //     $this->view('admin.job-applications', [
+    //         'applications' => $applications,
+    //     ]);
+    // }
     
     public function testimonials(): void
     {

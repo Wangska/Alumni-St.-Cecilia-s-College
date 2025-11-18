@@ -1,6 +1,28 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__ . '/inc/config.php';
+require_once __DIR__ . '/inc/auth.php';
+
+// If user is logged in, redirect based on their type
+if (isset($_SESSION['user'])) {
+    $user = current_user();
+    $userType = (int)($user['type'] ?? 3);
+    
+    if ($userType === 1) {
+        // Admin -> admin panel
+        header('Location: /scratch/admin.php');
+        exit;
+    } elseif ($userType === 2) {
+        // Alumni Officer -> officer dashboard
+        header('Location: /scratch/alumni-officer.php');
+        exit;
+    } elseif ($userType === 3) {
+        // Regular Alumni -> alumni dashboard
+        header('Location: /scratch/dashboard.php');
+        exit;
+    }
+}
+
 $pdo = get_pdo();
 $courses = $pdo->query('SELECT id, course FROM courses ORDER BY course')->fetchAll();
 $careers = $pdo->query('SELECT * FROM careers ORDER BY date_created DESC LIMIT 9')->fetchAll();
@@ -128,7 +150,6 @@ try {
         <a href="#about" class="text-white hover:text-gray-200 transition">About Us</a>
         <a href="#news" class="text-white hover:text-gray-200 transition">News</a>
         <a href="#events" class="text-white hover:text-gray-200 transition">Events</a>
-        <a href="#jobs" class="text-white hover:text-gray-200 transition">Jobs</a>
         <a href="#success-stories" class="text-white hover:text-gray-200 transition">Success Stories</a>
         <a href="#testimonials" class="text-white hover:text-gray-200 transition">Testimonials</a>
         <button class="btn d-flex align-items-center gap-2 px-3 py-2 text-white fw-semibold" style="border-radius: 50px; border: 2px solid white; background: transparent;" data-bs-toggle="modal" data-bs-target="#loginModal">
@@ -152,7 +173,6 @@ try {
         <a href="#about" class="text-white py-2 px-3 rounded" style="background: rgba(255,255,255,0.1);">About Us</a>
         <a href="#news" class="text-white py-2 px-3 rounded" style="background: rgba(255,255,255,0.1);">News</a>
         <a href="#events" class="text-white py-2 px-3 rounded" style="background: rgba(255,255,255,0.1);">Events</a>
-        <a href="#jobs" class="text-white py-2 px-3 rounded" style="background: rgba(255,255,255,0.1);">Jobs</a>
         <a href="#success-stories" class="text-white py-2 px-3 rounded" style="background: rgba(255,255,255,0.1);">Success Stories</a>
         <a href="#testimonials" class="text-white py-2 px-3 rounded" style="background: rgba(255,255,255,0.1);">Testimonials</a>
         <div class="flex gap-2 mt-2">
@@ -435,64 +455,6 @@ try {
         <?php endif; ?>
       </div>
       <div class="text-center mt-4"><button type="button" class="btn" style="background:#dc2626; color:#fff; border:none; padding:12px 24px; font-weight:600; border-radius:8px;" data-bs-toggle="modal" data-bs-target="#loginModal">View All Events</button></div>
-    </div>
-  </section>
-
-  <!-- Available Jobs (Dashboard style, requires login to apply) -->
-  <section id="jobs" class="py-16" style="background:#f8f9fa;">
-    <div class="max-w-7xl mx-auto px-4">
-      <div class="text-center mb-12">
-        <h2 class="text-4xl font-bold mb-2" style="color:#dc2626; font-family: 'Times New Roman', serif;">AVAILABLE JOBS</h2>
-        <div class="mx-auto" style="width: 100px; height: 3px; background: #dc2626;"></div>
-      </div>
-      <div class="row g-4">
-        <?php if (!empty($careers)): ?>
-          <?php foreach ($careers as $job): ?>
-          <div class="col-lg-4 col-md-6">
-            <div class="card h-100 border-0 shadow d-flex flex-column" style="border-radius:12px; overflow:hidden;">
-              <div style="height:200px; overflow:hidden; background:linear-gradient(135deg,#7f1d1d,#991b1b);">
-                <?php if (!empty($job['company_logo']) && file_exists(__DIR__ . '/uploads/' . $job['company_logo'])): ?>
-                  <img src="/scratch/uploads/<?= htmlspecialchars($job['company_logo']) ?>" class="w-100 h-100" style="object-fit:contain; background:#fff;" alt="<?= htmlspecialchars($job['company'] ?? 'Company') ?> Logo">
-                <?php else: ?>
-                  <div class="d-flex align-items-center justify-content-center h-100"><i class="fas fa-briefcase text-white" style="font-size:4rem;"></i></div>
-                <?php endif; ?>
-              </div>
-              <div class="p-4 d-flex flex-column flex-grow-1">
-                <h5 class="fw-bold mb-3" style="color:#1f2937; font-size:1.25rem;"><?= htmlspecialchars($job['job_title'] ?? ($job['title'] ?? '')) ?></h5>
-                <p class="text-muted mb-4" style="line-height:1.6; flex-grow:1;"><?= htmlspecialchars(substr((string)($job['description'] ?? ''), 0, 120)) ?>...</p>
-                <div class="d-flex justify-content-between align-items-center mb-3"><small class="text-muted"><i class="fas fa-map-marker-alt me-1"></i><?= htmlspecialchars((string)($job['location'] ?? 'Location not specified')) ?></small><small class="text-muted"><i class="fas fa-calendar me-1"></i><?= date('M d, Y', strtotime($job['date_created'])) ?></small></div>
-                <div class="d-flex gap-2 mt-auto"><button class="btn flex-fill" style="background:#6b7280; color:#fff; border:none; padding:12px; font-weight:600; border-radius:8px;" data-bs-toggle="modal" data-bs-target="#landingJob<?= (int)$job['id'] ?>">Read More</button><button class="btn flex-fill" style="background:#dc2626; color:#fff; border:none; padding:12px; font-weight:600; border-radius:8px;" data-bs-toggle="modal" data-bs-target="#loginModal">Login to Apply</button></div>
-              </div>
-            </div>
-          </div>
-          <!-- Job Modal -->
-          <div class="modal fade" id="landingJob<?= (int)$job['id'] ?>" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-              <div class="modal-content" style="border-radius:16px; border:none; box-shadow:0 20px 60px rgba(0,0,0,.3);">
-                <div class="modal-header" style="background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%); color:#fff; border:none; border-radius:16px 16px 0 0;">
-                  <h5 class="modal-title mb-0" style="font-weight:700; font-size:20px;"><?= htmlspecialchars($job['job_title'] ?? ($job['title'] ?? 'Job')) ?> at <?= htmlspecialchars($job['company'] ?? 'Company') ?></h5>
-                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body" style="padding:24px;">
-                  <?php if (!empty($job['company_logo']) && file_exists(__DIR__ . '/uploads/' . $job['company_logo'])): ?>
-                    <div class="text-center mb-3"><img src="/scratch/uploads/<?= htmlspecialchars($job['company_logo']) ?>" alt="<?= htmlspecialchars($job['company'] ?? 'Company') ?> Logo" style="max-height:120px; object-fit:contain; background:#fff; border-radius:12px; padding:8px;"></div>
-                  <?php endif; ?>
-                  <div class="text-muted mb-3"><i class="fas fa-map-marker-alt me-1"></i><?= htmlspecialchars((string)($job['location'] ?? 'Location not specified')) ?><span class="mx-2">•</span><i class="fas fa-calendar me-1"></i><?= date('F d, Y - g:i A', strtotime($job['date_created'] ?? 'now')) ?></div>
-                  <div style="color:#374151; line-height:1.7; white-space:pre-wrap;"><?= nl2br(htmlspecialchars((string)($job['description'] ?? ''))) ?></div>
-                </div>
-                <div class="modal-footer" style="background:#f8f9fa; border-top:1px solid #e5e7eb; border-radius:0 0 16px 16px;">
-                  <button class="btn" style="background:#dc2626; color:#fff; border:none; padding:10px 20px; font-weight:600; border-radius:8px;" data-bs-toggle="modal" data-bs-target="#loginModal" data-bs-dismiss="modal">Login to Apply</button>
-                  <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" style="border-radius:10px;">Close</button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <?php endforeach; ?>
-        <?php else: ?>
-          <div class="text-center py-5" style="background:#fff; border-radius:16px; box-shadow:0 4px 20px rgba(0,0,0,0.06);"><div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 90px; height: 90px;"><i class="fas fa-briefcase text-muted" style="font-size:2rem;"></i></div><h4 class="text-muted">No job openings available</h4></div>
-        <?php endif; ?>
-      </div>
-      <div class="text-center mt-4"><button type="button" class="btn" style="background:#dc2626; color:#fff; border:none; padding:12px 24px; font-weight:600; border-radius:8px;" data-bs-toggle="modal" data-bs-target="#loginModal">View All Jobs</button></div>
     </div>
   </section>
 

@@ -462,7 +462,7 @@ if ($_POST) {
                         <a class="nav-link" href="/scratch/dashboard.php#news">News</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/scratch/dashboard.php#jobs">Jobs</a>
+                        <a class="nav-link" href="/scratch/dashboard.php#events">Events</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/scratch/dashboard.php#success-stories">Success Stories</a>

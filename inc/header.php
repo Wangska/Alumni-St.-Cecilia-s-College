@@ -221,9 +221,6 @@ $currentPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
             <a class="nav-link <?= ($currentPath === '/scratch/news/index.php') ? 'active' : '' ?>" href="/scratch/news/index.php">News</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link <?= ($currentPath === '/scratch/jobs/index.php') ? 'active' : '' ?>" href="/scratch/jobs/index.php">Jobs</a>
-          </li>
-          <li class="nav-item">
             <a class="nav-link <?= ($currentPath === '/scratch/events/index.php') ? 'active' : '' ?>" href="/scratch/events/index.php">Events</a>
           </li>
           
@@ -235,6 +232,24 @@ $currentPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
         </li>
           <li class="nav-item">
             <a class="nav-link" href="/scratch/forum/index.php">Forum</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/scratch/messaging.php">
+              Messages
+              <?php
+              // Get unread message count
+              $unreadMessages = 0;
+              try {
+                  $stmt = $pdo->prepare('SELECT COUNT(*) as unread FROM messages WHERE receiver_id = ? AND is_read = 0');
+                  $stmt->execute([$user['id']]);
+                  $unreadMessages = (int)$stmt->fetch(PDO::FETCH_ASSOC)['unread'];
+              } catch (Exception $e) {
+                  // Ignore
+              }
+              if ($unreadMessages > 0): ?>
+                  <span class="badge bg-danger ms-2" style="font-size: 10px; padding: 3px 8px; border-radius: 10px;"><?= $unreadMessages ?></span>
+              <?php endif; ?>
+            </a>
           </li>
           <?php if (isset($user['type']) && $user['type'] == 1): ?>
           <li class="nav-item">

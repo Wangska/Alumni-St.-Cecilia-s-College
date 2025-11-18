@@ -286,96 +286,10 @@ if ($page === 'settings' && !empty($action)) {
     }
 }
 
-// Handle careers CRUD operations
-if ($page === 'careers' && !empty($action) && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    $careerModel = new Career();
-    
-    // Verify CSRF token
-    if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
-        die('Invalid CSRF token');
-    }
-    
-    switch ($action) {
-        case 'add':
-            $jobTitle = trim($_POST['job_title'] ?? '');
-            
-            // Handle company logo upload
-            $companyLogo = '';
-            if (!empty($_FILES['company_logo']['name']) && is_uploaded_file($_FILES['company_logo']['tmp_name'])) {
-                $ext = pathinfo($_FILES['company_logo']['name'], PATHINFO_EXTENSION);
-                $safeName = 'company_' . bin2hex(random_bytes(6)) . ($ext ? '.' . $ext : '');
-                $destDir = __DIR__ . '/uploads';
-                if (!is_dir($destDir)) {
-                    @mkdir($destDir, 0775, true);
-                }
-                $dest = $destDir . '/' . $safeName;
-                if (move_uploaded_file($_FILES['company_logo']['tmp_name'], $dest)) {
-                    $companyLogo = $safeName;
-                }
-            }
-            
-            $careerModel->create([
-                'company' => trim($_POST['company'] ?? ''),
-                'location' => trim($_POST['location'] ?? ''),
-                'job_title' => $jobTitle,
-                'description' => trim($_POST['description'] ?? ''),
-                'company_logo' => $companyLogo,
-                'user_id' => $_SESSION['user']['id'],
-                'date_created' => date('Y-m-d H:i:s'),
-            ]);
-            \ActivityLogger::logCreate('Job Posting', $jobTitle);
-            $_SESSION['success'] = 'Job posting added successfully!';
-            break;
-            
-        case 'edit':
-            $jobTitle = trim($_POST['job_title'] ?? '');
-            
-            // Handle company logo upload for edit
-            $companyLogo = $_POST['existing_company_logo'] ?? '';
-            if (!empty($_FILES['company_logo']['name']) && is_uploaded_file($_FILES['company_logo']['tmp_name'])) {
-                $ext = pathinfo($_FILES['company_logo']['name'], PATHINFO_EXTENSION);
-                $safeName = 'company_' . bin2hex(random_bytes(6)) . ($ext ? '.' . $ext : '');
-                $destDir = __DIR__ . '/uploads';
-                if (!is_dir($destDir)) {
-                    @mkdir($destDir, 0775, true);
-                }
-                $dest = $destDir . '/' . $safeName;
-                if (move_uploaded_file($_FILES['company_logo']['tmp_name'], $dest)) {
-                    // Delete old logo if exists
-                    if ($companyLogo && file_exists($destDir . '/' . $companyLogo)) {
-                        @unlink($destDir . '/' . $companyLogo);
-                    }
-                    $companyLogo = $safeName;
-                }
-            }
-            
-            $careerModel->update((int)$_POST['id'], [
-                'company' => trim($_POST['company'] ?? ''),
-                'location' => trim($_POST['location'] ?? ''),
-                'job_title' => $jobTitle,
-                'description' => trim($_POST['description'] ?? ''),
-                'company_logo' => $companyLogo,
-            ]);
-            \ActivityLogger::logUpdate('Job Posting', $jobTitle);
-            $_SESSION['success'] = 'Job posting updated successfully!';
-            break;
-            
-        case 'delete':
-            $jobId = (int)$_POST['id'];
-            $job = $careerModel->find($jobId);
-            $jobTitle = $job['job_title'] ?? 'Unknown';
-            $careerModel->delete($jobId);
-            \ActivityLogger::logDelete('Job Posting', $jobTitle);
-            $_SESSION['deleted'] = 'Job posting deleted successfully!';
-            break;
-    }
-    
-    header('Location: /scratch/admin.php?page=careers');
-    exit;
-}
+// Job posting feature removed - careers and job applications disabled
 
-// Handle job application actions
-if ($page === 'job-applications' && !empty($action) && $_SERVER['REQUEST_METHOD'] === 'POST') {
+// Handle job application actions (DISABLED - Job posting feature removed)
+if (false && $page === 'job-applications' && !empty($action) && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $db = \App\Core\Database::getInstance();
     $pdo = $db->getConnection();
     
@@ -617,12 +531,6 @@ switch ($page) {
         break;
     case 'galleries':
         $controller->galleries();
-        break;
-    case 'careers':
-        $controller->careers();
-        break;
-    case 'job-applications':
-        $controller->jobApplications();
         break;
     case 'forum':
         $controller->forum();

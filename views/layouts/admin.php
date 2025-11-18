@@ -543,11 +543,6 @@
                 <span>Courses</span>
             </a>
             
-            <a href="/scratch/admin.php?page=careers" class="menu-item <?= ($currentPage ?? '') === 'careers' ? 'active' : '' ?>">
-                <i class="fas fa-briefcase"></i>
-                <span>Job Postings</span>
-            </a>
-            
             <a href="/scratch/admin.php?page=galleries" class="menu-item <?= ($currentPage ?? '') === 'galleries' ? 'active' : '' ?>">
                 <i class="fas fa-images"></i>
                 <span>Gallery</span>

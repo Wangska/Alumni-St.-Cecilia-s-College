@@ -5,6 +5,18 @@ require_once __DIR__ . '/inc/auth.php';
 require_login();
 $user = current_user();
 
+// Redirect Alumni Officers to their dashboard
+if (isset($user['type']) && (int)$user['type'] === 2) {
+    header('Location: /scratch/alumni-officer.php');
+    exit;
+}
+
+// Redirect Admins to admin panel
+if (isset($user['type']) && (int)$user['type'] === 1) {
+    header('Location: /scratch/admin.php');
+    exit;
+}
+
 // Get alumni profile information
 $pdo = get_pdo();
 $alumnusId = $user['alumnus_id'] ?? 0;
@@ -43,11 +55,6 @@ $announcements = $stmt->fetchAll();
 $stmt = $pdo->prepare('SELECT * FROM events WHERE schedule >= CURDATE() ORDER BY schedule ASC LIMIT 3');
 $stmt->execute();
 $events = $stmt->fetchAll();
-
-// Get available jobs
-$stmt = $pdo->prepare('SELECT * FROM careers ORDER BY date_created DESC LIMIT 6');
-$stmt->execute();
-$jobs = $stmt->fetchAll();
 
 // Get success stories
 $stmt = $pdo->prepare('
@@ -593,9 +600,6 @@ $testimonials = $stmt->fetchAll();
               <a class="nav-link" href="/scratch/news/index.php">News</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/scratch/jobs/index.php">Jobs</a>
-            </li>
-            <li class="nav-item">
               <a class="nav-link" href="/scratch/events/index.php">Events</a>
             </li>
             <li class="nav-item">
@@ -606,6 +610,24 @@ $testimonials = $stmt->fetchAll();
             </li>
             <li class="nav-item">
               <a class="nav-link" href="/scratch/forum/index.php">Forum</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/scratch/messaging.php">
+                Messages
+                <?php
+                // Get unread message count
+                $unreadMessages = 0;
+                try {
+                    $stmt = $pdo->prepare('SELECT COUNT(*) as unread FROM messages WHERE receiver_id = ? AND is_read = 0');
+                    $stmt->execute([$user['id']]);
+                    $unreadMessages = (int)$stmt->fetch(PDO::FETCH_ASSOC)['unread'];
+                } catch (Exception $e) {
+                    // Ignore
+                }
+                if ($unreadMessages > 0): ?>
+                    <span class="badge bg-danger ms-2" style="font-size: 10px; padding: 3px 8px; border-radius: 10px;"><?= $unreadMessages ?></span>
+                <?php endif; ?>
+              </a>
             </li>
             <?php if (isset($user['type']) && $user['type'] == 1): ?>
             <li class="nav-item">
@@ -880,112 +902,6 @@ $testimonials = $stmt->fetchAll();
       <div class="text-center mt-4">
         <a href="/scratch/events/index.php" class="btn" style="background: #dc2626; color: white; border: none; padding: 12px 24px; font-weight: 600; border-radius: 8px;">
           <i class="fas fa-arrow-right me-2"></i>View All Events
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Available Jobs Section -->
-  <section id="jobs" class="py-5" style="background: #f8f9fa;">
-    <div class="container">
-      <div class="row">
-        <div class="col-12">
-          <div class="text-center mb-5">
-            <h2 class="display-4 fw-bold" style="color: #dc2626; font-family: 'Times New Roman', serif;">AVAILABLE JOBS</h2>
-            <div class="mx-auto" style="width: 100px; height: 3px; background: #dc2626;"></div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="row g-4">
-        <?php if (!empty($jobs)): ?>
-          <?php foreach ($jobs as $job): ?>
-            <div class="col-lg-4 col-md-6">
-              <div class="card h-100 border-0 shadow d-flex flex-column" style="border-radius: 12px; overflow: hidden;">
-                <!-- Image Section -->
-                <div style="height: 200px; overflow: hidden; background: linear-gradient(135deg, #7f1d1d, #991b1b);">
-                  <?php if (!empty($job['company_logo']) && file_exists(__DIR__ . '/uploads/' . $job['company_logo'])): ?>
-                    <img src="/scratch/uploads/<?= htmlspecialchars($job['company_logo']) ?>" alt="<?= htmlspecialchars($job['company'] ?? 'Company') ?> Logo" class="w-100 h-100" style="object-fit: contain; background: #fff;">
-                  <?php else: ?>
-                    <div class="d-flex align-items-center justify-content-center h-100">
-                      <i class="fas fa-briefcase text-white" style="font-size: 4rem;"></i>
-                    </div>
-                  <?php endif; ?>
-                </div>
-                
-                <!-- Content Section -->
-                <div class="card-body p-4 d-flex flex-column flex-grow-1">
-                  <h5 class="card-title fw-bold mb-3" style="color: #1f2937; font-size: 1.25rem;">
-                    <?= htmlspecialchars($job['job_title'] ?? ($job['title'] ?? '')) ?>
-                  </h5>
-                  <p class="card-text text-muted mb-4 flex-grow-1" style="line-height: 1.6;">
-                    <?= htmlspecialchars(substr((string)($job['description'] ?? ''), 0, 120)) ?>...
-                  </p>
-                  <div class="d-flex justify-content-between align-items-center mb-3">
-                    <small class="text-muted">
-                      <i class="fas fa-map-marker-alt me-1"></i>
-                      <?= htmlspecialchars((string)($job['location'] ?? 'Location not specified')) ?>
-                    </small>
-                    <small class="text-muted">
-                      <i class="fas fa-calendar me-1"></i>
-                      <?= date('M d, Y', strtotime($job['date_created'])) ?>
-                    </small>
-                  </div>
-                  <div class="d-flex gap-2 mt-auto">
-                    <button class="btn flex-fill" style="background: #6b7280; color: white; border: none; padding: 12px; font-weight: 600; border-radius: 8px;" data-bs-toggle="modal" data-bs-target="#jobModal<?= (int)$job['id'] ?>">Read More</button>
-                    <a href="/scratch/jobs/index.php" class="btn flex-fill" style="background: #dc2626; color: white; border: none; padding: 12px; font-weight: 600; border-radius: 8px;">Apply Now</a>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <!-- Job Details Modal -->
-            <div class="modal fade" id="jobModal<?= (int)$job['id'] ?>" tabindex="-1" aria-hidden="true">
-              <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-                <div class="modal-content" style="border-radius:16px; border:none; box-shadow:0 20px 60px rgba(0,0,0,.3);">
-                  <div class="modal-header" style="background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%); color:#fff; border:none; border-radius:16px 16px 0 0;">
-                    <h5 class="modal-title mb-0" style="font-weight:700; font-size:20px;">
-                      <?= htmlspecialchars($job['job_title'] ?? ($job['title'] ?? 'Job')) ?> at <?= htmlspecialchars($job['company'] ?? 'Company') ?>
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                  </div>
-                  <div class="modal-body" style="padding:24px;">
-                    <?php if (!empty($job['company_logo']) && file_exists(__DIR__ . '/uploads/' . $job['company_logo'])): ?>
-                      <div class="text-center mb-3">
-                        <img src="/scratch/uploads/<?= htmlspecialchars($job['company_logo']) ?>" alt="<?= htmlspecialchars($job['company'] ?? 'Company') ?> Logo" style="max-height: 120px; object-fit: contain; background:#fff; border-radius:12px; padding:8px;">
-                      </div>
-                    <?php endif; ?>
-                    <div class="text-muted mb-3">
-                      <i class="fas fa-map-marker-alt me-1"></i><?= htmlspecialchars((string)($job['location'] ?? 'Location not specified')) ?>
-                      <span class="mx-2">•</span>
-                      <i class="fas fa-calendar me-1"></i><?= date('F d, Y - g:i A', strtotime($job['date_created'] ?? 'now')) ?>
-                    </div>
-                    <div style="color:#374151; line-height:1.7; white-space:pre-wrap;">
-                      <?= nl2br(htmlspecialchars((string)($job['description'] ?? ''))) ?>
-                    </div>
-                  </div>
-                  <div class="modal-footer" style="background:#f8f9fa; border-top:1px solid #e5e7eb; border-radius:0 0 16px 16px;">
-                    <a href="/scratch/jobs/index.php" class="btn" style="background: #dc2626; color: white; border: none; padding: 10px 20px; font-weight: 600; border-radius: 8px;">Apply Now</a>
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" style="border-radius:10px;">Close</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          <?php endforeach; ?>
-        <?php else: ?>
-          <div class="col-12">
-            <div class="text-center py-5">
-              <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
-                <i class="fas fa-briefcase text-muted" style="font-size: 2rem;"></i>
-              </div>
-              <h5 class="text-muted">No job openings available</h5>
-              <p class="text-muted">Check back later for new opportunities</p>
-            </div>
-          </div>
-        <?php endif; ?>
-      </div>
-      <div class="text-center mt-4">
-        <a href="/scratch/jobs/index.php" class="btn" style="background: #dc2626; color: white; border: none; padding: 12px 24px; font-weight: 600; border-radius: 8px;">
-          <i class="fas fa-arrow-right me-2"></i>View All Jobs
         </a>
       </div>
     </div>
