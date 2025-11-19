@@ -2,6 +2,7 @@
 declare(strict_types=1);
 require_once __DIR__ . '/inc/config.php';
 require_once __DIR__ . '/inc/auth.php';
+require_once __DIR__ . '/inc/logger.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     require_csrf();
@@ -11,6 +12,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Redirect based on user type
         $user = current_user();
         $userType = (int)($user['type'] ?? 3); // Convert to integer
+        
+        // Log the login activity
+        ActivityLogger::logLogin($username);
         
         if ($userType === 1) {
             // Admin

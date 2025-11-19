@@ -2,21 +2,6 @@
 $currentPage = 'messages';
 ?>
 
-<!-- Header Section -->
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h2 style="color: #111827; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 12px;">
-            <i class="fas fa-envelope" style="color: #dc2626;"></i>
-            Messages
-        </h2>
-        <p style="color: #6b7280; margin: 5px 0 0 0; font-size: 14px;">Communicate with alumni members</p>
-    </div>
-    <a href="/scratch/alumni-officer.php?page=compose-message" class="btn-add-modern" style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); color: white; padding: 12px 28px; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3); border: none; transition: all 0.3s ease;">
-        <i class="fas fa-plus"></i>
-        New Message
-    </a>
-</div>
-
 <!-- Statistics Cards -->
 <div class="row g-3 mb-4">
     <div class="col-md-4">
@@ -42,12 +27,12 @@ $currentPage = 'messages';
         </div>
     </div>
     <div class="col-md-4">
-        <div class="stat-card-small" style="background: white; border-radius: 12px; padding: 20px; border-left: 4px solid #3b82f6; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 15px;">
-            <div class="stat-icon-small" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6; width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+        <div class="stat-card-small" style="background: white; border-radius: 12px; padding: 20px; border-left: 4px solid #f59e0b; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 15px;">
+            <div class="stat-icon-small" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b; width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px;">
                 <i class="fas fa-users"></i>
             </div>
             <div>
-                <h4 style="color: #3b82f6; font-weight: 700; margin-bottom: 5px;"><?= count($conversations) ?></h4>
+                <h4 style="color: #f59e0b; font-weight: 700; margin-bottom: 5px;"><?= count($conversations) ?></h4>
                 <p style="color: #6b7280; font-size: 13px; margin: 0;">Active Contacts</p>
             </div>
         </div>
@@ -73,10 +58,16 @@ $currentPage = 'messages';
 
 <!-- Conversations List -->
 <div class="stat-card" style="background: white; border-radius: 12px; padding: 30px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-    <h5 class="mb-4" style="color: #111827; font-weight: 700; display: flex; align-items: center; gap: 10px;">
-        <i class="fas fa-comments" style="color: #dc2626;"></i>
-        Conversations
-    </h5>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h5 class="mb-0" style="color: #111827; font-weight: 700; display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-comments" style="color: #dc2626;"></i>
+            Conversations
+        </h5>
+        <a href="/scratch/alumni-officer.php?page=compose-message" class="btn-add-modern" style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); color: white; padding: 12px 28px; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3); border: none; transition: all 0.3s ease;">
+            <i class="fas fa-plus"></i>
+            New Message
+        </a>
+    </div>
 
     <?php if (empty($conversations)): ?>
         <div class="text-center py-5">

@@ -15,23 +15,8 @@
     <?php unset($_SESSION['error']); ?>
 <?php endif; ?>
 
-<!-- Header with Create Button -->
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h2 style="color: #111827; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 12px;">
-            <i class="fas fa-comments" style="color: #dc2626;"></i>
-            Forum Management
-        </h2>
-        <p style="color: #6b7280; margin: 5px 0 0 0; font-size: 14px;">Create, moderate, and manage forum topics and comments</p>
-    </div>
-    <button type="button" class="btn-add-modern" data-bs-toggle="modal" data-bs-target="#createTopicModal" style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); color: white; padding: 12px 28px; border-radius: 12px; font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3); border: none; transition: all 0.3s ease;">
-        <i class="fas fa-plus"></i>
-        Create Forum Topic
-    </button>
-</div>
-
 <!-- Navigation Tabs -->
-<ul class="nav nav-pills mb-4" style="background: white; border-radius: 12px; padding: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+<ul class="nav nav-pills mb-4" style="background: white; border-radius: 12px; padding: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; align-items: center;">
     <li class="nav-item">
         <a class="nav-link active" data-bs-toggle="pill" href="#topics" style="border-radius: 8px; font-weight: 600;">
             <i class="fas fa-comments me-2"></i>Forum Topics
@@ -43,6 +28,12 @@
             <i class="fas fa-comment-dots me-2"></i>Recent Comments
             <span class="badge bg-info ms-2"><?= count($recentComments) ?></span>
         </a>
+    </li>
+    <li class="nav-item ms-auto">
+        <button type="button" class="btn-add-modern" data-bs-toggle="modal" data-bs-target="#createTopicModal" style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); color: white; padding: 10px 24px; border-radius: 10px; font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3); border: none; transition: all 0.3s ease;">
+            <i class="fas fa-plus"></i>
+            Create Forum Topic
+        </button>
     </li>
 </ul>
 
