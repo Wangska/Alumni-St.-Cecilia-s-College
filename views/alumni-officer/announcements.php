@@ -250,14 +250,12 @@
                            title="Edit">
                             <i class="fas fa-edit"></i>
                         </a>
-                        <form method="post" style="display: inline-block;" onsubmit="return confirm('Delete this announcement?');">
-                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrf_token()) ?>">
-                            <input type="hidden" name="action" value="delete">
-                            <input type="hidden" name="id" value="<?= $announcement['id'] ?>">
-                            <button type="submit" class="btn-action btn-danger" title="Delete">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </form>
+                        <button type="button" 
+                                class="btn-action btn-danger" 
+                                title="Delete"
+                                onclick="deleteAnnouncement(<?= $announcement['id'] ?>, '<?= htmlspecialchars($announcement['title'] ?? 'Untitled', ENT_QUOTES) ?>')">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </div>
                 </div>
                 
@@ -314,4 +312,68 @@
     box-shadow: 0 6px 20px rgba(220, 38, 38, 0.5) !important;
 }
 </style>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 20px; border: none; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+            <div class="modal-header" style="background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; padding: 24px 30px; border: none;">
+                <div class="d-flex align-items-center">
+                    <div style="width: 50px; height: 50px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 15px;">
+                        <i class="fas fa-trash-alt" style="font-size: 24px;"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title mb-0" style="font-weight: 700; font-size: 20px;">Delete Announcement</h5>
+                        <p class="mb-0" style="font-size: 14px; opacity: 0.9;">Permanently remove this announcement</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="background: rgba(255,255,255,0.2); border-radius: 8px; padding: 8px;"></button>
+            </div>
+            <form method="POST" action="/scratch/alumni-officer.php?page=announcements&action=delete" id="deleteForm">
+                <div class="modal-body" style="padding: 30px;">
+                    <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+                    <input type="hidden" name="id" id="delete_announcement_id">
+                    
+                    <div class="text-center">
+                        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #fee2e2, #fecaca); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                            <i class="fas fa-exclamation-triangle" style="font-size: 40px; color: #dc2626;"></i>
+                        </div>
+                        <h5 style="font-weight: 700; color: #111827; margin-bottom: 10px;">Are you sure you want to delete?</h5>
+                        <p style="color: #6b7280; margin-bottom: 20px; font-weight: 600;" id="delete_announcement_title"></p>
+                        
+                        <div style="background: linear-gradient(135deg, #fee2e2, #fecaca); border-left: 4px solid #dc2626; padding: 16px; border-radius: 12px; text-align: left;">
+                            <div style="display: flex; align-items-start; gap: 12px;">
+                                <i class="fas fa-exclamation-circle" style="color: #dc2626; font-size: 20px; margin-top: 2px;"></i>
+                                <div style="flex: 1;">
+                                    <h6 style="color: #991b1b; font-weight: 600; margin-bottom: 8px;">Warning: This action cannot be undone!</h6>
+                                    <ul style="color: #b91c1c; margin: 0; padding-left: 20px; font-size: 14px;">
+                                        <li>Announcement will be permanently deleted</li>
+                                        <li>Alumni will no longer see this announcement</li>
+                                        <li>This action is immediate and irreversible</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="padding: 20px 30px; border-top: 1px solid #e9ecef; background: #f8f9fa;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 12px; padding: 12px 28px; font-weight: 600; border: 2px solid #6c757d;">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </button>
+                    <button type="submit" class="btn btn-danger" style="background: linear-gradient(135deg, #dc2626, #b91c1c); border: none; border-radius: 12px; padding: 12px 28px; font-weight: 600; box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);">
+                        <i class="fas fa-trash me-2"></i>Yes, Delete
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function deleteAnnouncement(id, title) {
+    document.getElementById('delete_announcement_id').value = id;
+    document.getElementById('delete_announcement_title').textContent = title;
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+</script>
 

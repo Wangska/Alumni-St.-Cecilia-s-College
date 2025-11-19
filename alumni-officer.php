@@ -97,6 +97,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($action)) {
                 exit;
                 
             case 'announcements':
+                // Get ID from POST data if available
+                $postId = (int)($_POST['id'] ?? 0);
+                $itemId = $postId > 0 ? $postId : $id;
+                
                 if ($action === 'create') {
                     $title = trim($_POST['title'] ?? '');
                     $content = trim($_POST['content'] ?? '');
@@ -110,7 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($action)) {
                     ActivityLogger::logCreate('Announcements', $title);
                     $_SESSION['success'] = 'Announcement posted successfully!';
                     
-                } elseif ($action === 'update' && $id) {
+                } elseif ($action === 'update' && $itemId) {
                     $title = trim($_POST['title'] ?? '');
                     $content = trim($_POST['content'] ?? '');
                     
@@ -119,20 +123,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($action)) {
                     }
                     
                     $stmt = $pdo->prepare('UPDATE announcements SET title = ?, content = ? WHERE id = ?');
-                    $stmt->execute([$title, $content, $id]);
+                    $stmt->execute([$title, $content, $itemId]);
                     ActivityLogger::logUpdate('Announcements', $title);
                     $_SESSION['success'] = 'Announcement updated successfully!';
                     
-                } elseif ($action === 'delete' && $id) {
+                } elseif ($action === 'delete' && $itemId) {
+                    // Get announcement title for logging
+                    $stmt = $pdo->prepare('SELECT title FROM announcements WHERE id = ?');
+                    $stmt->execute([$itemId]);
+                    $announcement = $stmt->fetch(PDO::FETCH_ASSOC);
+                    $title = $announcement['title'] ?? "ID: {$itemId}";
+                    
                     $stmt = $pdo->prepare('DELETE FROM announcements WHERE id = ?');
-                    $stmt->execute([$id]);
-                    ActivityLogger::logDelete('Announcements', "ID: {$id}");
+                    $stmt->execute([$itemId]);
+                    ActivityLogger::logDelete('Announcements', $title);
                     $_SESSION['success'] = 'Announcement deleted successfully!';
                 }
                 header('Location: /scratch/alumni-officer.php?page=announcements');
                 exit;
                 
             case 'events':
+                // Get ID from POST data if available
+                $postId = (int)($_POST['id'] ?? 0);
+                $itemId = $postId > 0 ? $postId : $id;
+                
                 if ($action === 'create') {
                     $title = trim($_POST['title'] ?? '');
                     $content = trim($_POST['content'] ?? '');
@@ -147,7 +161,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($action)) {
                     ActivityLogger::logCreate('Events', $title);
                     $_SESSION['success'] = 'Event published successfully!';
                     
-                } elseif ($action === 'update' && $id) {
+                } elseif ($action === 'update' && $itemId) {
                     $title = trim($_POST['title'] ?? '');
                     $content = trim($_POST['content'] ?? '');
                     $schedule = trim($_POST['schedule'] ?? '');
@@ -157,14 +171,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($action)) {
                     }
                     
                     $stmt = $pdo->prepare('UPDATE events SET title = ?, content = ?, schedule = ? WHERE id = ?');
-                    $stmt->execute([$title, $content, $schedule, $id]);
+                    $stmt->execute([$title, $content, $schedule, $itemId]);
                     ActivityLogger::logUpdate('Events', $title);
                     $_SESSION['success'] = 'Event updated successfully!';
                     
-                } elseif ($action === 'delete' && $id) {
+                } elseif ($action === 'delete' && $itemId) {
+                    // Get event title for logging
+                    $stmt = $pdo->prepare('SELECT title FROM events WHERE id = ?');
+                    $stmt->execute([$itemId]);
+                    $event = $stmt->fetch(PDO::FETCH_ASSOC);
+                    $title = $event['title'] ?? "ID: {$itemId}";
+                    
+                    // Delete event commits first
+                    $stmt = $pdo->prepare('DELETE FROM event_commits WHERE event_id = ?');
+                    $stmt->execute([$itemId]);
+                    
+                    // Then delete the event
                     $stmt = $pdo->prepare('DELETE FROM events WHERE id = ?');
-                    $stmt->execute([$id]);
-                    ActivityLogger::logDelete('Events', "ID: {$id}");
+                    $stmt->execute([$itemId]);
+                    ActivityLogger::logDelete('Events', $title);
                     $_SESSION['success'] = 'Event deleted successfully!';
                 }
                 header('Location: /scratch/alumni-officer.php?page=events');
