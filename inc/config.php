@@ -32,41 +32,41 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 if (!function_exists('get_pdo')) {
-    function get_pdo(): PDO {
-        static $pdo = null;
-        if ($pdo instanceof PDO) {
-            return $pdo;
-        }
-        $dsn = 'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8mb4';
-        $options = [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES => false,
-        ];
-        $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
+function get_pdo(): PDO {
+    static $pdo = null;
+    if ($pdo instanceof PDO) {
         return $pdo;
+    }
+    $dsn = 'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8mb4';
+    $options = [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        PDO::ATTR_EMULATE_PREPARES => false,
+    ];
+    $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
+    return $pdo;
     }
 }
 
 if (!function_exists('csrf_token')) {
-    function csrf_token(): string {
-        if (empty($_SESSION['csrf_token'])) {
-            $_SESSION['csrf_token'] = bin2hex(random_bytes(16));
-        }
-        return $_SESSION['csrf_token'];
+function csrf_token(): string {
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(16));
+    }
+    return $_SESSION['csrf_token'];
     }
 }
 
 if (!function_exists('require_csrf')) {
-    function require_csrf(): void {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $sent = $_POST['csrf_token'] ?? '';
-            if (!$sent || !hash_equals($_SESSION['csrf_token'] ?? '', $sent)) {
-                http_response_code(400);
-                exit('Invalid CSRF token');
-            }
+function require_csrf(): void {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $sent = $_POST['csrf_token'] ?? '';
+        if (!$sent || !hash_equals($_SESSION['csrf_token'] ?? '', $sent)) {
+            http_response_code(400);
+            exit('Invalid CSRF token');
         }
     }
+}
 }
 
 if (!function_exists('e')) {

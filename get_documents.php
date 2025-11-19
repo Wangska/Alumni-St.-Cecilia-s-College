@@ -13,12 +13,13 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Check if user is logged in and is admin
-if (!isset($_SESSION['user']) || ($_SESSION['user']['type'] ?? 0) != 1) {
+// Check if user is logged in and is admin or alumni officer
+$userType = $_SESSION['user']['type'] ?? 0;
+if (!isset($_SESSION['user']) || ($userType != 1 && $userType != 2)) {
     ob_clean();
     header('Content-Type: application/json');
     echo json_encode([
-        'error' => 'Unauthorized - Please log in as admin',
+        'error' => 'Unauthorized - Please log in as admin or alumni officer',
         'debug' => [
             'session_user' => isset($_SESSION['user']) ? $_SESSION['user'] : 'not set',
             'user_type' => $_SESSION['user']['type'] ?? 'not set'

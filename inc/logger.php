@@ -35,9 +35,9 @@ class ActivityLogger {
         try {
             $pdo = self::getPdo();
             
-            // Get user info
-            $userId = $_SESSION['user_id'] ?? null;
-            $username = $_SESSION['username'] ?? 'Guest';
+            // Get user info from session
+            $userId = $_SESSION['user_id'] ?? $_SESSION['user']['id'] ?? null;
+            $username = $_SESSION['username'] ?? $_SESSION['user']['name'] ?? 'Guest';
             
             // Get IP and User Agent
             $ipAddress = self::getIpAddress();

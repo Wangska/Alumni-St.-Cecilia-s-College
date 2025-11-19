@@ -9,12 +9,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
     if (attempt_login($username, $password)) {
+        // Log the login activity
+        ActivityLogger::logLogin($username);
+        
         // Redirect based on user type
         $user = current_user();
         $userType = (int)($user['type'] ?? 3); // Convert to integer
-        
-        // Log the login activity
-        ActivityLogger::logLogin($username);
         
         if ($userType === 1) {
             // Admin
@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header('Location: /scratch/alumni-officer.php');
         } else {
             // Regular alumni
-            header('Location: /scratch/index.php');
+        header('Location: /scratch/index.php');
         }
         exit;
     }

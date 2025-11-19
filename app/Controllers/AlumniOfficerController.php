@@ -43,35 +43,36 @@ class AlumniOfficerController
     public function verifyAlumni(): void
     {
         try {
-            // Get alumni without complete profile setup (pending)
+            // Get alumni without verification (pending) - status = 0 or NULL
             $stmt = $this->pdo->prepare('
                 SELECT u.id, u.name, u.username,
-                       a.firstname, a.lastname, a.email, a.batch, a.course_id,
+                       a.id as alumnus_id, a.firstname, a.lastname, a.email, a.batch, a.course_id, a.status,
                        c.course
                 FROM users u
-                LEFT JOIN alumnus_bio a ON u.alumnus_id = a.id
+                INNER JOIN alumnus_bio a ON u.alumnus_id = a.id
                 LEFT JOIN courses c ON a.course_id = c.id
-                WHERE u.type = 3 AND (u.alumnus_id IS NULL OR u.alumnus_id = 0)
+                WHERE u.type = 3 AND (a.status IS NULL OR a.status = 0)
                 ORDER BY u.id DESC
             ');
             $stmt->execute();
             $pendingAlumni = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // Get alumni with complete profiles (verified)
+            // Get alumni with verified accounts (status = 1)
             $stmt = $this->pdo->prepare('
                 SELECT u.id, u.name, u.username,
-                       a.firstname, a.lastname, a.email, a.batch, a.course_id,
+                       a.id as alumnus_id, a.firstname, a.lastname, a.email, a.batch, a.course_id, a.status,
                        c.course
                 FROM users u
-                LEFT JOIN alumnus_bio a ON u.alumnus_id = a.id
+                INNER JOIN alumnus_bio a ON u.alumnus_id = a.id
                 LEFT JOIN courses c ON a.course_id = c.id
-                WHERE u.type = 3 AND u.alumnus_id IS NOT NULL AND u.alumnus_id > 0
+                WHERE u.type = 3 AND a.status = 1
                 ORDER BY u.id DESC
                 LIMIT 50
             ');
             $stmt->execute();
             $verifiedAlumni = $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (Exception $e) {
+            error_log("AlumniOfficer verifyAlumni error: " . $e->getMessage());
             $pendingAlumni = [];
             $verifiedAlumni = [];
         }
@@ -495,8 +496,13 @@ class AlumniOfficerController
     private function getPendingAlumniCount(): int
     {
         try {
-            // Count users without alumnus_id (not yet set up)
-            $stmt = $this->pdo->query('SELECT COUNT(*) FROM users WHERE type = 3 AND (alumnus_id IS NULL OR alumnus_id = 0)');
+            // Count alumni with pending status (status = 0 or NULL in alumnus_bio)
+            $stmt = $this->pdo->query('
+                SELECT COUNT(*) 
+                FROM users u
+                INNER JOIN alumnus_bio a ON u.alumnus_id = a.id
+                WHERE u.type = 3 AND (a.status IS NULL OR a.status = 0)
+            ');
             return (int)$stmt->fetchColumn();
         } catch (Exception $e) {
             return 0;

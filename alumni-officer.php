@@ -55,16 +55,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($action)) {
     try {
         switch ($page) {
             case 'verify-alumni':
-                if ($action === 'approve' && $id) {
-                    // For now, approval doesn't do anything since there's no status column
-                    // You could add custom logic here if needed
-                    $_SESSION['success'] = 'Alumni account noted!';
-                    ActivityLogger::logUpdate('Alumni Verification', 'User ID: ' . $id);
-                } elseif ($action === 'reject' && $id) {
-                    $stmt = $pdo->prepare('DELETE FROM users WHERE id = ? AND type = 3');
-                    $stmt->execute([$id]);
-                    $_SESSION['success'] = 'Alumni account deleted.';
-                    ActivityLogger::logDelete('Alumni Verification', 'User ID: ' . $id);
+                // Get ID from POST data for approve/reject actions
+                $postId = (int)($_POST['id'] ?? 0);
+                $userId = $postId > 0 ? $postId : $id;
+                
+                if ($action === 'approve' && $userId) {
+                    // Get the alumnus_id from users table
+                    $stmt = $pdo->prepare('SELECT alumnus_id, name FROM users WHERE id = ? AND type = 3');
+                    $stmt->execute([$userId]);
+                    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+                    
+                    if ($user && $user['alumnus_id']) {
+                        // Update status in alumnus_bio to 1 (verified)
+                        $stmt = $pdo->prepare('UPDATE alumnus_bio SET status = 1 WHERE id = ?');
+                        $stmt->execute([$user['alumnus_id']]);
+                        ActivityLogger::log('Approved alumni account', 'update', 'Alumni Management', "User: {$user['name']} (ID: {$userId})");
+                        $_SESSION['success'] = 'Alumni account approved successfully!';
+                    } else {
+                        $_SESSION['error'] = 'Unable to approve: Alumni profile not found.';
+                    }
+                } elseif ($action === 'reject' && $userId) {
+                    // Get user name for logging
+                    $stmt = $pdo->prepare('SELECT name, alumnus_id FROM users WHERE id = ? AND type = 3');
+                    $stmt->execute([$userId]);
+                    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+                    
+                    if ($user) {
+                        // Delete from alumnus_bio first if exists
+                        if ($user['alumnus_id']) {
+                            $stmt = $pdo->prepare('DELETE FROM alumnus_bio WHERE id = ?');
+                            $stmt->execute([$user['alumnus_id']]);
+                        }
+                        // Then delete from users table
+                        $stmt = $pdo->prepare('DELETE FROM users WHERE id = ?');
+                        $stmt->execute([$userId]);
+                        ActivityLogger::log('Rejected alumni account', 'delete', 'Alumni Management', "User: {$user['name']} (ID: {$userId})");
+                        $_SESSION['success'] = 'Alumni account rejected and deleted.';
+                    }
                 }
                 header('Location: /scratch/alumni-officer.php?page=verify-alumni');
                 exit;
@@ -80,8 +107,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($action)) {
                     
                     $stmt = $pdo->prepare('INSERT INTO announcements (title, content, date_created) VALUES (?, ?, NOW())');
                     $stmt->execute([$title, $content]);
+                    ActivityLogger::logCreate('Announcements', $title);
                     $_SESSION['success'] = 'Announcement posted successfully!';
-                    ActivityLogger::logCreate('Announcement', $title);
                     
                 } elseif ($action === 'update' && $id) {
                     $title = trim($_POST['title'] ?? '');
@@ -93,14 +120,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($action)) {
                     
                     $stmt = $pdo->prepare('UPDATE announcements SET title = ?, content = ? WHERE id = ?');
                     $stmt->execute([$title, $content, $id]);
+                    ActivityLogger::logUpdate('Announcements', $title);
                     $_SESSION['success'] = 'Announcement updated successfully!';
-                    ActivityLogger::logUpdate('Announcement', $title);
                     
                 } elseif ($action === 'delete' && $id) {
                     $stmt = $pdo->prepare('DELETE FROM announcements WHERE id = ?');
                     $stmt->execute([$id]);
+                    ActivityLogger::logDelete('Announcements', "ID: {$id}");
                     $_SESSION['success'] = 'Announcement deleted successfully!';
-                    ActivityLogger::logDelete('Announcement', 'ID: ' . $id);
                 }
                 header('Location: /scratch/alumni-officer.php?page=announcements');
                 exit;
@@ -117,8 +144,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($action)) {
                     
                     $stmt = $pdo->prepare('INSERT INTO events (title, content, schedule) VALUES (?, ?, ?)');
                     $stmt->execute([$title, $content, $schedule]);
+                    ActivityLogger::logCreate('Events', $title);
                     $_SESSION['success'] = 'Event published successfully!';
-                    ActivityLogger::logCreate('Event', $title);
                     
                 } elseif ($action === 'update' && $id) {
                     $title = trim($_POST['title'] ?? '');
@@ -131,14 +158,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($action)) {
                     
                     $stmt = $pdo->prepare('UPDATE events SET title = ?, content = ?, schedule = ? WHERE id = ?');
                     $stmt->execute([$title, $content, $schedule, $id]);
+                    ActivityLogger::logUpdate('Events', $title);
                     $_SESSION['success'] = 'Event updated successfully!';
-                    ActivityLogger::logUpdate('Event', $title);
                     
                 } elseif ($action === 'delete' && $id) {
                     $stmt = $pdo->prepare('DELETE FROM events WHERE id = ?');
                     $stmt->execute([$id]);
+                    ActivityLogger::logDelete('Events', "ID: {$id}");
                     $_SESSION['success'] = 'Event deleted successfully!';
-                    ActivityLogger::logDelete('Event', 'ID: ' . $id);
                 }
                 header('Location: /scratch/alumni-officer.php?page=events');
                 exit;
@@ -169,7 +196,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($action)) {
                     $stmt = $pdo->prepare('INSERT INTO gallery (about, image_path, user_id, created_at) VALUES (?, ?, ?, NOW())');
                     $stmt->execute([$about, $image_path, $_SESSION['user_id']]);
                     $_SESSION['success'] = 'Newsletter created successfully!';
-                    ActivityLogger::logCreate('Newsletter', substr($about, 0, 50));
                     
                 } elseif ($action === 'delete' && $id) {
                     // Get image path before deleting
@@ -190,7 +216,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($action)) {
                     }
                     
                     $_SESSION['success'] = 'Newsletter deleted successfully!';
-                    ActivityLogger::logDelete('Newsletter', 'ID: ' . $id);
                 }
                 header('Location: /scratch/alumni-officer.php?page=newsletters');
                 exit;
@@ -206,8 +231,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($action)) {
                     
                     $stmt = $pdo->prepare('INSERT INTO forum_topics (title, description, user_id, date_created) VALUES (?, ?, ?, NOW())');
                     $stmt->execute([$title, $description, $_SESSION['user']['id']]);
+                    ActivityLogger::logCreate('Forum Topics', $title);
                     $_SESSION['success'] = 'Forum topic created successfully!';
-                    ActivityLogger::logCreate('Forum Topic', $title);
                     
                 } elseif ($action === 'edit-topic' && $id) {
                     $title = trim($_POST['title'] ?? '');
@@ -228,8 +253,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($action)) {
                     
                     $stmt = $pdo->prepare('UPDATE forum_topics SET title = ?, description = ? WHERE id = ?');
                     $stmt->execute([$title, $description, $id]);
+                    ActivityLogger::logUpdate('Forum Topics', $title);
                     $_SESSION['success'] = 'Forum topic updated successfully!';
-                    ActivityLogger::logUpdate('Forum Topic', $title);
                     
                 } elseif ($action === 'delete-topic' && $id) {
                     // Delete topic and its comments
@@ -238,13 +263,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($action)) {
                     $stmt = $pdo->prepare('DELETE FROM forum_topics WHERE id = ?');
                     $stmt->execute([$id]);
                     $_SESSION['success'] = 'Forum topic deleted successfully!';
-                    ActivityLogger::logDelete('Forum Topic', 'ID: ' . $id);
                     
                 } elseif ($action === 'delete-comment' && $id) {
                     $stmt = $pdo->prepare('DELETE FROM forum_comments WHERE id = ?');
                     $stmt->execute([$id]);
                     $_SESSION['success'] = 'Comment deleted successfully!';
-                    ActivityLogger::logDelete('Forum Comment', 'ID: ' . $id);
                 }
                 header('Location: /scratch/alumni-officer.php?page=moderate');
                 exit;
@@ -260,15 +283,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($action)) {
                         throw new Exception('Recipient and message are required.');
                     }
                     
-                    $stmt = $pdo->prepare('INSERT INTO messages (sender_id, receiver_id, subject, message, is_read, date_created) VALUES (?, ?, ?, ?, 0, NOW())');
-                    $stmt->execute([$sender_id, $receiver_id, $subject, $message]);
-                    $_SESSION['success'] = 'Message sent successfully!';
-                    
                     // Get receiver name for logging
                     $stmt = $pdo->prepare('SELECT name FROM users WHERE id = ?');
                     $stmt->execute([$receiver_id]);
                     $receiver = $stmt->fetch(PDO::FETCH_ASSOC);
-                    ActivityLogger::logCreate('Message', 'To: ' . ($receiver['name'] ?? 'User #' . $receiver_id));
+                    $receiverName = $receiver['name'] ?? 'Unknown';
+                    
+                    $stmt = $pdo->prepare('INSERT INTO messages (sender_id, receiver_id, subject, message, is_read, date_created) VALUES (?, ?, ?, ?, 0, NOW())');
+                    $stmt->execute([$sender_id, $receiver_id, $subject, $message]);
+                    ActivityLogger::log('Sent message', 'create', 'Messages', "To: {$receiverName}");
+                    $_SESSION['success'] = 'Message sent successfully!';
                     
                     // Redirect to conversation
                     header('Location: /scratch/alumni-officer.php?page=conversation&contact_id=' . $receiver_id);
