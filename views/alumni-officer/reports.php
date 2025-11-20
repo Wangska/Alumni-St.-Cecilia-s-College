@@ -306,7 +306,7 @@
                                         <span class="badge" style="background: #059669;"><?= $topic['comment_count'] ?> comments</span>
                                     </td>
                                     <td style="text-align: center;">
-                                        <a href="/scratch/forum/view.php?id=<?= $topic['id'] ?>" class="btn btn-sm" style="background: #dc2626; color: white; border-radius: 6px; padding: 4px 12px;">
+                                        <a href="/scratch/alumni-officer.php?page=forum-view&id=<?= $topic['id'] ?>" class="btn btn-sm" style="background: #dc2626; color: white; border-radius: 6px; padding: 4px 12px;">
                                             View
                                         </a>
                                     </td>
