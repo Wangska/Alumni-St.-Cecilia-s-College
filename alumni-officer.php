@@ -7,6 +7,14 @@ require_once __DIR__ . '/inc/logger.php';
 
 use App\Controllers\AlumniOfficerController;
 
+// Load mailer if available
+if (file_exists(__DIR__ . '/vendor/autoload.php')) {
+    require_once __DIR__ . '/vendor/autoload.php';
+    if (file_exists(__DIR__ . '/inc/mailer.php')) {
+        require_once __DIR__ . '/inc/mailer.php';
+    }
+}
+
 // Database connection helper
 if (!function_exists('get_pdo')) {
     function get_pdo(): PDO {
@@ -61,15 +69,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($action)) {
                 
                 if ($action === 'approve' && $userId) {
                     // Get the alumnus_id from users table
-                    $stmt = $pdo->prepare('SELECT alumnus_id, name FROM users WHERE id = ? AND type = 3');
+                    $stmt = $pdo->prepare('SELECT alumnus_id, name, username FROM users WHERE id = ? AND type = 3');
                     $stmt->execute([$userId]);
                     $user = $stmt->fetch(PDO::FETCH_ASSOC);
                     
                     if ($user && $user['alumnus_id']) {
+                        // Get alumni details for email
+                        $stmt = $pdo->prepare('SELECT * FROM alumnus_bio WHERE id = ?');
+                        $stmt->execute([$user['alumnus_id']]);
+                        $alumni = $stmt->fetch(PDO::FETCH_ASSOC);
+                        
                         // Update status in alumnus_bio to 1 (verified)
                         $stmt = $pdo->prepare('UPDATE alumnus_bio SET status = 1 WHERE id = ?');
                         $stmt->execute([$user['alumnus_id']]);
                         ActivityLogger::log('Approved alumni account', 'update', 'Alumni Management', "User: {$user['name']} (ID: {$userId})");
+                        
+                        // Send verification email
+                        if ($alumni && function_exists('sendVerificationEmail')) {
+                            $fullName = trim(($alumni['firstname'] ?? '') . ' ' . ($alumni['middlename'] ?? '') . ' ' . ($alumni['lastname'] ?? ''));
+                            $email = $alumni['email'] ?? '';
+                            $username = $user['username'] ?? '';
+                            
+                            if ($email && $fullName && $username) {
+                                try {
+                                    sendVerificationEmail($email, $fullName, $username);
+                                } catch (Exception $e) {
+                                    error_log("Failed to send verification email: " . $e->getMessage());
+                                }
+                            }
+                        }
+                        
                         $_SESSION['success'] = 'Alumni account approved successfully!';
                     } else {
                         $_SESSION['error'] = 'Unable to approve: Alumni profile not found.';

@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Add Event - Feature Demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
+        .demo-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .demo-header {
+            text-align: center;
+            color: white;
+            margin-bottom: 50px;
+        }
+        
+        .demo-header h1 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .demo-header p {
+            font-size: 20px;
+            opacity: 0.95;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+        
+        .feature-card h3 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 12px;
+        }
+        
+        .feature-card p {
+            color: #6b7280;
+            line-height: 1.6;
+            margin: 0;
+        }
+        
+        .demo-screen {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin-bottom: 50px;
+        }
+        
+        .demo-screen h2 {
+            text-align: center;
+            color: #1f2937;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 30px;
+        }
+        
+        .screenshot-placeholder {
+            background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+            border: 3px dashed #9ca3af;
+            border-radius: 15px;
+            padding: 60px;
+            text-align: center;
+            color: #6b7280;
+            margin-bottom: 30px;
+        }
+        
+        .screenshot-placeholder i {
+            font-size: 80px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        
+        .steps-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+        }
+        
+        .step-card {
+            background: linear-gradient(135deg, #fef3f2, #fee2e2);
+            border-left: 4px solid #dc2626;
+            border-radius: 12px;
+            padding: 25px;
+        }
+        
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        
+        .step-card h4 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #991b1b;
+            margin-bottom: 10px;
+        }
+        
+        .step-card p {
+            color: #7c2d12;
+            margin: 0;
+            font-size: 14px;
+        }
+        
+        .cta-section {
+            text-align: center;
+            background: white;
+            border-radius: 20px;
+            padding: 50px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .cta-section h2 {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 20px;
+        }
+        
+        .cta-section p {
+            font-size: 18px;
+            color: #6b7280;
+            margin-bottom: 30px;
+        }
+        
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 18px 40px;
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: 600;
+            text-decoration: none;
+            box-shadow: 0 8px 24px rgba(220, 38, 38, 0.4);
+            transition: all 0.3s ease;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 32px rgba(220, 38, 38, 0.6);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <!-- Header -->
+        <div class="demo-header">
+            <h1>✨ Quick Add Event Feature</h1>
+            <p>Create events instantly from anywhere in your dashboard</p>
+        </div>
+        
+        <!-- Features Grid -->
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <h3>Lightning Fast</h3>
+                <p>Create events in under 30 seconds without leaving your current page. No navigation required!</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <h3>Instant Calendar</h3>
+                <p>Events appear on the public calendar immediately. Alumni can view and register right away.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h3>Mobile Friendly</h3>
+                <p>Fully responsive design works perfectly on all devices. Create events on-the-go!</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>Secure & Validated</h3>
+                <p>Built with CSRF protection and input validation to keep your data safe and clean.</p>
+            </div>
+        </div>
+        
+        <!-- Demo Screen -->
+        <div class="demo-screen">
+            <h2>How It Works</h2>
+            
+            <div class="steps-container">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h4>Click the Floating Button</h4>
+                    <p>Look for the red button with calendar icon in the bottom-right corner</p>
+                </div>
+                
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h4>Fill Out Quick Form</h4>
+                    <p>Enter title, date/time, description, and optional participant limit</p>
+                </div>
+                
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h4>Submit & Done</h4>
+                    <p>Click "Create Event" and it's live on the calendar instantly!</p>
+                </div>
+                
+                <div class="step-card">
+                    <div class="step-number">4</div>
+                    <h4>Alumni Can Register</h4>
+                    <p>Event appears on homepage calendar for all alumni to see and join</p>
+                </div>
+            </div>
+            
+            <div style="margin-top: 40px; padding: 30px; background: linear-gradient(135deg, #dbeafe, #bfdbfe); border-radius: 15px; border-left: 4px solid #3b82f6;">
+                <div style="display: flex; align-items: start; gap: 15px;">
+                    <i class="fas fa-info-circle" style="font-size: 24px; color: #1e40af; margin-top: 3px;"></i>
+                    <div>
+                        <h4 style="color: #1e3a8a; font-weight: 600; margin-bottom: 10px;">What Makes It Special?</h4>
+                        <ul style="color: #1e40af; margin: 0; padding-left: 20px; line-height: 1.8;">
+                            <li><strong>Floating Button:</strong> Always visible on every page - no need to navigate</li>
+                            <li><strong>Sliding Sidebar:</strong> Opens from the right with smooth animation</li>
+                            <li><strong>Simple Form:</strong> Only essential fields for quick event creation</li>
+                            <li><strong>AJAX Powered:</strong> No page reload, instant feedback</li>
+                            <li><strong>Auto-Close:</strong> Sidebar closes automatically after success</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Visual Elements -->
+        <div class="demo-screen">
+            <h2>Visual Elements</h2>
+            
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div style="background: linear-gradient(135deg, #fee2e2, #fecaca); padding: 40px; border-radius: 15px; text-align: center;">
+                        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #dc2626, #b91c1c); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: 0 8px 24px rgba(220, 38, 38, 0.4);">
+                            <i class="fas fa-calendar-plus" style="font-size: 36px; color: white;"></i>
+                        </div>
+                        <h4 style="color: #991b1b; font-weight: 600; margin-bottom: 10px;">Floating Action Button</h4>
+                        <p style="color: #7c2d12; margin: 0;">60x60px circular button<br>Always visible in bottom-right<br>Smooth hover animation</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); padding: 40px; border-radius: 15px; text-align: center;">
+                        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #3b82f6, #2563eb); border-radius: 15px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);">
+                            <i class="fas fa-sidebar" style="font-size: 36px; color: white;"></i>
+                        </div>
+                        <h4 style="color: #1e3a8a; font-weight: 600; margin-bottom: 10px;">Sliding Sidebar Panel</h4>
+                        <p style="color: #1e40af; margin: 0;">450px width (full screen on mobile)<br>Slides in from right<br>Backdrop overlay for focus</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- CTA Section -->
+        <div class="cta-section">
+            <h2>🚀 Ready to Try It?</h2>
+            <p>Login to your Alumni Officer dashboard and look for the floating red button!</p>
+            <a href="/scratch/alumni-officer.php" class="cta-button">
+                <i class="fas fa-sign-in-alt"></i>
+                Go to Dashboard
+            </a>
+            
+            <div style="margin-top: 40px; padding: 30px; background: #f9fafb; border-radius: 15px;">
+                <h4 style="color: #374151; font-weight: 600; margin-bottom: 15px;">📚 Documentation Available</h4>
+                <p style="color: #6b7280; margin-bottom: 15px;">Complete guides created for you:</p>
+                <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                    <a href="/scratch/QUICK_ADD_EVENT_GUIDE.md" style="padding: 10px 20px; background: white; border: 2px solid #e5e7eb; border-radius: 10px; text-decoration: none; color: #374151; font-weight: 500;">
+                        <i class="fas fa-book me-2"></i>User Guide
+                    </a>
+                    <a href="/scratch/test_alumni_officer_events.php" style="padding: 10px 20px; background: white; border: 2px solid #e5e7eb; border-radius: 10px; text-decoration: none; color: #374151; font-weight: 500;">
+                        <i class="fas fa-vial me-2"></i>Test Script
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

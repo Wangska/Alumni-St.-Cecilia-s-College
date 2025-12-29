@@ -19,6 +19,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     if ($eventId > 0) {
         try {
             if ($action === 'join') {
+                // IMPORTANT: Check if event allows registration (prevent info-only events)
+                $stmt = $pdo->prepare("SELECT allow_registration FROM events WHERE id = ?");
+                $stmt->execute([$eventId]);
+                $event = $stmt->fetch();
+                
+                if ($event && isset($event['allow_registration']) && $event['allow_registration'] == 0) {
+                    $_SESSION['error'] = 'This is an information-only event. Registration is not available.';
+                    header('Location: ' . $_SERVER['REQUEST_URI']);
+                    exit;
+                }
+                
                 // Check if user is already registered
                 $stmt = $pdo->prepare("SELECT id FROM event_commits WHERE event_id = ? AND user_id = ?");
                 $stmt->execute([$eventId, $user['id']]);
@@ -270,12 +281,26 @@ include __DIR__ . '/../inc/header.php';
                         $now = new DateTime();
                         $isUpcoming = $eventDate > $now;
                         
+                        // Handle end_date
+                        $endDate = isset($event['end_date']) && !empty($event['end_date']) ? new DateTime($event['end_date']) : $eventDate;
+                        $isSingleDay = $eventDate->format('Y-m-d') === $endDate->format('Y-m-d');
+                        
+                        // Calculate duration in days
+                        $duration = $isSingleDay ? 1 : $eventDate->diff($endDate)->days + 1;
+                        
                         $isFull = isset($event['participant_limit']) && $event['participant_limit'] && $event['participant_count'] >= $event['participant_limit'];
+                        
+                        // Check if event allows registration (default to 1 if column doesn't exist)
+                        $allowRegistration = isset($event['allow_registration']) ? (int)$event['allow_registration'] : 1;
+                        $isInfoOnly = $allowRegistration === 0;
                         
                         $statusClass = 'status-upcoming';
                         $statusText = 'Upcoming';
                         
-                        if (!$isUpcoming) {
+                        if ($isInfoOnly) {
+                            $statusClass = 'status-info-only';
+                            $statusText = 'Information Only';
+                        } elseif (!$isUpcoming) {
                             $statusClass = 'status-registration-closed';
                             $statusText = 'Past Event';
                         } elseif ($isFull) {
@@ -296,7 +321,14 @@ include __DIR__ . '/../inc/header.php';
                                             </h5>
                                             <small class="text-muted" style="font-size: 0.9rem;">
                                                 <i class="fas fa-calendar me-1"></i>
-                                                <?= $eventDate->format('M d, Y \a\t g:i A') ?>
+                                                <?php if ($isSingleDay): ?>
+                                                    <?= $eventDate->format('M d, Y \a\t g:i A') ?>
+                                                <?php else: ?>
+                                                    <?= $eventDate->format('M d, Y') ?> - <?= $endDate->format('M d, Y') ?>
+                                                    <span class="badge bg-info ms-2" style="font-size: 0.75rem;">
+                                                        <i class="fas fa-clock me-1"></i><?= $duration ?> day<?= $duration > 1 ? 's' : '' ?>
+                                                    </span>
+                                                <?php endif; ?>
                                             </small>
                                         </div>
                                         <div>
@@ -326,31 +358,40 @@ include __DIR__ . '/../inc/header.php';
                                         <?= htmlspecialchars(substr($event['content'], 0, 200)) ?><?= strlen($event['content']) > 200 ? '...' : '' ?>
                                     </p>
                                     
-                                    <div class="mb-3">
-                                        <small class="text-muted">
-                                            <i class="fas fa-users me-1"></i>
-                                            <strong><?= $event['participant_count'] ?></strong>
+                                    <?php if (!$isInfoOnly): ?>
+                                        <div class="mb-3">
+                                            <small class="text-muted">
+                                                <i class="fas fa-users me-1"></i>
+                                                <strong><?= $event['participant_count'] ?></strong>
+                                                <?php if (isset($event['participant_limit']) && $event['participant_limit']): ?>
+                                                    / <strong><?= $event['participant_limit'] ?></strong> participants
+                                                    <span class="badge bg-info ms-2"><?= $event['participant_limit'] - $event['participant_count'] ?> spots left</span>
+                                                <?php else: ?>
+                                                    participants
+                                                <?php endif; ?>
+                                            </small>
+                                            
                                             <?php if (isset($event['participant_limit']) && $event['participant_limit']): ?>
-                                                / <strong><?= $event['participant_limit'] ?></strong> participants
-                                                <span class="badge bg-info ms-2"><?= $event['participant_limit'] - $event['participant_count'] ?> spots left</span>
-                                            <?php else: ?>
-                                                participants
-                                            <?php endif; ?>
-                                        </small>
-                                        
-                                        <?php if (isset($event['participant_limit']) && $event['participant_limit']): ?>
-                                            <?php 
-                                            $percentage = ($event['participant_count'] / $event['participant_limit']) * 100;
-                                            $barColor = $percentage >= 100 ? '#ef4444' : ($percentage >= 80 ? '#f59e0b' : '#10b981');
-                                            ?>
-                                            <div class="mt-2">
-                                                <div style="background: #f0f0f0; height: 8px; border-radius: 4px; overflow: hidden;">
-                                                    <div style="background: <?= $barColor ?>; height: 100%; width: <?= min($percentage, 100) ?>%; transition: width 0.3s;"></div>
+                                                <?php 
+                                                $percentage = ($event['participant_count'] / $event['participant_limit']) * 100;
+                                                $barColor = $percentage >= 100 ? '#ef4444' : ($percentage >= 80 ? '#f59e0b' : '#10b981');
+                                                ?>
+                                                <div class="mt-2">
+                                                    <div style="background: #f0f0f0; height: 8px; border-radius: 4px; overflow: hidden;">
+                                                        <div style="background: <?= $barColor ?>; height: 100%; width: <?= min($percentage, 100) ?>%; transition: width 0.3s;"></div>
+                                                    </div>
+                                                    <small class="text-muted"><?= round($percentage, 1) ?>% capacity</small>
                                                 </div>
-                                                <small class="text-muted"><?= round($percentage, 1) ?>% capacity</small>
+                                            <?php endif; ?>
+                                        </div>
+                                    <?php else: ?>
+                                        <div class="mb-3">
+                                            <div class="alert alert-info" style="margin-bottom: 0; padding: 0.75rem 1rem; border-radius: 8px;">
+                                                <i class="fas fa-info-circle me-2"></i>
+                                                <strong>This is an information-only event.</strong> No registration required.
                                             </div>
-                                        <?php endif; ?>
-                                    </div>
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
                                 
                                 <div class="event-footer">
@@ -360,23 +401,25 @@ include __DIR__ . '/../inc/header.php';
                                             Event created: <?= (new DateTime($event['date_created']))->format('M d, Y') ?>
                                         </small>
                                         
-                                        <?php if ($isUpcoming && !$isFull): ?>
-                                            <form method="POST" style="display: inline;">
-                                                <input type="hidden" name="event_id" value="<?= $event['id'] ?>">
-                                                <?php if ($event['is_registered']): ?>
-                                                    <button type="submit" name="action" value="leave" class="btn btn-leave">
-                                                        <i class="fas fa-user-minus me-1"></i>Leave Event
-                                                    </button>
-                                                <?php else: ?>
-                                                    <button type="submit" name="action" value="join" class="btn btn-join">
-                                                        <i class="fas fa-user-plus me-1"></i>Join Event
-                                                    </button>
-                                                <?php endif; ?>
-                                            </form>
-                                        <?php elseif ($isFull): ?>
-                                            <button class="btn btn-secondary" disabled>
-                                                <i class="fas fa-users me-1"></i>Event Full
-                                            </button>
+                                        <?php if (!$isInfoOnly): ?>
+                                            <?php if ($isUpcoming && !$isFull): ?>
+                                                <form method="POST" style="display: inline;">
+                                                    <input type="hidden" name="event_id" value="<?= $event['id'] ?>">
+                                                    <?php if ($event['is_registered']): ?>
+                                                        <button type="submit" name="action" value="leave" class="btn btn-leave">
+                                                            <i class="fas fa-user-minus me-1"></i>Leave Event
+                                                        </button>
+                                                    <?php else: ?>
+                                                        <button type="submit" name="action" value="join" class="btn btn-join">
+                                                            <i class="fas fa-user-plus me-1"></i>Join Event
+                                                        </button>
+                                                    <?php endif; ?>
+                                                </form>
+                                            <?php elseif ($isFull): ?>
+                                                <button class="btn btn-secondary" disabled>
+                                                    <i class="fas fa-users me-1"></i>Event Full
+                                                </button>
+                                            <?php endif; ?>
                                         <?php endif; ?>
                                     </div>
                                 </div>

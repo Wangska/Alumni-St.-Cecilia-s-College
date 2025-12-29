@@ -145,6 +145,10 @@
     background: linear-gradient(135deg, #6b7280, #4b5563);
 }
 
+.event-date-badge.info-only {
+    background: linear-gradient(135deg, #0ea5e9, #0284c7);
+}
+
 .event-title {
     font-size: 20px;
     font-weight: 700;
@@ -227,7 +231,12 @@
 <?php if (!empty($events)): ?>
     <div class="events-grid">
         <?php foreach ($events as $event): ?>
-            <?php $isUpcoming = strtotime($event['schedule']) >= time(); ?>
+            <?php 
+            $isUpcoming = strtotime($event['schedule']) >= time(); 
+            // Check if event allows registration (default to 1 if column doesn't exist)
+            $allowRegistration = isset($event['allow_registration']) ? (int)$event['allow_registration'] : 1;
+            $isInfoOnly = $allowRegistration === 0;
+            ?>
             <div class="event-card-modern">
                 <?php if (!empty($event['banner'])): ?>
                     <img src="/scratch/uploads/<?= htmlspecialchars($event['banner']) ?>" alt="Event Banner" class="event-banner">
@@ -236,9 +245,12 @@
                 <?php endif; ?>
                 
                 <div class="event-content">
-                    <div class="event-date-badge <?= $isUpcoming ? '' : 'past' ?>">
-                        <i class="fas fa-calendar-alt"></i>
+                    <div class="event-date-badge <?= $isUpcoming ? '' : 'past' ?> <?= $isInfoOnly ? 'info-only' : '' ?>">
+                        <i class="fas fa-<?= $isInfoOnly ? 'info-circle' : 'calendar-alt' ?>"></i>
                         <span><?= date('M d, Y @ g:i A', strtotime($event['schedule'])) ?></span>
+                        <?php if ($isInfoOnly): ?>
+                            <span class="ms-2" style="font-size: 0.85rem;">• Info Only</span>
+                        <?php endif; ?>
                     </div>
                     
                     <h5 class="event-title"><?= htmlspecialchars($event['title']) ?></h5>
@@ -247,17 +259,27 @@
                         <?= nl2br(htmlspecialchars($event['content'])) ?>
                     </p>
                     
-                    <!-- Participant Information -->
-                    <div class="mb-3">
-                        <div class="text-muted small">
-                            <i class="fas fa-users me-1" style="color: #dc2626;"></i>
-                            <?php if (isset($event['participant_limit']) && $event['participant_limit']): ?>
-                                <strong><?= $event['participant_count'] ?? 0 ?> / <?= $event['participant_limit'] ?></strong> participants
-                            <?php else: ?>
-                                <strong><?= $event['participant_count'] ?? 0 ?></strong> participants (unlimited)
-                            <?php endif; ?>
+                    <?php if (!$isInfoOnly): ?>
+                        <!-- Participant Information (only for regular events) -->
+                        <div class="mb-3">
+                            <div class="text-muted small">
+                                <i class="fas fa-users me-1" style="color: #dc2626;"></i>
+                                <?php if (isset($event['participant_limit']) && $event['participant_limit']): ?>
+                                    <strong><?= $event['participant_count'] ?? 0 ?> / <?= $event['participant_limit'] ?></strong> participants
+                                <?php else: ?>
+                                    <strong><?= $event['participant_count'] ?? 0 ?></strong> participants (unlimited)
+                                <?php endif; ?>
+                            </div>
                         </div>
-                    </div>
+                    <?php else: ?>
+                        <!-- Info-only badge -->
+                        <div class="mb-3">
+                            <div class="alert alert-info" style="margin-bottom: 0; padding: 0.75rem 1rem; border-radius: 8px; background: #e0f2fe; border: 1px solid #0ea5e9;">
+                                <i class="fas fa-info-circle me-2" style="color: #0284c7;"></i>
+                                <strong style="color: #0c4a6e;">Information Only</strong> - No registration required
+                            </div>
+                        </div>
+                    <?php endif; ?>
                     
                     <div class="event-footer">
                         <div>
@@ -272,11 +294,14 @@
                             <?php endif; ?>
                         </div>
                         <div class="event-actions">
-                            <a href="/scratch/alumni-officer.php?page=event-participants&event_id=<?= $event['id'] ?>" 
-                               class="btn-action btn-primary" 
-                               title="View Participants">
-                                <i class="fas fa-users"></i>
-                            </a>
+                            <?php if (!$isInfoOnly): ?>
+                                <!-- Only show View Participants button for regular events -->
+                                <a href="/scratch/alumni-officer.php?page=event-participants&event_id=<?= $event['id'] ?>" 
+                                   class="btn-action btn-primary" 
+                                   title="View Participants">
+                                    <i class="fas fa-users"></i>
+                                </a>
+                            <?php endif; ?>
                             <a href="/scratch/events/officer-edit.php?id=<?= $event['id'] ?>" 
                                class="btn-action btn-primary" 
                                title="Edit">

@@ -1,0 +1,143 @@
+================================================================================
+EVENT REMINDER SYSTEM - QUICK START GUIDE
+================================================================================
+
+This system automatically sends TWO email reminders to event participants:
+- First reminder: 2 days before the event
+- Second reminder: 1 day before the event
+
+================================================================================
+STEP 1: SETUP DATABASE
+================================================================================
+
+1. Open phpMyAdmin: http://localhost/phpmyadmin
+2. Select your database: sccalumni_db
+3. Go to "SQL" tab
+4. Copy and paste contents from: database/event_reminders_table.sql
+5. Click "Go" to execute
+
+✓ Done! The event_reminders table is now created.
+
+================================================================================
+STEP 2: TEST THE SYSTEM
+================================================================================
+
+1. Create a test event in your admin panel:
+   - Go to: http://localhost/scratch/admin.php
+   - Navigate to Events > Create Event
+   - Set the schedule date to TOMORROW
+   - Save the event
+
+2. Register a participant for the event:
+   - Login as an alumni user
+   - Go to Events page
+   - Click "Join Event" on the event you created
+
+3. Check what reminders will be sent:
+   - Open: http://localhost/scratch/test_event_reminders.php
+   - You'll see events scheduled in 2 days and tomorrow
+   - Shows which participants will receive reminders
+   - Displays status of both 2-day and 1-day reminders
+
+4. Send a test email NOW (optional):
+   - Edit: send_test_reminder.php (line 20, add your email)
+   - Open: http://localhost/scratch/send_test_reminder.php
+   - Check your email inbox (or Mailtrap)
+
+================================================================================
+STEP 3: RUN MANUALLY (Before Setting Up Cron)
+================================================================================
+
+Open Command Prompt and run:
+
+cd C:\xampp\htdocs\scratch
+php cron\send_event_reminders.php
+
+This will:
+- Find events scheduled in 2 days (sends 2-day reminder)
+- Find events scheduled tomorrow (sends 1-day reminder)
+- Send reminder emails to all participants
+- Create a log file: logs/event_reminders.log
+
+Check the log file to verify it worked!
+
+NOTE: Each participant gets TWO reminders total:
+- One when event is 2 days away
+- One when event is 1 day away (tomorrow)
+
+================================================================================
+STEP 4: AUTOMATE (Setup Cron Job)
+================================================================================
+
+FOR WINDOWS:
+------------
+1. Press Win+R, type: taskschd.msc
+2. Click "Create Basic Task"
+3. Name: "Send Event Reminders"
+4. Trigger: Daily at 9:00 AM
+5. Action: Start a program
+   - Program: C:\xampp\php\php.exe
+   - Arguments: C:\xampp\htdocs\scratch\cron\send_event_reminders.php
+6. Click Finish
+
+FOR LINUX/MAC:
+--------------
+1. Open terminal: crontab -e
+2. Add this line:
+   0 9 * * * /usr/bin/php /path/to/scratch/cron/send_event_reminders.php
+3. Save and exit
+
+✓ Done! Reminders will now be sent automatically every day at 9:00 AM.
+
+================================================================================
+VERIFICATION CHECKLIST
+================================================================================
+
+Test everything is working:
+
+[ ] Database table created (event_reminders)
+[ ] Test event created for tomorrow
+[ ] Participant registered for event
+[ ] test_event_reminders.php shows the event and participant
+[ ] Manual cron run completed without errors
+[ ] Log file created: logs/event_reminders.log
+[ ] Email received (check inbox or Mailtrap)
+[ ] Cron job/task scheduled in system
+
+================================================================================
+MONITORING
+================================================================================
+
+Check if reminders are being sent:
+
+1. View logs:
+   - logs/event_reminders.log (activity log)
+   - logs/event_reminders_error.log (errors)
+
+2. Check database:
+   - Open phpMyAdmin
+   - Browse table: event_reminders
+   - You'll see all sent reminders
+
+3. Test anytime:
+   - http://localhost/scratch/test_event_reminders.php
+
+================================================================================
+TROUBLESHOOTING
+================================================================================
+
+Problem: No emails sent
+Solution: Check inc/mailer.php for correct SMTP credentials
+
+Problem: Cron job not running
+Solution (Windows): Check Task Scheduler > Task History
+Solution (Linux): Check: grep CRON /var/log/syslog
+
+Problem: Error in logs
+Solution: Read the error message in logs/event_reminders_error.log
+
+================================================================================
+
+For detailed documentation, see: EVENT_REMINDER_SETUP.md
+
+================================================================================

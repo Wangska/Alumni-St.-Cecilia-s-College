@@ -560,7 +560,7 @@
             <?php unset($_SESSION['error']); ?>
         <?php endif; ?>
     </div>
-    
+       
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
@@ -583,6 +583,142 @@
                     bsToast.hide();
                 }, 5000);
             });
+            
+            // Quick Event Sidebar Toggle
+            const quickAddBtn = document.getElementById('quickAddEventBtn');
+            const quickEventSidebar = document.getElementById('quickEventSidebar');
+            const quickEventOverlay = document.getElementById('quickEventOverlay');
+            const closeSidebarBtn = document.getElementById('closeSidebarBtn');
+            const cancelQuickEventBtn = document.getElementById('cancelQuickEventBtn');
+            const quickEventForm = document.getElementById('quickEventForm');
+            const quickEventMessage = document.getElementById('quickEventMessage');
+            
+            function openQuickEventSidebar() {
+                quickEventSidebar.classList.add('active');
+                quickEventOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+            
+            function closeQuickEventSidebar() {
+                quickEventSidebar.classList.remove('active');
+                quickEventOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+            
+            if (quickAddBtn) {
+                quickAddBtn.addEventListener('click', openQuickEventSidebar);
+            }
+            
+            if (closeSidebarBtn) {
+                closeSidebarBtn.addEventListener('click', closeQuickEventSidebar);
+            }
+            
+            if (cancelQuickEventBtn) {
+                cancelQuickEventBtn.addEventListener('click', closeQuickEventSidebar);
+            }
+            
+            if (quickEventOverlay) {
+                quickEventOverlay.addEventListener('click', closeQuickEventSidebar);
+            }
+            
+            // Handle Quick Event Form Submission
+            if (quickEventForm) {
+                quickEventForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const submitBtn = quickEventForm.querySelector('button[type="submit"]');
+                    const originalText = submitBtn.innerHTML;
+                    
+                    // Disable submit button and show loading
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Creating...';
+                    
+                    // Hide previous messages
+                    quickEventMessage.style.display = 'none';
+                    
+                    try {
+                        const formData = new FormData(quickEventForm);
+                        
+                        const response = await fetch('/scratch/api/quick_add_event.php', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        
+                        const result = await response.json();
+                        
+                        if (result.success) {
+                            // Show success message
+                            quickEventMessage.className = 'alert alert-success';
+                            quickEventMessage.innerHTML = '<i class="fas fa-check-circle me-2"></i>' + result.message;
+                            quickEventMessage.style.display = 'block';
+                            
+                            // Reset form
+                            quickEventForm.reset();
+                            
+                            // Close sidebar after 2 seconds
+                            setTimeout(() => {
+                                closeQuickEventSidebar();
+                                quickEventMessage.style.display = 'none';
+                                
+                                // Reload page if on events page, otherwise show toast
+                                if (window.location.href.includes('page=events') || window.location.href.includes('calendar')) {
+                                    location.reload();
+                                } else {
+                                    // Show success toast
+                                    showToast('success', 'Event created successfully! Check the calendar.');
+                                }
+                            }, 2000);
+                        } else {
+                            // Show error message
+                            quickEventMessage.className = 'alert alert-danger';
+                            quickEventMessage.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>' + result.message;
+                            quickEventMessage.style.display = 'block';
+                        }
+                    } catch (error) {
+                        // Show error message
+                        quickEventMessage.className = 'alert alert-danger';
+                        quickEventMessage.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>An error occurred. Please try again.';
+                        quickEventMessage.style.display = 'block';
+                    } finally {
+                        // Re-enable submit button
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                    }
+                });
+            }
+            
+            // Toast notification helper
+            function showToast(type, message) {
+                const toastContainer = document.querySelector('.toast-container');
+                if (!toastContainer) return;
+                
+                const toastEl = document.createElement('div');
+                toastEl.className = 'toast align-items-center border-0 show';
+                toastEl.setAttribute('role', 'alert');
+                
+                const bgColor = type === 'success' ? '#10b981' : '#dc3545';
+                const icon = type === 'success' ? 'fa-check' : 'fa-exclamation-triangle';
+                
+                toastEl.innerHTML = `
+                    <div class="d-flex align-items-center p-3">
+                        <div class="flex-shrink-0 me-3">
+                            <div style="width: 40px; height: 40px; background: ${bgColor}; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas ${icon}" style="color: white; font-size: 18px;"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div style="font-weight: 600; color: #111827; font-size: 14px;">${message}</div>
+                        </div>
+                        <button type="button" class="btn-close btn-close-dark ms-2" data-bs-dismiss="toast"></button>
+                    </div>
+                `;
+                
+                toastContainer.appendChild(toastEl);
+                
+                setTimeout(() => {
+                    toastEl.remove();
+                }, 5000);
+            }
         });
     </script>
 </body>

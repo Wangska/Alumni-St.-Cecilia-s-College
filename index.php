@@ -99,6 +99,9 @@ try {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Alumni Management</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <!-- FullCalendar CSS -->
+  <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css' rel='stylesheet' />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     /* Smooth scroll for in-page navigation */
@@ -130,6 +133,125 @@ try {
     /* About section title and headings in SCC red and serif font */
     #about .section-title { color:#dc2626 !important; font-family: 'Times New Roman', serif; font-weight:700; letter-spacing:.5px; }
     #about h3 { color:#dc2626 !important; font-family: 'Times New Roman', serif; font-weight:700; }
+    /* Calendar Customization */
+    #eventCalendar { 
+      min-height: 500px; 
+      width: 100%;
+      margin: 0 auto;
+    }
+    .fc { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      width: 100%;
+      margin: 0 auto;
+    }
+    .fc .fc-view-harness {
+      min-height: 450px;
+    }
+    .fc .fc-toolbar { 
+      padding: 20px; 
+      background: linear-gradient(135deg, #fef2f2 0%, #ffffff 100%); 
+      border-radius: 16px 16px 0 0; 
+      margin-bottom: 0; 
+      border-bottom: 2px solid #fee2e2;
+    }
+    .fc .fc-toolbar-title {
+      color: #dc2626;
+      font-weight: 700;
+      font-size: 1.5rem;
+      text-shadow: 0 2px 4px rgba(220,38,38,0.1);
+    }
+    .fc .fc-button-primary { 
+      background: linear-gradient(135deg, #dc2626, #991b1b); 
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      padding: 10px 18px;
+      box-shadow: 0 4px 12px rgba(220,38,38,0.25);
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+    }
+    .fc .fc-button-primary:hover { 
+      background: linear-gradient(135deg, #b91c1c, #7f1d1d); 
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(220,38,38,0.35);
+    }
+    .fc .fc-button-primary:not(:disabled):active, 
+    .fc .fc-button-primary:not(:disabled).fc-button-active { 
+      background: linear-gradient(135deg, #7f1d1d, #991b1b); 
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+      transform: translateY(0);
+    }
+    .fc .fc-button-primary:focus { 
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.3); 
+      outline: none;
+    }
+    .fc-event { 
+      cursor: pointer; 
+      border-radius: 8px; 
+      padding: 6px 8px; 
+      border: none;
+      font-weight: 600;
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+      margin: 2px 0;
+    }
+    .fc-event:hover { 
+      transform: translateY(-3px) scale(1.02); 
+      box-shadow: 0 6px 16px rgba(0,0,0,0.18);
+      z-index: 10;
+    }
+    .fc-daygrid-day-number { 
+      color: #374151; 
+      font-weight: 700; 
+      padding: 8px;
+      font-size: 0.95rem;
+    }
+    .fc-col-header-cell-cushion { 
+      color: #dc2626; 
+      font-weight: 700; 
+      text-transform: uppercase; 
+      font-size: 0.75rem; 
+      letter-spacing: 0.1em; 
+      padding: 14px 0;
+    }
+    .fc .fc-daygrid-day.fc-day-today { 
+      background: linear-gradient(135deg, #fef2f2, #ffffff) !important; 
+      position: relative;
+    }
+    .fc .fc-daygrid-day.fc-day-today::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border: 2px solid #fecaca;
+      border-radius: 0;
+      pointer-events: none;
+    }
+    .fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-number {
+      background: linear-gradient(135deg, #dc2626, #991b1b);
+      color: white;
+      border-radius: 10px;
+      width: 36px;
+      height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(220,38,38,0.4);
+      font-weight: 700;
+    }
+    .fc-h-event .fc-event-main { color: #ffffff; }
+    .fc .fc-view-harness { border-radius: 0 0 16px 16px; overflow: hidden; }
+    .fc-theme-standard td, .fc-theme-standard th { border-color: #f3f4f6; }
+    .fc-scrollgrid { border-color: #f3f4f6 !important; border-radius: 0 0 16px 16px !important; }
+    .fc-daygrid-day:hover { background-color: #fafafa; transition: background-color 0.2s ease; }
+    
+    /* Legend hover effects */
+    #calendar + .mt-4 > div > div:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.12) !important;
+    }
   </style>
 </head>
 <body>
@@ -148,6 +270,7 @@ try {
       </button>
       <div class="hidden md:flex items-center gap-6 text-sm font-medium">
         <a href="#about" class="text-white hover:text-gray-200 transition">About Us</a>
+        <a href="#calendar-section" class="text-white hover:text-gray-200 transition">Calendar</a>
         <a href="#news" class="text-white hover:text-gray-200 transition">News</a>
         <a href="#events" class="text-white hover:text-gray-200 transition">Events</a>
         <a href="#success-stories" class="text-white hover:text-gray-200 transition">Success Stories</a>
@@ -171,6 +294,7 @@ try {
     <div id="mobileMenu" class="md:hidden hidden px-4 pb-3">
       <div class="flex flex-col gap-2 text-sm font-medium">
         <a href="#about" class="text-white py-2 px-3 rounded" style="background: rgba(255,255,255,0.1);">About Us</a>
+        <a href="#calendar-section" class="text-white py-2 px-3 rounded" style="background: rgba(255,255,255,0.1);">Calendar</a>
         <a href="#news" class="text-white py-2 px-3 rounded" style="background: rgba(255,255,255,0.1);">News</a>
         <a href="#events" class="text-white py-2 px-3 rounded" style="background: rgba(255,255,255,0.1);">Events</a>
         <a href="#success-stories" class="text-white py-2 px-3 rounded" style="background: rgba(255,255,255,0.1);">Success Stories</a>
@@ -217,6 +341,89 @@ try {
             </svg>
             Login
           </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Events Calendar Section -->
+  <section id="calendar" class="py-16 position-relative" style="background: linear-gradient(180deg, #ffffff 0%, #f9fafb 100%);">
+    <!-- Decorative background elements with subtle red glow -->
+    <div class="position-absolute" style="top: 10%; left: 5%; width: 250px; height: 250px; background: radial-gradient(circle, rgba(220,38,38,0.08) 0%, transparent 70%); border-radius: 50%; filter: blur(40px); pointer-events: none;"></div>
+    <div class="position-absolute" style="bottom: 15%; right: 8%; width: 300px; height: 300px; background: radial-gradient(circle, rgba(220,38,38,0.06) 0%, transparent 70%); border-radius: 50%; filter: blur(50px); pointer-events: none;"></div>
+    
+    <!-- Main Container with proper padding -->
+    <div class="container" style="max-width: 1140px; position: relative; z-index: 1;">
+      <!-- Section Header -->
+      <div class="text-center mb-5">
+        <!-- Animated Icon -->
+        <div class="d-inline-flex align-items-center justify-content-center mb-4 position-relative" style="width: 80px; height: 80px; background: linear-gradient(135deg, #dc2626, #991b1b); border-radius: 20px; box-shadow: 0 12px 32px rgba(220,38,38,0.3);">
+          <div class="position-absolute" style="inset: -4px; background: linear-gradient(135deg, rgba(220,38,38,0.2), rgba(153,27,27,0.1)); border-radius: 22px; filter: blur(8px);"></div>
+          <i class="fas fa-calendar-alt position-relative" style="font-size: 38px; color: white;"></i>
+        </div>
+        
+        <h2 class="font-bold mb-3" style="color:#dc2626; font-family: 'Times New Roman', serif; font-size: 2.5rem; letter-spacing: 1px; text-shadow: 0 2px 4px rgba(220,38,38,0.1);">
+          EVENT CALENDAR
+        </h2>
+        
+        <div class="d-flex align-items-center justify-content-center gap-2 mb-3">
+          <div style="width: 60px; height: 2px; background: linear-gradient(90deg, transparent, #dc2626);"></div>
+          <div style="width: 8px; height: 8px; background: #dc2626; border-radius: 50%; box-shadow: 0 0 0 3px rgba(220,38,38,0.2);"></div>
+          <div style="width: 60px; height: 2px; background: linear-gradient(90deg, #dc2626, transparent);"></div>
+        </div>
+        
+        <p class="text-muted mb-0" style="max-width: 650px; margin: 0 auto; font-size: 1.05rem; line-height: 1.7;">
+          View all upcoming alumni events and activities at a glance. Click on any event to see full details and register.
+        </p>
+      </div>
+      
+      <!-- Calendar Container with Enhanced Border Design -->
+      <div class="position-relative mb-4 mx-auto" style="padding: 0 15px; max-width: 100%;">
+        <!-- Corner Decorations -->
+        <div class="position-absolute d-none d-md-block" style="top: -12px; left: 15px; width: 50px; height: 50px; border-top: 4px solid #dc2626; border-left: 4px solid #dc2626; border-radius: 16px 0 0 0; opacity: 0.6;"></div>
+        <div class="position-absolute d-none d-md-block" style="top: -12px; right: 15px; width: 50px; height: 50px; border-top: 4px solid #dc2626; border-right: 4px solid #dc2626; border-radius: 0 16px 0 0; opacity: 0.6;"></div>
+        <div class="position-absolute d-none d-md-block" style="bottom: -12px; left: 15px; width: 50px; height: 50px; border-bottom: 4px solid #dc2626; border-left: 4px solid #dc2626; border-radius: 0 0 0 16px; opacity: 0.6;"></div>
+        <div class="position-absolute d-none d-md-block" style="bottom: -12px; right: 15px; width: 50px; height: 50px; border-bottom: 4px solid #dc2626; border-right: 4px solid #dc2626; border-radius: 0 0 16px 0; opacity: 0.6;"></div>
+        
+        <!-- Calendar Card -->
+        <div class="bg-white shadow-lg border-0 mx-auto" style="border-radius: 20px; box-shadow: 0 10px 50px rgba(220,38,38,0.12) !important; overflow: hidden; border: 2px solid #fef2f2; max-width: 100%;">
+          <div class="p-3 p-md-4">
+            <div id="eventCalendar" style="width: 100%; min-height: 500px;"></div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Calendar Legend with Enhanced Styling -->
+      <div class="d-flex flex-wrap gap-3 justify-content-center" style="padding: 0 15px;">
+        <div class="d-flex align-items-center gap-2 px-4 py-3 shadow-sm" style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 2px solid #bbf7d0; border-radius: 12px; transition: all 0.3s ease;">
+          <div class="d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 8px; box-shadow: 0 4px 12px rgba(16,185,129,0.3);">
+            <i class="fas fa-check" style="font-size: 14px; color: white;"></i>
+          </div>
+          <span class="fw-semibold" style="color: #065f46; font-size: 0.95rem;">Open for Registration</span>
+        </div>
+        
+        <div class="d-flex align-items-center gap-2 px-4 py-3 shadow-sm" style="background: linear-gradient(135deg, #fef2f2, #fee2e2); border: 2px solid #fecaca; border-radius: 12px; transition: all 0.3s ease;">
+          <div class="d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: linear-gradient(135deg, #ef4444, #dc2626); border-radius: 8px; box-shadow: 0 4px 12px rgba(239,68,68,0.3);">
+            <i class="fas fa-users" style="font-size: 14px; color: white;"></i>
+          </div>
+          <span class="fw-semibold" style="color: #991b1b; font-size: 0.95rem;">Event Full</span>
+        </div>
+        
+        <div class="d-flex align-items-center gap-2 px-4 py-3 shadow-sm" style="background: linear-gradient(135deg, #f9fafb, #f3f4f6); border: 2px solid #e5e7eb; border-radius: 12px; transition: all 0.3s ease;">
+          <div class="d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: linear-gradient(135deg, #6b7280, #4b5563); border-radius: 8px; box-shadow: 0 4px 12px rgba(107,114,128,0.3);">
+            <i class="fas fa-history" style="font-size: 14px; color: white;"></i>
+          </div>
+          <span class="fw-semibold" style="color: #374151; font-size: 0.95rem;">Past Event</span>
+        </div>
+      </div>
+      
+      <!-- Additional Info Banner -->
+      <div class="mt-4 text-center" style="padding: 0 15px;">
+        <div class="d-inline-flex align-items-center gap-3 px-5 py-3 rounded-3" style="background: linear-gradient(135deg, #fef2f2, #ffffff); border: 2px dashed #fecaca;">
+          <i class="fas fa-info-circle" style="color: #dc2626; font-size: 20px;"></i>
+          <span style="color: #991b1b; font-size: 0.95rem; font-weight: 500;">
+            <strong>Tip:</strong> Login to your account to register for events and receive reminders
+          </span>
         </div>
       </div>
     </div>
@@ -1076,9 +1283,175 @@ try {
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- FullCalendar JS -->
+  <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
   <script>
-    // Show registration success modal if redirected with success parameter
+    // Initialize FullCalendar
     document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOM loaded, initializing calendar...');
+      
+      var calendarEl = document.getElementById('eventCalendar');
+      console.log('Calendar element found:', calendarEl);
+      
+      if (calendarEl) {
+        try {
+          console.log('Creating FullCalendar instance...');
+          var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: window.innerWidth < 768 ? 'listMonth' : 'dayGridMonth',
+            headerToolbar: {
+              left: 'prev,next today',
+              center: 'title',
+              right: 'dayGridMonth,listMonth'
+            },
+            buttonText: {
+              today: 'Today',
+              month: 'Month',
+              list: 'List'
+            },
+            height: 'auto',
+            contentHeight: 'auto',
+            aspectRatio: 1.8,
+            events: '/scratch/api/calendar_events.php',
+            loading: function(isLoading) {
+              console.log('Calendar loading state:', isLoading);
+            },
+            eventDidMount: function(info) {
+              info.el.setAttribute('title', info.event.title);
+              console.log('Event mounted:', info.event.title);
+            },
+            eventSourceSuccess: function(content, xhr) {
+              console.log('Events loaded successfully. Count:', content.length);
+              return content;
+            },
+            eventSourceFailure: function(error) {
+              console.error('Failed to load events:', error);
+            },
+          eventClick: function(info) {
+            info.jsEvent.preventDefault();
+            
+            const event = info.event;
+            const eventDate = new Date(event.start);
+            const formattedDate = eventDate.toLocaleDateString('en-US', { 
+              weekday: 'long', 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            });
+            
+            let participantInfo = '';
+            if (event.extendedProps.participantLimit) {
+              const spotsLeft = event.extendedProps.participantLimit - event.extendedProps.participantCount;
+              const percentage = (event.extendedProps.participantCount / event.extendedProps.participantLimit * 100).toFixed(1);
+              participantInfo = `
+                <div class="mb-3">
+                  <small class="text-muted">
+                    <i class="fas fa-users me-1"></i>
+                    <strong>${event.extendedProps.participantCount}</strong> / <strong>${event.extendedProps.participantLimit}</strong> participants
+                    <span class="badge ${event.extendedProps.isFull ? 'bg-danger' : 'bg-info'} ms-2">${event.extendedProps.isFull ? 'Full' : spotsLeft + ' spots left'}</span>
+                  </small>
+                  <div class="progress mt-2" style="height: 6px;">
+                    <div class="progress-bar" style="width: ${percentage}%; background-color: ${event.extendedProps.isFull ? '#ef4444' : '#10b981'};"></div>
+                  </div>
+                </div>
+              `;
+            } else {
+              participantInfo = `
+                <div class="mb-3">
+                  <small class="text-muted">
+                    <i class="fas fa-users me-1"></i>
+                    <strong>${event.extendedProps.participantCount}</strong> participants
+                  </small>
+                </div>
+              `;
+            }
+            
+            // Create modal
+            const modalHtml = `
+              <div class="modal fade" id="eventModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                  <div class="modal-content" style="border-radius: 16px; border: none; box-shadow: 0 20px 60px rgba(0,0,0,.3);">
+                    <div class="modal-header" style="background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: #fff; border: none; border-radius: 16px 16px 0 0;">
+                      <h5 class="modal-title mb-0" style="font-weight: 700; font-size: 20px;">
+                        <i class="fas fa-calendar-alt me-2"></i>${event.title}
+                      </h5>
+                      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" style="padding: 24px;">
+                      <div class="mb-3">
+                        <h6 class="text-muted mb-2" style="font-size: 0.875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">
+                          <i class="fas fa-clock me-1"></i>Event Date & Time
+                        </h6>
+                        <p class="mb-0" style="font-size: 1rem; color: #374151;">${formattedDate}</p>
+                      </div>
+                      
+                      ${participantInfo}
+                      
+                      <div class="mb-3">
+                        <h6 class="text-muted mb-2" style="font-size: 0.875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">
+                          <i class="fas fa-info-circle me-1"></i>Description
+                        </h6>
+                        <p style="color: #4b5563; line-height: 1.6;">${event.extendedProps.description || 'No description available'}...</p>
+                      </div>
+                      
+                      <div class="alert ${event.extendedProps.isFull ? 'alert-danger' : 'alert-success'} mb-0" style="border-radius: 8px;">
+                        <i class="fas ${event.extendedProps.isFull ? 'fa-exclamation-circle' : 'fa-check-circle'} me-2"></i>
+                        ${event.extendedProps.isFull ? 'This event is currently full. Login to join the waitlist.' : 'Login to register for this event and stay updated!'}
+                      </div>
+                    </div>
+                    <div class="modal-footer" style="background: #f8f9fa; border-top: 1px solid #e5e7eb; border-radius: 0 0 16px 16px;">
+                      <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">Close</button>
+                      <button type="button" class="btn text-white" style="background: #dc2626; border: none; border-radius: 10px;" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#loginModal">
+                        <i class="fas fa-sign-in-alt me-1"></i>Login to ${event.extendedProps.isFull ? 'Join Waitlist' : 'Register'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `;
+            
+            // Remove existing modal if any
+            const existingModal = document.getElementById('eventModal');
+            if (existingModal) {
+              existingModal.remove();
+            }
+            
+            // Add modal to body
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('eventModal'));
+            modal.show();
+            
+            // Clean up modal after closing
+            document.getElementById('eventModal').addEventListener('hidden.bs.modal', function() {
+              this.remove();
+            });
+          },
+          eventDidMount: function(info) {
+            // Add tooltip
+            info.el.setAttribute('title', info.event.title);
+          }
+        });
+        
+        console.log('Rendering calendar...');
+        calendar.render();
+        console.log('✓ Calendar rendered successfully!');
+        
+        // Recalculate on window resize
+        window.addEventListener('resize', function() {
+          console.log('Window resized, updating calendar size');
+          calendar.updateSize();
+        });
+      } catch (error) {
+        console.error('Error initializing calendar:', error);
+      }
+      } else {
+        console.error('❌ Calendar element #eventCalendar not found in DOM!');
+      }
+
+      // Show registration success modal if redirected with success parameter
       // Mobile menu toggle
       var mobileToggle = document.getElementById('mobileMenuToggle');
       var mobileMenu = document.getElementById('mobileMenu');

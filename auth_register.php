@@ -2,6 +2,13 @@
 declare(strict_types=1);
 require_once __DIR__ . '/inc/config.php';
 require_once __DIR__ . '/inc/auth.php';
+
+// Load composer autoloader for PHPMailer
+if (file_exists(__DIR__ . '/vendor/autoload.php')) {
+    require_once __DIR__ . '/vendor/autoload.php';
+    require_once __DIR__ . '/inc/mailer.php';
+}
+
 require_csrf();
 
 $firstname = trim($_POST['firstname'] ?? '');
@@ -83,6 +90,17 @@ if ($firstname && $lastname && $gender && $batch && $courseId && $email && $cont
         $stmtU->execute([$fullName, $username, md5($password), 3, '', $alumnusId]);
 
         $pdo->commit();
+        
+        // Send registration email notification
+        if (function_exists('sendRegistrationEmail')) {
+            try {
+                sendRegistrationEmail($email, $fullName, $username);
+            } catch (Exception $e) {
+                // Log error but don't fail registration
+                error_log("Failed to send registration email: " . $e->getMessage());
+            }
+        }
+        
         header('Location: /scratch/?register=success');
         exit;
     } catch (Throwable $e) {

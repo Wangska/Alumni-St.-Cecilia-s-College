@@ -1,0 +1,31 @@
+[2025-12-22 05:20:48] ========================================
+[2025-12-22 05:20:48] Starting Event Reminder Cron Job
+[2025-12-22 05:20:48] ========================================
+[2025-12-22 05:20:48] Current time: 2025-12-22 05:20:48
+[2025-12-22 05:20:48] Looking for events scheduled between 2025-12-23 04:20:48 and 2025-12-23 06:20:48
+[2025-12-22 05:20:48] (Events exactly 24 hours away, ±1 hour window)
+[2025-12-22 05:20:48] Found 0 event(s) in the 24-hour window
+[2025-12-22 05:20:48] No events found in the 24-hour window. Exiting.
+[2025-12-22 05:20:48] ========================================
+[2025-12-29 03:28:41] ========================================
+[2025-12-29 03:28:41] Starting Event Reminder Cron Job
+[2025-12-29 03:28:41] ========================================
+[2025-12-29 03:28:41] Checking for events scheduled in 3 days (2026-01-01 00:00:00 to 2026-01-01 23:59:59)
+[2025-12-29 03:28:41]   Found 1 event(s) for 3 days reminder
+[2025-12-29 03:28:41]   Processing event #41: "Green" (3 days reminder)
+[2025-12-29 03:28:41]     - Found 1 participant(s) for this event
+[2025-12-29 03:28:41]     - Sending 3 days reminder to Joshua Espanillo (wangska1283@gmail.com)...
+[2025-12-29 03:28:47]     - ✓ 3 days reminder sent successfully to Joshua Espanillo
+[2025-12-29 03:28:48] Checking for events scheduled in 2 days (2025-12-31 00:00:00 to 2025-12-31 23:59:59)
+[2025-12-29 03:28:48]   Found 0 event(s) for 2 days reminder
+[2025-12-29 03:28:48]   No events found for this interval.
+[2025-12-29 03:28:48] Checking for events scheduled in 1 day (tomorrow) (2025-12-30 00:00:00 to 2025-12-30 23:59:59)
+[2025-12-29 03:28:48]   Found 0 event(s) for 1 day (tomorrow) reminder
+[2025-12-29 03:28:48]   No events found for this interval.
+[2025-12-29 03:28:48] ========================================
+[2025-12-29 03:28:48] Event Reminder Cron Job Completed
+[2025-12-29 03:28:48] Summary:
+[2025-12-29 03:28:48]   - Total reminders sent: 1
+[2025-12-29 03:28:48]   - Total reminders failed: 0
+[2025-12-29 03:28:48]   - Already sent (skipped): 0
+[2025-12-29 03:28:48] ========================================

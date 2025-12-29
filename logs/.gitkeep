@@ -1,0 +1,4 @@
+# This directory stores event reminder logs
+# Files in this directory:
+# - event_reminders.log (activity log)
+# - event_reminders_error.log (error log)

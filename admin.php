@@ -9,6 +9,14 @@ use App\Models\User;
 use App\Models\Career;
 use App\Models\ForumTopic;
 
+// Load mailer if available
+if (file_exists(__DIR__ . '/vendor/autoload.php')) {
+    require_once __DIR__ . '/vendor/autoload.php';
+    if (file_exists(__DIR__ . '/inc/mailer.php')) {
+        require_once __DIR__ . '/inc/mailer.php';
+    }
+}
+
 // Check if user is logged in and is admin
 if (!isset($_SESSION['user'])) {
     header('Location: /scratch/');
@@ -37,7 +45,38 @@ if ($page === 'users' && $action === 'approve' && $_SERVER['REQUEST_METHOD'] ===
     }
     
     $alumniId = (int)$_POST['alumni_id'];
+    
+    // Get alumni details before update for email
+    try {
+        $pdo = get_pdo();
+        $stmt = $pdo->prepare('
+            SELECT ab.*, u.username 
+            FROM alumnus_bio ab 
+            LEFT JOIN users u ON u.alumnus_id = ab.id 
+            WHERE ab.id = ?
+        ');
+        $stmt->execute([$alumniId]);
+        $alumni = $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {
+        $alumni = null;
+    }
+    
     $alumniModel->update($alumniId, ['status' => 1]);
+    
+    // Send verification email
+    if ($alumni && function_exists('sendVerificationEmail')) {
+        $fullName = trim(($alumni['firstname'] ?? '') . ' ' . ($alumni['middlename'] ?? '') . ' ' . ($alumni['lastname'] ?? ''));
+        $email = $alumni['email'] ?? '';
+        $username = $alumni['username'] ?? '';
+        
+        if ($email && $fullName && $username) {
+            try {
+                sendVerificationEmail($email, $fullName, $username);
+            } catch (Exception $e) {
+                error_log("Failed to send verification email: " . $e->getMessage());
+            }
+        }
+    }
     
     $_SESSION['success'] = 'Alumni approved successfully!';
     header('Location: /scratch/admin.php?page=users');

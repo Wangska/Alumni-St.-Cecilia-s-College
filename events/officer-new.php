@@ -44,6 +44,15 @@ try {
     $hasParticipantLimit = false;
 }
 
+// Check if allow_registration column exists
+$hasAllowRegistration = false;
+try {
+    $check = $pdo->query("SHOW COLUMNS FROM events LIKE 'allow_registration'")->fetch();
+    $hasAllowRegistration = !empty($check);
+} catch (Exception $e) {
+    $hasAllowRegistration = false;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     require_csrf();
     
@@ -75,21 +84,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception('All required fields must be filled.');
         }
         
+        // Handle end_date - if not provided, use schedule (single-day event)
+        $endDate = trim($_POST['end_date'] ?? '');
+        if (empty($endDate)) {
+            $endDate = $schedule; // Single-day event
+        }
+        
+        // Validate that end_date is not before schedule
+        if (!empty($endDate) && strtotime($endDate) < strtotime($schedule)) {
+            throw new Exception('End date cannot be before start date.');
+        }
+        
         $participantLimit = $hasParticipantLimit && !empty($_POST['participant_limit']) ? (int)$_POST['participant_limit'] : null;
         
-        if ($hasBanner && $hasParticipantLimit) {
-            $stmt = $pdo->prepare('INSERT INTO events (title, content, schedule, banner, participant_limit) VALUES (?,?,?,?,?)');
-            $stmt->execute([$eventTitle, $content, $schedule, $bannerFile, $participantLimit]);
-        } elseif ($hasBanner) {
-            $stmt = $pdo->prepare('INSERT INTO events (title, content, schedule, banner) VALUES (?,?,?,?)');
-            $stmt->execute([$eventTitle, $content, $schedule, $bannerFile]);
-        } elseif ($hasParticipantLimit) {
-            $stmt = $pdo->prepare('INSERT INTO events (title, content, schedule, participant_limit) VALUES (?,?,?,?)');
-            $stmt->execute([$eventTitle, $content, $schedule, $participantLimit]);
-        } else {
-            $stmt = $pdo->prepare('INSERT INTO events (title, content, schedule) VALUES (?,?,?)');
-            $stmt->execute([$eventTitle, $content, $schedule]);
+        // Handle allow_registration field (1 = allow registration, 0 = info only)
+        // If info_only checkbox is checked, set allow_registration to 0, otherwise 1
+        $allowRegistration = 1; // Default: allow registration
+        if ($hasAllowRegistration && isset($_POST['info_only']) && $_POST['info_only'] == '1') {
+            $allowRegistration = 0; // Info-only event
         }
+        
+        // Build query dynamically based on available columns
+        $columns = ['title', 'content', 'schedule', 'end_date'];
+        $values = [$eventTitle, $content, $schedule, $endDate];
+        $placeholders = ['?', '?', '?', '?'];
+        
+        if ($hasBanner && !empty($bannerFile)) {
+            $columns[] = 'banner';
+            $values[] = $bannerFile;
+            $placeholders[] = '?';
+        }
+        
+        if ($hasParticipantLimit) {
+            $columns[] = 'participant_limit';
+            $values[] = $participantLimit;
+            $placeholders[] = '?';
+        }
+        
+        if ($hasAllowRegistration) {
+            $columns[] = 'allow_registration';
+            $values[] = $allowRegistration;
+            $placeholders[] = '?';
+        }
+        
+        $columnsStr = implode(', ', $columns);
+        $placeholdersStr = implode(', ', $placeholders);
+        $sql = "INSERT INTO events ($columnsStr) VALUES ($placeholdersStr)";
+        
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($values);
         
         $_SESSION['success'] = 'Event created successfully!';
         header('Location: /scratch/alumni-officer.php?page=events');
@@ -299,9 +342,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 
                 <!-- Event Schedule -->
-                <div class="mb-3">
-                    <label class="form-label required">Event Schedule</label>
-                    <input type="datetime-local" class="form-control" name="schedule" required>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label required">Event Start Date & Time</label>
+                        <input type="datetime-local" class="form-control" name="schedule" id="startDateTime" required>
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle me-1"></i>When the event begins
+                        </small>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Event End Date & Time</label>
+                        <input type="datetime-local" class="form-control" name="end_date" id="endDateTime">
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle me-1"></i>Leave empty for single-day events
+                        </small>
+                    </div>
                 </div>
                 
                 <!-- Event Content -->
@@ -311,12 +366,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 
                 <?php if ($hasParticipantLimit): ?>
-                <!-- Participant Limit -->
+                <!-- Event Type Section -->
                 <div class="mb-4">
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="infoOnlyToggle" name="info_only" value="1" style="width: 50px; height: 25px; cursor: pointer;">
+                        <label class="form-check-label" for="infoOnlyToggle" style="margin-left: 10px; cursor: pointer; font-weight: 600;">
+                            <i class="fas fa-info-circle me-1" style="color: #0ea5e9;"></i>
+                            Information Only Event (No Registration Required)
+                        </label>
+                    </div>
+                    <small class="text-muted d-block mb-3">
+                        <i class="fas fa-lightbulb me-1" style="color: #f59e0b;"></i>
+                        Check this for announcements, holidays, or events that don't need participant registration
+                    </small>
+                </div>
+                
+                <!-- Participant Limit (hidden when info-only is checked) -->
+                <div class="mb-4" id="participantLimitSection">
                     <label class="form-label">Participant Limit</label>
                     <div class="row">
                         <div class="col-md-8">
-                            <input type="number" class="form-control" name="participant_limit" min="1" placeholder="Enter maximum number of participants (optional)">
+                            <input type="number" class="form-control" name="participant_limit" id="participantLimitInput" min="1" placeholder="Enter maximum number of participants (optional)">
                         </div>
                         <div class="col-md-4">
                             <small class="text-muted d-block mt-2">
@@ -357,6 +427,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         preview.style.display = 'block';
                     };
                     reader.readAsDataURL(file);
+                }
+            });
+        }
+        
+        // Toggle participant limit section based on info-only checkbox
+        const infoOnlyToggle = document.getElementById('infoOnlyToggle');
+        const participantLimitSection = document.getElementById('participantLimitSection');
+        const participantLimitInput = document.getElementById('participantLimitInput');
+        
+        if (infoOnlyToggle && participantLimitSection) {
+            infoOnlyToggle.addEventListener('change', function() {
+                if (this.checked) {
+                    // Hide participant limit section for info-only events
+                    participantLimitSection.style.display = 'none';
+                    if (participantLimitInput) {
+                        participantLimitInput.value = ''; // Clear the value
+                        participantLimitInput.removeAttribute('required');
+                    }
+                } else {
+                    // Show participant limit section for regular events
+                    participantLimitSection.style.display = 'block';
+                }
+            });
+        }
+        
+        // Validate end date is not before start date
+        const startDateTime = document.getElementById('startDateTime');
+        const endDateTime = document.getElementById('endDateTime');
+        
+        if (startDateTime && endDateTime) {
+            endDateTime.addEventListener('change', function() {
+                if (this.value && startDateTime.value && this.value < startDateTime.value) {
+                    alert('End date/time cannot be before start date/time!');
+                    this.value = '';
+                }
+            });
+            
+            startDateTime.addEventListener('change', function() {
+                // Auto-set end date to same as start if empty
+                if (!endDateTime.value) {
+                    endDateTime.value = this.value;
                 }
             });
         }

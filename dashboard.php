@@ -691,6 +691,61 @@ $testimonials = $stmt->fetchAll();
     </div>
   </section>
 
+  <!-- Events Calendar Section -->
+  <section id="calendar" class="py-5" style="background: #ffffff;">
+    <div class="container">
+      <div class="row">
+        <div class="col-12">
+          <!-- Calendar Card with Border -->
+          <div class="calendar-wrapper" style="background: linear-gradient(135deg, rgba(220,38,38,0.05), rgba(255,255,255,1)); border: 3px solid #dc2626; border-radius: 30px; padding: 30px; box-shadow: 0 10px 40px rgba(220,38,38,0.15); position: relative;">
+            
+            <!-- Decorative Corner Elements -->
+            <div style="position: absolute; top: 0; left: 0; width: 60px; height: 60px; border-top: 4px solid #dc2626; border-left: 4px solid #dc2626; border-top-left-radius: 30px;"></div>
+            <div style="position: absolute; bottom: 0; right: 0; width: 60px; height: 60px; border-bottom: 4px solid #dc2626; border-right: 4px solid #dc2626; border-bottom-right-radius: 30px;"></div>
+            
+            <!-- Calendar Container -->
+            <div id="alumniCalendar" style="background: white; border-radius: 16px; overflow: hidden;"></div>
+
+            <!-- Calendar Legend -->
+            <div class="row mt-4 g-3 px-3">
+              <div class="col-md-4 col-12">
+                <div class="d-flex align-items-center justify-content-center p-3" style="background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 2px solid #e5e7eb;">
+                  <div class="d-flex align-items-center justify-content-center me-2" style="width: 36px; height: 36px; background: #10b981; border-radius: 8px;">
+                    <i class="fas fa-check" style="color: white; font-size: 16px;"></i>
+                  </div>
+                  <strong style="color: #1f2937; font-size: 0.95rem;">Open for Registration</strong>
+                </div>
+              </div>
+              <div class="col-md-4 col-12">
+                <div class="d-flex align-items-center justify-content-center p-3" style="background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 2px solid #e5e7eb;">
+                  <div class="d-flex align-items-center justify-content-center me-2" style="width: 36px; height: 36px; background: #ef4444; border-radius: 8px;">
+                    <i class="fas fa-calendar-times" style="color: white; font-size: 16px;"></i>
+                  </div>
+                  <strong style="color: #1f2937; font-size: 0.95rem;">Event Full</strong>
+                </div>
+              </div>
+              <div class="col-md-4 col-12">
+                <div class="d-flex align-items-center justify-content-center p-3" style="background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 2px solid #e5e7eb;">
+                  <div class="d-flex align-items-center justify-content-center me-2" style="width: 36px; height: 36px; background: #6b7280; border-radius: 8px;">
+                    <i class="fas fa-history" style="color: white; font-size: 16px;"></i>
+                  </div>
+                  <strong style="color: #1f2937; font-size: 0.95rem;">Past Event</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Action Button -->
+            <div class="text-center mt-4">
+              <a href="/scratch/events/index.php" class="btn btn-lg" style="background: linear-gradient(135deg, #dc2626, #991b1b); color: white; border: none; padding: 14px 40px; font-weight: 700; border-radius: 50px; box-shadow: 0 6px 20px rgba(220,38,38,0.4); text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.3s;">
+                <i class="fas fa-arrow-right me-2"></i>View All Events
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- News and Announcements Section -->
   <section id="news" class="py-5" style="background: #f8f9fa;">
     <div class="container">
@@ -809,8 +864,13 @@ $testimonials = $stmt->fetchAll();
               $limit = $event['participant_limit'] ?? ($event['max_participants'] ?? null);
               $participantCount = (int)($event['participant_count'] ?? 0);
               $isFull = $limit && $participantCount >= (int)$limit;
-              $statusText = !$isUpcoming ? 'Past Event' : ($isFull ? 'Event Full' : 'Registration Open');
-              $statusClass = !$isUpcoming ? 'bg-secondary' : ($isFull ? 'bg-danger' : 'bg-success');
+              
+              // Check if event allows registration (info-only events)
+              $allowRegistration = isset($event['allow_registration']) ? (int)$event['allow_registration'] : 1;
+              $isInfoOnly = $allowRegistration === 0;
+              
+              $statusText = $isInfoOnly ? 'Information Only' : (!$isUpcoming ? 'Past Event' : ($isFull ? 'Event Full' : 'Registration Open'));
+              $statusClass = $isInfoOnly ? 'bg-info' : (!$isUpcoming ? 'bg-secondary' : ($isFull ? 'bg-danger' : 'bg-success'));
             ?>
             <div class="col-lg-4 col-md-6">
               <div class="card h-100 border-0 shadow d-flex flex-column" style="border-radius: 12px; overflow: hidden;">
@@ -843,55 +903,70 @@ $testimonials = $stmt->fetchAll();
                     <?= htmlspecialchars(substr((string)($event['content'] ?? ''), 0, 120)) ?><?= strlen((string)($event['content'] ?? '')) > 120 ? '...' : '' ?>
                   </p>
 
-                  <div class="mb-3" style="min-height: 72px;">
-                    <small class="text-muted">
-                      <i class="fas fa-users me-1"></i>
-                      <strong><?= $participantCount ?></strong>
-                      <?php if ($limit): ?>
-                        / <strong><?= (int)$limit ?></strong> participants
-                        <span class="badge bg-info ms-1" style="font-size: .75rem;"><?= max((int)$limit - $participantCount, 0) ?> left</span>
-                      <?php else: ?>
-                        participants
-                      <?php endif; ?>
-                    </small>
-
-                    <?php if ($limit): ?>
-                      <?php
-                        $percentage = $participantCount > 0 ? ($participantCount / (int)$limit) * 100 : 0;
-                        $barColor = $percentage >= 100 ? '#7f1d1d' : ($percentage >= 80 ? '#b45309' : '#dc2626');
-                      ?>
-                      <div class="mt-1 d-flex align-items-center" style="gap: 8px; margin-top: 6px;">
-                        <div style="background:#f0f0f0; height: 6px; border-radius: 3px; overflow:hidden; flex: 1;">
-                          <div style="background: <?= $barColor ?>; height: 100%; width: <?= min($percentage, 100) ?>%; transition: width .3s;"></div>
-                        </div>
-                        <small class="text-muted" style="width: 40px; text-align: right; flex-shrink: 0;"><?= round($percentage, 1) ?>%</small>
-                      </div>
-                    <?php else: ?>
-                      <div style="height: 14px;"></div>
-                    <?php endif; ?>
-                  </div>
-
-                  <!-- Participants and capacity sit directly above the button to align with other sections -->
-                  <div class="mt-auto">
-                    <?php if ($isUpcoming && !$isFull): ?>
-                      <form method="POST" action="/scratch/events/index.php" class="w-100">
-                        <input type="hidden" name="event_id" value="<?= (int)$event['id'] ?>">
-                        <?php if (!empty($event['is_registered'])): ?>
-                          <button type="submit" name="action" value="leave" class="btn btn-outline-danger w-100" style="border-radius: 8px;">
-                            <i class="fas fa-user-minus me-1"></i>Leave Event
-                          </button>
+                  <?php if (!$isInfoOnly): ?>
+                    <div class="mb-3" style="min-height: 72px;">
+                      <small class="text-muted">
+                        <i class="fas fa-users me-1"></i>
+                        <strong><?= $participantCount ?></strong>
+                        <?php if ($limit): ?>
+                          / <strong><?= (int)$limit ?></strong> participants
+                          <span class="badge bg-info ms-1" style="font-size: .75rem;"><?= max((int)$limit - $participantCount, 0) ?> left</span>
                         <?php else: ?>
-                          <button type="submit" name="action" value="join" class="btn w-100" style="border-radius: 8px; background:#dc2626; color:#fff; border:none;">
-                            <i class="fas fa-user-plus me-1"></i>Join Event
-                          </button>
+                          participants
                         <?php endif; ?>
-                      </form>
-                    <?php elseif ($isFull): ?>
-                      <button class="btn btn-secondary w-100" style="border-radius: 8px;" disabled>
-                        <i class="fas fa-users me-1"></i>Event Full
+                      </small>
+
+                      <?php if ($limit): ?>
+                        <?php
+                          $percentage = $participantCount > 0 ? ($participantCount / (int)$limit) * 100 : 0;
+                          $barColor = $percentage >= 100 ? '#7f1d1d' : ($percentage >= 80 ? '#b45309' : '#dc2626');
+                        ?>
+                        <div class="mt-1 d-flex align-items-center" style="gap: 8px; margin-top: 6px;">
+                          <div style="background:#f0f0f0; height: 6px; border-radius: 3px; overflow:hidden; flex: 1;">
+                            <div style="background: <?= $barColor ?>; height: 100%; width: <?= min($percentage, 100) ?>%; transition: width .3s;"></div>
+                          </div>
+                          <small class="text-muted" style="width: 40px; text-align: right; flex-shrink: 0;"><?= round($percentage, 1) ?>%</small>
+                        </div>
+                      <?php else: ?>
+                        <div style="height: 14px;"></div>
+                      <?php endif; ?>
+                    </div>
+
+                    <!-- Participants and capacity sit directly above the button to align with other sections -->
+                    <div class="mt-auto">
+                      <?php if ($isUpcoming && !$isFull): ?>
+                        <form method="POST" action="/scratch/events/index.php" class="w-100">
+                          <input type="hidden" name="event_id" value="<?= (int)$event['id'] ?>">
+                          <?php if (!empty($event['is_registered'])): ?>
+                            <button type="submit" name="action" value="leave" class="btn btn-outline-danger w-100" style="border-radius: 8px;">
+                              <i class="fas fa-user-minus me-1"></i>Leave Event
+                            </button>
+                          <?php else: ?>
+                            <button type="submit" name="action" value="join" class="btn w-100" style="border-radius: 8px; background:#dc2626; color:#fff; border:none;">
+                              <i class="fas fa-user-plus me-1"></i>Join Event
+                            </button>
+                          <?php endif; ?>
+                        </form>
+                      <?php elseif ($isFull): ?>
+                        <button class="btn btn-secondary w-100" style="border-radius: 8px;" disabled>
+                          <i class="fas fa-users me-1"></i>Event Full
+                        </button>
+                      <?php endif; ?>
+                    </div>
+                  <?php else: ?>
+                    <div class="mb-3" style="min-height: 72px;">
+                      <div class="alert alert-info mb-0" style="padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.875rem;">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Information Only</strong><br>
+                        <small>No registration required</small>
+                      </div>
+                    </div>
+                    <div class="mt-auto">
+                      <button class="btn btn-outline-info w-100" style="border-radius: 8px;" disabled>
+                        <i class="fas fa-info-circle me-1"></i>View Only
                       </button>
-                    <?php endif; ?>
-                  </div>
+                    </div>
+                  <?php endif; ?>
                 </div>
               </div>
             </div>
@@ -1205,6 +1280,318 @@ $testimonials = $stmt->fetchAll();
       }
   });
   </script>
+  <!-- FullCalendar JS -->
+  <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+  
+  <style>
+    /* Custom Calendar Styling to Match Screenshot */
+    #alumniCalendar .fc {
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    
+    #alumniCalendar .fc-toolbar {
+      background: linear-gradient(135deg, #fef2f2, #ffffff);
+      padding: 20px;
+      border-radius: 16px 16px 0 0;
+      border-bottom: 2px solid #fee2e2;
+    }
+    
+    #alumniCalendar .fc-toolbar-title {
+      font-size: 1.75rem !important;
+      font-weight: 700 !important;
+      color: #dc2626 !important;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    #alumniCalendar .fc-button {
+      background: #dc2626 !important;
+      border: none !important;
+      border-radius: 8px !important;
+      padding: 8px 16px !important;
+      font-weight: 600 !important;
+      text-transform: uppercase;
+      font-size: 0.85rem !important;
+      box-shadow: 0 2px 8px rgba(220,38,38,0.3) !important;
+      transition: all 0.3s !important;
+    }
+    
+    #alumniCalendar .fc-button:hover {
+      background: #991b1b !important;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(220,38,38,0.4) !important;
+    }
+    
+    #alumniCalendar .fc-button:disabled {
+      background: #9ca3af !important;
+      opacity: 0.6;
+    }
+    
+    #alumniCalendar .fc-button-active {
+      background: #991b1b !important;
+    }
+    
+    #alumniCalendar .fc-col-header {
+      background: linear-gradient(135deg, #fee2e2, #fef2f2);
+      border-top: 2px solid #fecaca;
+    }
+    
+    #alumniCalendar .fc-col-header-cell {
+      padding: 15px 5px !important;
+      font-weight: 700 !important;
+      color: #dc2626 !important;
+      text-transform: uppercase;
+      font-size: 0.85rem !important;
+      letter-spacing: 0.5px;
+      border-color: #fee2e2 !important;
+    }
+    
+    #alumniCalendar .fc-daygrid-day {
+      border-color: #f3f4f6 !important;
+      transition: all 0.2s;
+    }
+    
+    #alumniCalendar .fc-daygrid-day:hover {
+      background: #fef2f2 !important;
+    }
+    
+    #alumniCalendar .fc-daygrid-day-number {
+      padding: 8px !important;
+      font-size: 0.95rem !important;
+      font-weight: 600 !important;
+      color: #374151;
+    }
+    
+    #alumniCalendar .fc-day-today {
+      background: rgba(220,38,38,0.05) !important;
+    }
+    
+    #alumniCalendar .fc-day-today .fc-daygrid-day-number {
+      background: #dc2626 !important;
+      color: white !important;
+      border-radius: 50% !important;
+      width: 36px;
+      height: 36px;
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+      margin: 4px auto;
+    }
+    
+    #alumniCalendar .fc-event {
+      border: none !important;
+      border-radius: 6px !important;
+      padding: 2px 6px !important;
+      margin: 2px 4px !important;
+      font-size: 0.75rem !important;
+      font-weight: 600 !important;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+      cursor: pointer !important;
+      transition: all 0.2s !important;
+    }
+    
+    #alumniCalendar .fc-event:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important;
+    }
+    
+    #alumniCalendar .fc-event-time {
+      font-weight: 700 !important;
+    }
+    
+    #alumniCalendar .fc-daygrid-day-events {
+      margin-top: 4px !important;
+    }
+    
+    #alumniCalendar .fc-view {
+      background: white;
+    }
+    
+    #alumniCalendar .fc-scrollgrid {
+      border-color: #e5e7eb !important;
+      border-radius: 0 0 16px 16px;
+      overflow: hidden;
+    }
+    
+    /* List View Styling */
+    #alumniCalendar .fc-list {
+      border-color: #e5e7eb !important;
+    }
+    
+    #alumniCalendar .fc-list-event:hover td {
+      background: #fef2f2 !important;
+    }
+    
+    #alumniCalendar .fc-list-event-time {
+      color: #dc2626 !important;
+      font-weight: 700 !important;
+    }
+    
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      #alumniCalendar .fc-toolbar {
+        flex-direction: column;
+        gap: 15px;
+      }
+      
+      #alumniCalendar .fc-toolbar-title {
+        font-size: 1.5rem !important;
+      }
+      
+      #alumniCalendar .fc-button {
+        font-size: 0.75rem !important;
+        padding: 6px 12px !important;
+      }
+    }
+  </style>
+  
+  <script>
+    // Initialize Alumni Dashboard Calendar
+    document.addEventListener('DOMContentLoaded', function() {
+      var calendarEl = document.getElementById('alumniCalendar');
+      
+      if (calendarEl) {
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+          initialView: window.innerWidth < 768 ? 'listMonth' : 'dayGridMonth',
+          headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,listMonth'
+          },
+          buttonText: {
+            today: 'TODAY',
+            month: 'MONTH',
+            list: 'LIST'
+          },
+          height: 'auto',
+          contentHeight: 'auto',
+          aspectRatio: 1.8,
+          firstDay: 0,
+          fixedWeekCount: false,
+          showNonCurrentDates: true,
+          dayMaxEvents: 3,
+          events: '/scratch/api/calendar_events.php',
+          eventClick: function(info) {
+            // Format the event date
+            const eventDate = new Date(info.event.start);
+            const formattedDate = eventDate.toLocaleDateString('en-US', { 
+              weekday: 'long', 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            });
+            
+            // Check if multi-day event
+            const endDate = info.event.end ? new Date(info.event.end) : eventDate;
+            const isSingleDay = eventDate.toDateString() === endDate.toDateString();
+            const duration = !isSingleDay ? Math.ceil((endDate - eventDate) / (1000 * 60 * 60 * 24)) : 1;
+            
+            // Build participant info
+            let participantInfo = '';
+            if (!info.event.extendedProps.isInfoOnly) {
+              const count = info.event.extendedProps.participantCount || 0;
+              const limit = info.event.extendedProps.participantLimit;
+              
+              participantInfo = `
+                <div class="mb-3">
+                  <h6 class="text-muted mb-2" style="font-size: 0.875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">
+                    <i class="fas fa-users me-1"></i>Participants
+                  </h6>
+                  <p class="mb-0" style="font-size: 1rem; color: #374151;">
+                    <strong>${count}</strong>${limit ? ' / <strong>' + limit + '</strong>' : ''} registered
+                  </p>
+                  ${limit ? '<div class="progress mt-2" style="height: 8px;"><div class="progress-bar bg-success" style="width: ' + ((count/limit)*100) + '%"></div></div>' : ''}
+                </div>
+              `;
+            }
+            
+            // Build duration info for multi-day events
+            let durationInfo = '';
+            if (!isSingleDay && duration > 1) {
+              durationInfo = `
+                <div class="alert alert-info" style="font-size: 0.875rem; padding: 0.75rem;">
+                  <i class="fas fa-clock me-1"></i>
+                  <strong>Multi-day Event:</strong> ${duration} day${duration > 1 ? 's' : ''}
+                </div>
+              `;
+            }
+            
+            // Create modal
+            const modalHtml = `
+              <div class="modal fade" id="eventModal" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                  <div class="modal-content" style="border-radius: 20px; border: none; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+                    <div class="modal-header" style="background: ${info.event.backgroundColor}; color: white; padding: 24px 30px; border: none;">
+                      <div class="d-flex align-items-center w-100">
+                        <div style="width: 60px; height: 60px; background: rgba(255,255,255,0.2); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-right: 20px;">
+                          <i class="fas fa-calendar-alt" style="font-size: 28px;"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                          <h5 class="modal-title mb-1" style="font-weight: 700; font-size: 1.5rem;">${info.event.title}</h5>
+                          <small style="opacity: 0.95;">
+                            ${info.event.extendedProps.isInfoOnly ? '🔵 Information Only' : (info.event.extendedProps.isFull ? '🔴 Event Full' : '🟢 Registration Open')}
+                          </small>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                      </div>
+                    </div>
+                    <div class="modal-body" style="padding: 30px;">
+                      ${durationInfo}
+                      <div class="mb-3">
+                        <h6 class="text-muted mb-2" style="font-size: 0.875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">
+                          <i class="fas fa-clock me-1"></i>Date & Time
+                        </h6>
+                        <p class="mb-0" style="font-size: 1rem; color: #374151;">${formattedDate}</p>
+                      </div>
+                      ${participantInfo}
+                      <div class="mb-3">
+                        <h6 class="text-muted mb-2" style="font-size: 0.875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">
+                          <i class="fas fa-info-circle me-1"></i>Description
+                        </h6>
+                        <p style="color: #4b5563; line-height: 1.6;">${info.event.extendedProps.description || 'No description available'}...</p>
+                      </div>
+                    </div>
+                    <div class="modal-footer" style="background: #f8f9fa; border-top: 1px solid #e5e7eb; padding: 20px 30px;">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">
+                        <i class="fas fa-times me-1"></i>Close
+                      </button>
+                      <a href="/scratch/events/index.php" class="btn btn-primary" style="background: #dc2626; border: none; border-radius: 10px;">
+                        <i class="fas fa-arrow-right me-1"></i>View All Events
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `;
+            
+            // Remove existing modal
+            const existingModal = document.getElementById('eventModal');
+            if (existingModal) existingModal.remove();
+            
+            // Add and show modal
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            const modal = new bootstrap.Modal(document.getElementById('eventModal'));
+            modal.show();
+            
+            // Cleanup on close
+            document.getElementById('eventModal').addEventListener('hidden.bs.modal', function() {
+              this.remove();
+            });
+          }
+        });
+        
+        calendar.render();
+        
+        // Responsive resize
+        window.addEventListener('resize', function() {
+          calendar.updateSize();
+        });
+      }
+    });
+  </script>
+
 </body>
 </html>
 
