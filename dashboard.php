@@ -644,7 +644,7 @@ $testimonials = $stmt->fetchAll();
             <?php if (!empty($alumni['avatar'])): ?>
               <img src="/scratch/uploads/<?= htmlspecialchars($alumni['avatar']) ?>" alt="Profile" class="profile-avatar" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.3);">
             <?php else: ?>
-              <div class="profile-avatar bg-white d-flex align-items-center justify-content-center text-primary" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.3);">
+              <div class="profile-avatar bg-white d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.3); color: #dc2626;">
                 <i class="fas fa-user" style="font-size: 14px;"></i>
               </div>
             <?php endif; ?>
@@ -657,7 +657,7 @@ $testimonials = $stmt->fetchAll();
                 <?php if (!empty($alumni['avatar'])): ?>
                   <img src="/scratch/uploads/<?= htmlspecialchars($alumni['avatar']) ?>" alt="Profile" class="profile-avatar me-3" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 3px solid #dc2626;">
                 <?php else: ?>
-                  <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center text-white me-3" style="width: 48px; height: 48px; border: 3px solid #dc2626;">
+                  <div class="rounded-circle d-flex align-items-center justify-content-center text-white me-3" style="width: 48px; height: 48px; border: 3px solid #dc2626; background: #dc2626;">
                     <i class="fas fa-user"></i>
                   </div>
                 <?php endif; ?>
@@ -667,7 +667,7 @@ $testimonials = $stmt->fetchAll();
                 </div>
               </div>
             </li>
-            <li><a class="dropdown-item" href="/scratch/dashboard.php" style="border-radius: 10px; margin: 2px 0; padding: 12px 16px; transition: all 0.3s ease; color: #374151; font-weight: 500;"><i class="fas fa-tachometer-alt me-3" style="color: #3b82f6; width: 20px;"></i>Dashboard</a></li>
+            <li><a class="dropdown-item" href="/scratch/dashboard.php" style="border-radius: 10px; margin: 2px 0; padding: 12px 16px; transition: all 0.3s ease; color: #374151; font-weight: 500;"><i class="fas fa-tachometer-alt me-3" style="color: #dc2626; width: 20px;"></i>Dashboard</a></li>
             <li><a class="dropdown-item" href="/scratch/profile.php" style="border-radius: 10px; margin: 2px 0; padding: 12px 16px; transition: all 0.3s ease; color: #374151; font-weight: 500;"><i class="fas fa-user me-3" style="color: #10b981; width: 20px;"></i>Profile</a></li>
             <li><hr class="dropdown-divider" style="margin: 8px 0; border-color: #e5e7eb;"></li>
             <li><a class="dropdown-item text-danger" href="/scratch/logout.php" style="border-radius: 10px; margin: 2px 0; padding: 12px 16px; transition: all 0.3s ease; font-weight: 600;"><i class="fas fa-sign-out-alt me-3" style="color: #dc2626; width: 20px;"></i>Logout</a></li>
@@ -870,7 +870,20 @@ $testimonials = $stmt->fetchAll();
               $isInfoOnly = $allowRegistration === 0;
               
               $statusText = $isInfoOnly ? 'Information Only' : (!$isUpcoming ? 'Past Event' : ($isFull ? 'Event Full' : 'Registration Open'));
-              $statusClass = $isInfoOnly ? 'bg-info' : (!$isUpcoming ? 'bg-secondary' : ($isFull ? 'bg-danger' : 'bg-success'));
+              // Use custom colors instead of Bootstrap classes
+              if ($isInfoOnly) {
+                  $statusClass = '';
+                  $statusStyle = 'background: linear-gradient(135deg, #6b7280, #4b5563); color: white;';
+              } elseif (!$isUpcoming) {
+                  $statusClass = '';
+                  $statusStyle = 'background: linear-gradient(135deg, #6b7280, #4b5563); color: white;';
+              } elseif ($isFull) {
+                  $statusClass = '';
+                  $statusStyle = 'background: linear-gradient(135deg, #ef4444, #dc2626); color: white;';
+              } else {
+                  $statusClass = '';
+                  $statusStyle = 'background: linear-gradient(135deg, #10b981, #059669); color: white;';
+              }
             ?>
             <div class="col-lg-4 col-md-6">
               <div class="card h-100 border-0 shadow d-flex flex-column" style="border-radius: 12px; overflow: hidden;">
@@ -894,7 +907,7 @@ $testimonials = $stmt->fetchAll();
                     <h5 class="card-title fw-bold mb-0" style="color: #1f2937; font-size: 1.25rem;">
                       <?= htmlspecialchars($event['title']) ?>
                     </h5>
-                    <span class="badge <?= $statusClass ?> text-white"><?= $statusText ?></span>
+                    <span class="badge" style="<?= $statusStyle ?? '' ?>"><?= $statusText ?></span>
                   </div>
                   <p class="text-muted small mb-2">
                     <i class="fas fa-calendar me-1"></i><?= $eventDate->format('M d, Y \a\t g:i A') ?>
@@ -1015,11 +1028,11 @@ $testimonials = $stmt->fetchAll();
             $storiesItems = array_slice($successStories, 0, 6);
             $storySlides = array_chunk($storiesItems, 3);
             $gradients = [
+              'linear-gradient(135deg, #dc2626, #991b1b)',
               'linear-gradient(135deg, #f59e0b, #d97706)',
               'linear-gradient(135deg, #10b981, #059669)',
-              'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-              'linear-gradient(135deg, #8b5cf6, #7c3aed)',
               'linear-gradient(135deg, #ef4444, #dc2626)',
+              'linear-gradient(135deg, #8b5cf6, #7c3aed)',
               'linear-gradient(135deg, #06b6d4, #0891b2)'
             ];
             $icons = ['fa-star', 'fa-trophy', 'fa-medal', 'fa-crown', 'fa-gem', 'fa-rocket'];
@@ -1114,9 +1127,9 @@ $testimonials = $stmt->fetchAll();
           $items = array_slice($testimonials, 0, 6);
           $slides = array_chunk($items, 3);
           $gradients = [
-            'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+            'linear-gradient(135deg, #dc2626, #991b1b)',
             'linear-gradient(135deg, #10b981, #059669)',
-            'linear-gradient(135deg, #8b5cf6, #7c3aed)'
+            'linear-gradient(135deg, #f59e0b, #d97706)'
           ];
           if (isset($_GET['debug'])) {
             echo "<!-- Debug: Total testimonials: " . count($testimonials) . ", Items sliced: " . count($items) . ", Slides: " . count($slides) . " -->";
@@ -1284,6 +1297,19 @@ $testimonials = $stmt->fetchAll();
   <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
   
   <style>
+    /* Override Bootstrap link colors for calendar */
+    #alumniCalendar a,
+    #alumniCalendar .fc a {
+      color: #dc2626 !important;
+      text-decoration: none !important;
+    }
+    
+    #alumniCalendar a:hover,
+    #alumniCalendar .fc a:hover {
+      color: #991b1b !important;
+      text-decoration: none !important;
+    }
+    
     /* Custom Calendar Styling to Match Screenshot */
     #alumniCalendar .fc {
       font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -1531,7 +1557,7 @@ $testimonials = $stmt->fetchAll();
                         <div class="flex-grow-1">
                           <h5 class="modal-title mb-1" style="font-weight: 700; font-size: 1.5rem;">${info.event.title}</h5>
                           <small style="opacity: 0.95;">
-                            ${info.event.extendedProps.isInfoOnly ? '🔵 Information Only' : (info.event.extendedProps.isFull ? '🔴 Event Full' : '🟢 Registration Open')}
+                            ${info.event.extendedProps.isInfoOnly ? 'ℹ️ Information Only' : (info.event.extendedProps.isFull ? '🔴 Event Full' : '✅ Registration Open')}
                           </small>
                         </div>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -1554,10 +1580,10 @@ $testimonials = $stmt->fetchAll();
                       </div>
                     </div>
                     <div class="modal-footer" style="background: #f8f9fa; border-top: 1px solid #e5e7eb; padding: 20px 30px;">
-                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px; background: #6b7280; border: none;">
                         <i class="fas fa-times me-1"></i>Close
                       </button>
-                      <a href="/scratch/events/index.php" class="btn btn-primary" style="background: #dc2626; border: none; border-radius: 10px;">
+                      <a href="/scratch/events/index.php" class="btn" style="background: linear-gradient(135deg, #dc2626, #991b1b); color: white; border: none; border-radius: 10px; padding: 10px 20px; font-weight: 600;">
                         <i class="fas fa-arrow-right me-1"></i>View All Events
                       </a>
                     </div>
