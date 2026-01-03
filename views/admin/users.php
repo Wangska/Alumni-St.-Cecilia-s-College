@@ -231,7 +231,7 @@ ob_start();
                                 style="padding: 10px 24px; border-radius: 12px; font-weight: 600;">
                             <i class="fas fa-file-alt me-2"></i>View Documents
                         </button>
-                        <a href="/scratch/alumni/edit.php?id=<?= $alumni['id'] ?>&from=users" 
+                        <a href="/scratch/alumni/view.php?id=<?= $alumni['id'] ?>&from=users" 
                            class="btn btn-outline-secondary" 
                            style="padding: 10px 24px; border-radius: 12px; font-weight: 600;">
                             <i class="fas fa-eye me-2"></i>View Details

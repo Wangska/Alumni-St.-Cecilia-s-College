@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/bootstrap.php';
+require_once __DIR__ . '/inc/config.php'; // For get_pdo() function
 
 use App\Controllers\AdminController;
 use App\Models\Course;

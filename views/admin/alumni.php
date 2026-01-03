@@ -299,6 +299,11 @@ ob_start();
                         </td>
                         <td class="text-center">
                             <div class="action-btn-group justify-content-center">
+                                <a href="/scratch/alumni/view.php?id=<?= $alum['id'] ?>&from=alumni" 
+                                   class="btn-action btn-info" 
+                                   title="View">
+                                    <i class="fas fa-eye"></i>
+                                </a>
                                 <a href="/scratch/alumni/edit.php?id=<?= $alum['id'] ?>" 
                                    class="btn-action btn-primary" 
                                    title="Edit">
